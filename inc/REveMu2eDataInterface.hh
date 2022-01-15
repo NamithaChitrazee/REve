@@ -6,6 +6,10 @@
 #include <ROOT/REveLine.hxx>
 #include <ROOT/REveScene.hxx>
 #include <ROOT/REveTrackPropagator.hxx>
+#include "Offline/RecoDataProducts/inc/CrvCoincidenceCluster.hh"
+#include "Offline/CosmicRayShieldGeom/inc/CosmicRayShield.hh"
+#include "Offline/DataProducts/inc/CRSScintillatorBarIndex.hh"
+#include "Offline/RecoDataProducts/inc/CrvRecoPulse.hh"
 #include "Offline/RecoDataProducts/inc/CaloCluster.hh"
 #include "Offline/RecoDataProducts/inc/ComboHit.hh"
 #include "Offline/RecoDataProducts/inc/KalSeed.hh"
@@ -39,12 +43,13 @@ namespace mu2e{
           REveMu2eDataInterface& operator=(const REveMu2eDataInterface &);
           virtual ~REveMu2eDataInterface() = default;
           #ifndef __CINT__
-
+      
           void AddComboHits(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple, REX::REveElement* &scene);
           //TODO - place these following functions in same style as others.
           void AddTimeClusters(REX::REveManager *&eveMng, bool firstloop, const mu2e::TimeClusterCollection *tccol, REX::REveElement* &scene);
           void AddTrkHits(REX::REveManager *&eveMng, bool firstLoop_, const mu2e::ComboHitCollection *chcol, std::tuple<std::vector<std::string>, std::vector<const KalSeedCollection*>> track_tuple, REX::REveElement* &scene);
           void AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CaloClusterCollection*>> calocluster_tuple, REX::REveElement* &scene);
+          void AddCRVInfo(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CrvRecoPulseCollection*>> crvpulse_tuple, REX::REveElement* &scene);
           void AddKalSeedCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const KalSeedCollection*>> track_tuple, REX::REveElement* &scene);
           void AddCosmicTrackFit(REX::REveManager *&eveMng, bool firstLoop_, const mu2e::CosmicTrackSeedCollection *cosmiccol, REX::REveElement* &scene);
           unsigned int  maxHits = 10000;
