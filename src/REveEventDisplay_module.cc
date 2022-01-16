@@ -187,6 +187,7 @@ namespace mu2e
     <<" User Options: "
     <<" addHits : "<<filler_.addHits_
     <<" addTimeClusters : "<<filler_.addTimeClusters_
+    <<" addCRVpulses : "<<filler_.addCrvHits_
     <<" addClusters : "<<filler_.addClusters_
     <<" addTracks : "<<filler_.addKalSeeds_
     <<" addCosmicTrackSeeds : "<<filler_.addCosmicTrackSeeds_<<std::endl;
@@ -207,6 +208,7 @@ namespace mu2e
       std::cout<<"[REveEventDisplay : analyze()] -- Fill collections "<<std::endl;
       if(filler_.addClusters_)  filler_.FillRecoCollections(event, data, CaloClusters);
       if(filler_.addHits_)  filler_.FillRecoCollections(event, data, ComboHits);
+      if(filler_.addCrvHits_) filler_.FillRecoCollections(event, data, CRVRecoPulses);
       if(filler_.addTimeClusters_) filler_.FillRecoCollections(event, data, TimeClusters);
       if(filler_.addTrkHits_) filler_.FillRecoCollections(event, data, TrkHits); 
       if(filler_.addKalSeeds_)  filler_.FillRecoCollections(event, data, KalSeeds);
@@ -273,7 +275,7 @@ namespace mu2e
       REX::REveElement* scene = eveMng_->GetEventScene();
 
       std::cout<<"[REveEventDisplay : process_single_event] -- calls to data interface "<<std::endl;
-      DrawOptions drawOpts(false, filler_.addCosmicTrackSeeds_, filler_.addKalSeeds_, filler_.addClusters_, filler_.addHits_, filler_.addTimeClusters_, filler_.addTrkHits_, filler_.addMCTraj_);
+      DrawOptions drawOpts(false, filler_.addCosmicTrackSeeds_, filler_.addKalSeeds_, filler_.addClusters_, filler_.addHits_, filler_.addCrvHits_, filler_.addTimeClusters_, filler_.addTrkHits_, filler_.addMCTraj_);
       frame_->showEvents(eveMng_, scene, firstLoop_, data, drawOpts, particles_);
 
       std::cout<<"[REveEventDisplay : process_single_event] -- cluster added to scene "<<std::endl;
