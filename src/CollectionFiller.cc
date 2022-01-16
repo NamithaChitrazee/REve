@@ -10,11 +10,14 @@ namespace mu2e{
     CollectionFiller::CollectionFiller(const Config& conf) :
         chTag_(conf.chTag()),
         tcTag_(conf.tcTag()),
+        crvcoinTag_(conf.crvdigiTag()),
         cluTag_(conf.cluTag()),
+        cryHitTag_(conf.cryHitTag()),
         kalSeedTag_(conf.kalSeedTag()),
         cosmicTrackSeedTag_(conf.cosmicTrackSeedTag()),
         MCTrajTag_(conf.MCTrajTag()),
         addHits_(conf.addHits()),
+        addCrvHits_(conf.addCrvHits()),
         addTimeClusters_(conf.addTimeClusters()),
         addTrkHits_(conf.addTrkHits()),
         addClusters_(conf.addClusters()),
@@ -44,6 +47,11 @@ namespace mu2e{
             }
             data.combohit_tuple = std::make_tuple(data.combohit_labels,data.combohit_list);
         }
+         if(FillAll_ or (addCrvHits_ and CollectionName==CRVRecoPulses)){
+           auto chH = evt.getValidHandle<mu2e::CrvRecoPulseCollection>(crvcoinTag_);
+           data.crvcoincol = chH.product();
+         }
+        
         if(FillAll_  or (CollectionName == TimeClusters)){ 
            auto chH = evt.getValidHandle<mu2e::TimeClusterCollection>(tcTag_);
            data.tccol = chH.product();
