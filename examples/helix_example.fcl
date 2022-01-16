@@ -19,6 +19,7 @@ physics.analyzers.REveEventDisplay.showCRV : false
 physics.analyzers.REveEventDisplay.filler.addKalSeeds : true
 physics.analyzers.REveEventDisplay.filler.addClusters : false
 physics.analyzers.REveEventDisplay.filler.addHits : true
+physics.analyzers.REveEventDisplay.filler.addCrvHits : true
 physics.analyzers.REveEventDisplay.filler.addTimeClusters : true
 physics.analyzers.REveEventDisplay.filler.addTrkHits : true
 physics.analyzers.REveEventDisplay.filler.addCosmicTrackSeeds : false
