@@ -23,8 +23,9 @@ physics.analyzers.Mu2eEventDisplay.addCRVBars : true
 physics.analyzers.Mu2eEventDisplay.filler.addCrvHits : true
 physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : true
 //for KinKal development
+physics.analyzers.Mu2eEventDisplay.addCrystalHits : true
 physics.analyzers.Mu2eEventDisplay.addKalInter : true
-physics.analyzers.Mu2eEventDisplay.addTrkStrawHits : false
+physics.analyzers.Mu2eEventDisplay.addTrkStrawHits : true
 physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : true
 physics.analyzers.Mu2eEventDisplay.filler.addTrkHits : false
 //turn these off for now

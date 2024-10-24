@@ -12,7 +12,7 @@
 using namespace mu2e;
 namespace REX = ROOT::Experimental;
 
-std::string drawfilename("REve/config/drawutils.txt");
+std::string drawfilename("Mu2eEventDisplay/config/drawutils.txt");
 SimpleConfig drawconfig(drawfilename);
 
 
