@@ -6,7 +6,7 @@ using namespace std;
 using namespace mu2e;
 
 //positions of components for DS component offsets
-double x_d0 = 0; double x_d1 = 0; double x_cal = 0;double x_trk = 0;double x_ds3 = 0;double x_hall = 0;double x_world = 0;double x_st = 0; double x_ds2 = 0; double x_ipa =0; 
+double x_d0 = 0; double x_d1 = 0; double x_cal = 0;double x_trk = 0;double x_ds3 = 0;double x_hall = 0;double x_world = 0;double x_st = 0; double x_ds2 = 0; double x_ipa =0;
 double y_d0 = 0; double y_d1 = 0; double y_cal  = 0;double y_trk = 0;double y_ds3 = 0;double y_hall = 0;double y_world = 0;double y_st = 0; double y_ds2 = 0; double y_ipa =0;
 double z_d0 = 0; double z_d1 = 0; double z_cal = 0;double z_trk = 0;double z_ds3 = 0;double z_hall = 0;double z_world = 0;double z_st = 0; double z_ds2 = 0; double z_ipa =0;
 double x_crv = 0 ; double y_crv = 0 ; double z_crv = 0;  double z_crv_u = 0;  double z_crv_d = 0;
@@ -14,7 +14,7 @@ double nCrystals = 674;
 double FrontTracker_gdmltag;
 
 // Get geom information from Event Display configs:
-std::string drawoptfilename("REve/config/drawutils.txt");
+std::string drawoptfilename("Mu2eEventDisplay/config/drawutils.txt");
 SimpleConfig drawconfigf(drawoptfilename);
 
 double trackerz0_extracted = 24175; //
@@ -80,7 +80,7 @@ void REveMu2eMainWindow::showNodesByName(TGeoNode* n, const std::string& str, bo
       const Double_t *rm = gm->GetRotationMatrix();
       const Double_t *tv = gm->GetTranslation();
       REX::REveTrans t;// NOTE: starts index at "1" whereas the matrices are indexed from 0
-      t(1,1) = rm[0]; t(1,2) = rm[1]; t(1,3) = rm[2]; 
+      t(1,1) = rm[0]; t(1,2) = rm[1]; t(1,3) = rm[2];
       t(2,1) = rm[3]; t(2,2) = rm[4]; t(2,3) = rm[5];
       t(3,1) = rm[6]; t(3,2) = rm[7]; t(3,3) = rm[8];
       t(1,4) = tv[0] + shift[0]; t(2,4) = tv[1]  + shift[1]; t(3,4) = tv[2] + shift[2];
@@ -217,7 +217,7 @@ void REveMu2eMainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REv
         t(2,1) = rm[3]; t(2,2) = rm[4]; t(2,3) = rm[5];
         t(3,1) = rm[6]; t(3,2) = rm[7]; t(3,3) = rm[8];
         t(1,4) = tv[0]  ; t(2,4) = tv[1]  ; t(3,4) = tv[2] ;
-       
+
         ctrans *= t;
         //std::cout<<j<<" "<<name<<" located at "<<tv[0]<<" "<< tv[1]<<" "<<tv[2]<<std::endl;
         std::vector<float> pos;
@@ -228,7 +228,7 @@ void REveMu2eMainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REv
         offset = make_pair(name, pos);
         offsets.push_back(offset);
         n->ls();
-      
+
       }
     getOffsets( pn, str, trans,  maxlevel, level, offsets);
   }
@@ -236,7 +236,7 @@ void REveMu2eMainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REv
 
 void REveMu2eMainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets) {
 
-  double x_sol = 0; double y_sol = 0; double z_sol = 0; 
+  double x_sol = 0; double y_sol = 0; double z_sol = 0;
   double x_pt = 0; double y_pt = 0; double z_pt =0;
   for(unsigned int i = 0; i < offsets.size(); i++){
       if(offsets[i].first.find("DS3Vacuum") != string::npos)      {
@@ -402,7 +402,7 @@ void REveMu2eMainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans
       showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, false, drawconfigf.getInt("CRVColor"));
     }
   }
-  
+
 }
 
 void REveMu2eMainWindow::projectEvents(REX::REveManager *eveMng)
@@ -569,7 +569,7 @@ void REveMu2eMainWindow::makeGeometryScene(REX::REveManager *eveMng, GeomOptions
     }
 
     GeomDrawerNominal(topnode, trans, beamlineholder, trackerholder, caloholder, crystalsholder, crvholder, targetholder, drawconfigf.getInt("maxlevel"),drawconfigf.getInt("level"), geomOpt, offsets);
-    
+
     if(geomOpt.showPS or geomOpt.showTS or geomOpt.showDS){
       GeomDrawerSol(topnode, trans, beamlineholder, drawconfigf.getInt("maxlevel"),drawconfigf.getInt("level"), geomOpt, offsets);
     }
