@@ -82,7 +82,7 @@ void REveMu2eMainWindow::showNodesByName(TGeoNode* n, const std::string& str, bo
       t(2,1) = rm[3]; t(2,2) = rm[4]; t(2,3) = rm[5];
       t(3,1) = rm[6]; t(3,2) = rm[7]; t(3,3) = rm[8];
       t(1,4) = tv[0] + shift[0]; t(2,4) = tv[1]  + shift[1]; t(3,4) = tv[2] + shift[2];
-      std::cout<<name<<"  "<<tv[0] + shift[0]<<" "<<tv[1]  + shift[1] << " "<< tv[2] + shift[2]<<std::endl;
+      //std::cout<<name<<"  "<<tv[0] + shift[0]<<" "<<tv[1]  + shift[1] << " "<< tv[2] + shift[2]<<std::endl;
       ctrans *= t;
     }
     n->ls();
