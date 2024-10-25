@@ -155,7 +155,7 @@ namespace mu2e {
 
             void GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* bholder, REX::REveElement* trholder, REX::REveElement* cholder,REX::REveElement* crholder, REX::REveElement* vholder, REX::REveElement* tholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets);
             void GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets);
-            void GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, REX::REveElement* trackerholder, REX::REveElement* caloholder, REX::REveElement* crystalsholder, REX::REveElement* crvholder, REX::REveElement* targetholder,int maxlevel, int level, GeomOptions geomOpt);
+            void GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* bholder, REX::REveElement* trholder, REX::REveElement* cholder,REX::REveElement* crholder, REX::REveElement* vholder, REX::REveElement* tholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets);
             void makeGeometryScene(REX::REveManager *eveMng,  GeomOptions geomOpts, std::string filename);
             void showEvents(REX::REveManager *eveMng,  REX::REveElement* &eventScene, bool firstLoop,  bool firstLoopCalo, DataCollections &data, DrawOptions drawOpts, std::vector<int> particleIds, bool strawdisplay, GeomOptions geomOpts, KinKalOptions KKOpts);
             void changeEveGeoShape(TGeoNode* node, REX::REveTrans& trans,  REX::REveElement* holder, int maxlevel, int level);
