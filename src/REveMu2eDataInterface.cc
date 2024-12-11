@@ -885,8 +885,9 @@ void REveMu2eDataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool
     if(seedcol!=0){
       for(auto const& kseedptr : *seedcol){
         auto const& kseed = *kseedptr;
+        unsigned nhits = kseed.hits().size();
         unsigned nactive =0;
-        for (auto const& hit : kseed.hits()){ if (hit.strawHitState() >= WireHitState::inactive) ++nactive; }
+        for (auto const& hit : kseed.hits()){ if (hit.strawHitState() > WireHitState::inactive) ++nactive; }
         // use t0 to define the reference segment
         double t0;
         kseed.t0Segment(t0);
@@ -905,7 +906,7 @@ void REveMu2eDataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool
             << "cx "  << lh.cx() << " mm "
             << "cy "  << lh.cy() << " mm "
             << "phi0 "  << lh.phi0() << " rad " << std::endl
-            << "N hits " <<  nactive << " fit cons. " << kseed.fitConsistency() << std::endl;
+            << "N hits (,active)" <<  nhits << "," << nactive << " fit cons. " << kseed.fitConsistency() << std::endl;
           //   << "track arrival time " << t1 << std::endl;
           AddKinKalTrajectory<LHPT>(trajectory,scene,j, ksstream.str(), t1, t2);
           if(addTrkHits) AddTrkStrawHit<LHPT>(kseed, scene, trajectory);
