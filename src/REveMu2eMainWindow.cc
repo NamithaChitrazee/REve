@@ -356,7 +356,7 @@ void REveMu2eMainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans
 }
 
 void REveMu2eMainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, REX::REveElement* trackerholder, REX::REveElement* caloholder, REX::REveElement* crystalsholder, REX::REveElement* crvholder, REX::REveElement* targetholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets){
-    double x_crvex = 0; double y_crvex = 0;  double z_crvex = 0; double x_crvt1 = 0; double y_crvt1 = 0;  double z_crvt1 = 0; double x_crvt2 = 0; double y_crvt2 = 0;  double z_crvt2 = 0; 
+    double x_crvex = 0; double y_crvex = 0;  double z_crvex = 0; double x_crvt1 = 0; double y_crvt1 = 0;  double z_crvt1 = 0; double x_crvt2 = 0; double y_crvt2 = 0;  double z_crvt2 = 0;
     for(unsigned int i = 0; i < offsets.size(); i++){
       if(offsets[i].first.find("World") != string::npos){
         x_world = offsets[i].second[0];
@@ -426,7 +426,7 @@ void REveMu2eMainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& tra
       }
     }
     // everything else needs to be shifted such that its relative to the tracker center at 0,0,0
-    
+
     if(geomOpt.showCalo){
         static std::vector <std::string> substrings_disk  {"CaloDisk"};
         for(auto& i: substrings_disk){
@@ -446,7 +446,7 @@ void REveMu2eMainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& tra
       }
     }
   if(geomOpt.showCRV and geomOpt.extracted){
-   
+
     static std::vector <std::string> substrings_ex {"CRSmotherLayer_CRV_EX"};
     shift.at(0) = x_crvex - x_trk;
     shift.at(1) = y_crvex - y_trk;
@@ -460,7 +460,7 @@ void REveMu2eMainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& tra
     shift.at(0) = x_crvt1 - x_trk;
     shift.at(1) = y_crvt1 - y_trk;
     shift.at(2) = z_crvt1 - z_trk;
-  
+
     for(auto& i: substrings_t1){
       showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CRVColor"));
     }

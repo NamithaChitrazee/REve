@@ -58,7 +58,8 @@ REveDis : {
   producers: {
       MergeKK : {
         module_type : MergeKalSeeds
-        KalSeedCollections : ["KKDeM", "KKDeP", "KKUeM", "KKUeP", "KKDmuM", "KKDmuP", "KKUmuM", "KKUmuP", "KKLine", "KKCentralHelix","KKDe", "KKUe", "KKDmu", "KKUmu" ]
+        KalSeedCollections : ["KKDeM", "KKDeP", "KKUeM", "KKUeP", "KKDmuM", "KKDmuP", "KKUmuM", "KKUmuP", "KKLine", "KKCentralHelix",
+                           "KKDe", "KKUe", "KKDmu", "KKUmu" ]
       }
   }
   filters : {

@@ -22,7 +22,7 @@ physics.analyzers.Mu2eEventDisplay.showCRV : true
 physics.analyzers.Mu2eEventDisplay.showPS : false
 physics.analyzers.Mu2eEventDisplay.showTS : false
 physics.analyzers.Mu2eEventDisplay.showDS : false
-physics.analyzers.Mu2eEventDisplay.addCRVBars : true
+physics.analyzers.Mu2eEventDisplay.addCRVBars : false
 physics.analyzers.Mu2eEventDisplay.addKalInter : true
 physics.analyzers.Mu2eEventDisplay.addCrystalHits : true
 physics.analyzers.Mu2eEventDisplay.filler.addHelixSeeds : false
