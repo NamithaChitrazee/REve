@@ -7,6 +7,7 @@
 #include <ROOT/REveGeoShape.hxx>
 #include <ROOT/REveBox.hxx>
 #include <ROOT/REveScene.hxx>
+#include <ROOT/REveCompound.hxx>
 #include <TGeoBBox.h>
 #include <TGeoMatrix.h>
 #include <ROOT/REveTrackPropagator.hxx>
@@ -60,10 +61,9 @@ namespace mu2e{
           void AddCRVInfo(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CrvRecoPulseCollection*>> crvpulse_tuple, REX::REveElement* &scene, bool extracted, bool addCRVBars);
           void AddCRVClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CrvCoincidenceClusterCollection*>>  crvpulse_tuple, REX::REveElement* &scene, bool extracted, bool addCRVBars);
           void AddHelixSeedCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const HelixSeedCollection*>> helix_tuple, REX::REveElement* &scene);
-          void AddKalIntersection(KalSeed const& kalseed, REX::REveElement* &scene);
-          template<class KTRAJc> void AddTrkStrawHit(KalSeed const& kalseed, REX::REveElement* &scene, std::unique_ptr<KTRAJc> &trajectory);
+          void AddKalIntersection(KalSeed const& kalseed, REX::REveElement* &scene, REX::REveCompound *products);
+          template<class KTRAJc> void AddTrkStrawHit(KalSeed const& kalseed, REX::REveElement* &scene, std::unique_ptr<KTRAJc> &trajectory, REX::REveCompound *products);
           void AddTrkCaloHit(KalSeed const& kalseed, REX::REveElement* &scene);
-          void AddKalSeedPtrCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const KalSeedPtrCollection*>> track_tuple, REX::REveElement* &scene );
           template<class KTRAJ> void AddKinKalTrajectory( std::unique_ptr<KTRAJ> &trajectory, REX::REveElement* &scene, unsigned int j, std::string kaltitle, double& t1, double& t2);
           void FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstloop, REX::REveElement* &scene, std::tuple<std::vector<std::string>, std::vector<const KalSeedPtrCollection*>> track_tuple, bool kalinter, bool hits, double& t1, double& t2);
           void AddCosmicTrackFit(REX::REveManager *&eveMng, bool firstLoop_, const mu2e::CosmicTrackSeedCollection *cosmiccol, REX::REveElement* &scene);

@@ -18,7 +18,6 @@ Mu2eEventDisplay : {
     addCrystalHits : false
     addCRVBars : false
     addKalInter : false
-    useBTrk : false
     specifyTag : false // IMPORTANT: override to make the following selections!!!
     filler : {
       diagLevel : 0

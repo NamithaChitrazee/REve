@@ -30,8 +30,8 @@ void REveMu2eMainWindow::makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX
   int transpar = drawconfigf.getInt("BLtrans");
   if(name.find("CRS") != string::npos) transpar = drawconfigf.getInt("CRVtrans");
   if(name.find("Tracker") != string::npos) transpar = drawconfigf.getInt("TRKtrans") ;
-  if(name.find("caloDisk") != string::npos) transpar = drawconfigf.getInt("CALtrans") ;
-  if(name.find("caloCrystal") != string::npos) transpar = drawconfigf.getInt("CRYtrans") ;
+  if(name.find("CaloDisk") != string::npos) transpar = drawconfigf.getInt("CALtrans") ;
+  if(name.find("CaloWrapper") != string::npos ) transpar = drawconfigf.getInt("CRYtrans") ;
 
   b1s->SetMainTransparency(transpar);
   b1s->SetMainColor(color);
@@ -266,12 +266,12 @@ void REveMu2eMainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans
         y_cal = y_ds3 + offsets[i].second[1];
         z_cal = z_ds3 + offsets[i].second[2];
       }
-      if(offsets[i].first.find("caloDisk_00") != string::npos){
+      if(offsets[i].first.find("CaloDisk_00") != string::npos){
         x_d0 = x_cal + offsets[i].second[0];
         y_d0 = y_cal + offsets[i].second[1];
         z_d0 = z_cal + offsets[i].second[2];
       }
-      if(offsets[i].first.find("caloDisk_10") != string::npos){
+      if(offsets[i].first.find("CaloDisk_10") != string::npos){
         x_d1 = x_cal + offsets[i].second[0];
         y_d1 = y_cal + offsets[i].second[1];
         z_d1 = z_cal + offsets[i].second[2];
@@ -318,20 +318,20 @@ void REveMu2eMainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans
       }
     }
     if(geomOpt.showCalo){
-        static std::vector <std::string> substrings_disk  {"caloDisk"};
+        static std::vector <std::string> substrings_disk  {"CaloDisk"};
         for(auto& i: substrings_disk){
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
           shift.at(2) = z_cal - z_trk;
-          showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, false, false, drawconfigf.getInt("CALColor") );
+          showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, true, false, drawconfigf.getInt("CALColor") );
         }
       if(geomOpt.showCaloCrystals){
-        static std::vector <std::string> substrings_crystals  {"caloCrystal"};
+        static std::vector <std::string> substrings_crystals  {"CaloWrapper"};
         for(auto& i: substrings_crystals){
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
           shift.at(2) = z_cal - z_trk;
-          showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, false, false, drawconfigf.getInt("CALColor"));
+          showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, true, false, drawconfigf.getInt("CALColor"));
         }
       }
     }
@@ -384,12 +384,12 @@ void REveMu2eMainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& tra
         y_cal = y_ds3 + offsets[i].second[1];
         z_cal = z_ds3 + offsets[i].second[2];
       }
-      if(offsets[i].first.find("caloDisk_00") != string::npos){
+      if(offsets[i].first.find("CaloDisk_00") != string::npos){
         x_d0 = x_cal + offsets[i].second[0];
         y_d0 = y_cal + offsets[i].second[1];
         z_d0 = z_cal + offsets[i].second[2];
       }
-      if(offsets[i].first.find("caloDisk_10") != string::npos){
+      if(offsets[i].first.find("CaloDisk_10") != string::npos){
         x_d1 = x_cal + offsets[i].second[0];
         y_d1 = y_cal + offsets[i].second[1];
         z_d1 = z_cal + offsets[i].second[2];
@@ -428,7 +428,7 @@ void REveMu2eMainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& tra
     // everything else needs to be shifted such that its relative to the tracker center at 0,0,0
 
     if(geomOpt.showCalo){
-        static std::vector <std::string> substrings_disk  {"caloDisk"};
+        static std::vector <std::string> substrings_disk  {"CaloDisk"};
         for(auto& i: substrings_disk){
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
@@ -436,7 +436,7 @@ void REveMu2eMainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& tra
           showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, false, false, drawconfigf.getInt("CALColor") );
         }
       if(geomOpt.showCaloCrystals){
-        static std::vector <std::string> substrings_crystals  {"caloCrystal"};
+        static std::vector <std::string> substrings_crystals  {"CaloCrystal","CaloCrystalCsI","CaloCrystalLYSO"};
         for(auto& i: substrings_crystals){
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
@@ -550,8 +550,7 @@ void REveMu2eMainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* 
   double t2 = 1696.;
   std::vector<const KalSeedPtrCollection*> track_list = std::get<1>(data.track_tuple);
   if(drawOpts.addTracks and track_list.size() !=0) {
-    if(drawOpts.useBTrk) { pass_data->AddKalSeedPtrCollection(eveMng, firstLoop, data.track_tuple, eventScene); }
-    if(!drawOpts.useBTrk){ pass_data->FillKinKalTrajectory(eveMng, firstLoop, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, t1, t2); }
+    pass_data->FillKinKalTrajectory(eveMng, firstLoop, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, t1, t2); 
   }
   if(drawOpts.addComboHits) {
     std::vector<const ComboHitCollection*> combohit_list = std::get<1>(data.combohit_tuple);

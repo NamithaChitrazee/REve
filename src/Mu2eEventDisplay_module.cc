@@ -125,7 +125,6 @@ namespace mu2e
           fhicl::Atom<bool> addKalInter{Name("addKalInter"), Comment("show Kal intersections"),true};
           fhicl::Atom<bool> addTrkStrawHits{Name("addTrkStrawHits"), Comment("show Kal trk straw hits"),true};
           fhicl::Atom<bool> addTrkCaloHits{Name("addTrkCaloHits"), Comment("show Kal trk cal ohits"),true};
-          fhicl::Atom<bool> useBTrk{Name("useBTrk"), Comment("to use older kal seed views"),false};
           fhicl::Atom<bool> specifyTag{Name("specifyTag"), Comment("to only select events of selected input tag"),false};
           fhicl::Table<CollectionFiller::Config> filler{Name("filler"),Comment("fill collections")};
           fhicl::Sequence<int>particles{Name("particles"),Comment("PDGcodes to plot")};
@@ -187,7 +186,6 @@ namespace mu2e
         bool addKalInter_;
         bool addTrkStrawHits_;
         bool addTrkCaloHits_;
-        bool useBTrk_;
 
         bool specifyTag_ = false;
         TDirectory*   directory_ = nullptr;
@@ -240,7 +238,6 @@ namespace mu2e
     addKalInter_(conf().addKalInter()),
     addTrkStrawHits_(conf().addTrkStrawHits()),
     addTrkCaloHits_(conf().addTrkCaloHits()),
-    useBTrk_(conf().useBTrk()),
     specifyTag_(conf().specifyTag()),
     filler_(conf().filler()),
     particles_(conf().particles()),
@@ -514,7 +511,7 @@ namespace mu2e
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] -- calls to data interface "<<std::endl;
 
       // fill draw options
-      DrawOptions drawOpts(filler_.addCosmicTrackSeeds_, filler_.addHelixSeeds_, filler_.addKalSeeds_, filler_.addCaloDigis_, filler_.addClusters_, filler_.addHits_,  filler_.addCrvHits_, filler_.addCrvClusters_, filler_.addTimeClusters_, filler_.addTrkHits_, filler_.addMCTraj_, filler_.addSurfSteps_, addErrBar_, addCrystalHits_, addCRVBars_, useBTrk_);
+      DrawOptions drawOpts(filler_.addCosmicTrackSeeds_, filler_.addHelixSeeds_, filler_.addKalSeeds_, filler_.addCaloDigis_, filler_.addClusters_, filler_.addHits_,  filler_.addCrvHits_, filler_.addCrvClusters_, filler_.addTimeClusters_, filler_.addTrkHits_, filler_.addMCTraj_, filler_.addSurfSteps_, addErrBar_, addCrystalHits_, addCRVBars_);
 
       // fill kinkal options
       KinKalOptions KKOpts(addKalInter_, addTrkStrawHits_, addTrkCaloHits_);
