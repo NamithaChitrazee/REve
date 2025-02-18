@@ -91,7 +91,7 @@ void REveMu2eMCInterface::SetLineColorPID(int PDGCode,REX::REveLine *line){
 
 
 void REveMu2eMCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const MCTrajectoryCollection *>> mctrack_tuple, REX::REveElement* &scene, std::vector<int> particleIds, bool extracted){
-
+  std::cout<<"[ REveMCInterface::AddMCTrajectoryCollection() ]"<<std::endl;
   std::string drawfilename("Mu2eEventDisplay/config/drawutils.txt");
   SimpleConfig drawconfig(drawfilename);
 
@@ -101,12 +101,15 @@ void REveMu2eMCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, b
 
   // Loop over tracks:
   for(unsigned int j=0; j< track_list.size(); j++){
+    // extract trajectory
     const MCTrajectoryCollection* trajcol = track_list[j];
 
     if(trajcol!=0){
       std::map<art::Ptr<mu2e::SimParticle>,mu2e::MCTrajectory>::const_iterator trajectoryIter;
+      bool isSame = false;
+      //create vector of art Ptr to particles:
+      std::vector<art::Ptr<SimParticle> > allParts;
       for(unsigned int k = 0; k < trajcol->size(); k++){
-
         for(trajectoryIter=trajcol->begin(); trajectoryIter!=trajcol->end(); trajectoryIter++)
         {
           // Check user defined list of particles to plot
@@ -117,6 +120,17 @@ void REveMu2eMCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, b
             const std::vector<MCTrajectoryPoint> &points = trajectoryIter->second.points();
             // Make label
             std::string energy = std::to_string(points[0].kineticEnergy());
+            std::cout<<trajectoryIter->first->pdgId()<<" energy "<<energy<<std::endl;
+            
+            for(unsigned int ipart = 0; ipart < allParts.size() ; ipart++){
+              MCRelationship checkrel(trajectoryIter->first,allParts.at(ipart));
+              if(checkrel==MCRelationship::same) {
+                  isSame = true;
+                  std::cout<<"isSame"<<std::endl;
+                }
+            }
+            if(!isSame) { allParts.push_back(trajectoryIter->first); }
+
             std::string mctitle = " MCTrajectory tag : particle = " + std::string(particlename)  +  '\n'
               + " energy = " + energy + "MeV" +  '\n'
               + " creation code = " + std::to_string(trajectoryIter->first->creationCode()) +  '\n'
@@ -137,7 +151,7 @@ void REveMu2eMCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, b
             // set line colour
             SetLineColorPID(trajectoryIter->first->pdgId(),line);
             line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
-            scene->AddElement(line);
+            if(!isSame) scene->AddElement(line);
           } else std::cout<<"Warning: No Particles of User-Specified Type In File "<<std::endl;
         }
       }
@@ -146,42 +160,55 @@ void REveMu2eMCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, b
 }
 
 void REveMu2eMCInterface::AddSurfaceStepCollection(REX::REveManager *&eveMng, bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const SurfaceStepCollection *>> surfstep_tuple, REX::REveElement* &scene, std::vector<int> particleIds, bool extracted){
-
-  std::string drawfilename("Mu2eEventDisplay/config/drawutils.txt");
-  SimpleConfig drawconfig(drawfilename);
-
-  // eEtract the track and input tag:
-  std::vector<const SurfaceStepCollection*> surfstep_list = std::get<1>(surfstep_tuple);
+  std::cout<<"[ REveMCInterface::AddSurfaceStepCollection() ]"<<std::endl;
+  std::vector<const SurfaceStepCollection*> ssteps_list = std::get<1>(surfstep_tuple);
   std::vector<std::string> names = std::get<0>(surfstep_tuple);
+  
+  if(ssteps_list.size() !=0){
+    for(unsigned int i=0; i < ssteps_list.size(); i++){
+      std::string comptitle = "SurfaceStepCollection" + names[i];
+      
+      // make compund object to store hits
+      auto allpoints = new REX::REveCompound(comptitle,comptitle,1);
+      std::string drawfilename("Mu2eEventDisplay/config/drawutils.txt");
+      SimpleConfig drawconfig(drawfilename);
 
-  // Loop over surface steps
-  for(unsigned int j=0; j< surfstep_list.size(); j++){
-    const SurfaceStepCollection* surfstepcol = surfstep_list[j];
-    if(surfstepcol!=0){
-      for( auto const& surfstep : *surfstepcol) {
-        // Check user defined list of particles to plot
-        auto pdgid = surfstep.simParticle()->pdgId();
-        int x = Contains(particleIds,pdgid);
-        auto midpos = surfstep.midPosition();
-        if(x == 1){
-          // Make label
-          std::string momentum = std::to_string(surfstep.momentum().R());
-          std::string edep = std::to_string(surfstep.energyDeposit());
-          std::string mctitle = " SurfaceStep on " +  surfstep.surfaceId().name() + '\n'
-            + " x "  + std::to_string(midpos.X())
-            + " y " + std::to_string(midpos.Y())
-            + " z " + std::to_string(midpos.Z())
-            + " time :" + std::to_string(surfstep.time())+  '\n'
-            + " momentum " + momentum + " MeV/c, energy loss = " + edep + "MeV";
-          // add point
-          auto surfpoint = new REX::REvePointSet("SurfaceStep",mctitle,1);
-          surfpoint->SetMarkerStyle(REveMu2eMCInterface::mstyle);
-          surfpoint->SetMarkerSize(REveMu2eMCInterface::msize);
-          surfpoint->SetMarkerColor(kBlack);
-          surfpoint->SetNextPoint(pointmmTocm(midpos.X()),pointmmTocm(midpos.Y()) ,pointmmTocm(midpos.Z()));
-          scene->AddElement(surfpoint);
+      // eXtract the track and input tag:
+      std::vector<const SurfaceStepCollection*> surfstep_list = std::get<1>(surfstep_tuple);
+      std::vector<std::string> names = std::get<0>(surfstep_tuple);
+
+      // Loop over surface steps
+      for(unsigned int j=0; j< surfstep_list.size(); j++){
+        const SurfaceStepCollection* surfstepcol = surfstep_list[j];
+        if(surfstepcol!=0){
+          for( auto const& surfstep : *surfstepcol) {
+            // Check user defined list of particles to plot
+            auto pdgid = surfstep.simParticle()->pdgId();
+            int x = Contains(particleIds,pdgid);
+            auto midpos = surfstep.midPosition();
+            if(x == 1){
+              // Make label
+              std::string momentum = std::to_string(surfstep.momentum().R());
+              std::string edep = std::to_string(surfstep.energyDeposit());
+              std::string mctitle = " SurfaceStep on " +  surfstep.surfaceId().name() + '\n'
+                + " x "  + std::to_string(midpos.X())
+                + " y " + std::to_string(midpos.Y())
+                + " z " + std::to_string(midpos.Z())
+                + " time :" + std::to_string(surfstep.time())+  '\n'
+                + " momentum " + momentum + " MeV/c, energy loss = " + edep + "MeV";
+              // add point
+              auto surfpoint = new REX::REvePointSet(mctitle,mctitle,1);
+              surfpoint->SetMarkerStyle(REveMu2eMCInterface::mstyle);
+              surfpoint->SetMarkerSize(REveMu2eMCInterface::msize);
+              surfpoint->SetMarkerColor(kBlack);
+              surfpoint->SetNextPoint(pointmmTocm(midpos.X()),pointmmTocm(midpos.Y()) ,pointmmTocm(midpos.Z()));
+              //scene->AddElement(surfpoint);
+              allpoints->AddElement(surfpoint);
+            }
+          }
         }
       }
+      scene->AddElement(allpoints);
     }
   }
 }

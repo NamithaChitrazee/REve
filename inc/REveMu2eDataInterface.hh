@@ -7,6 +7,7 @@
 #include <ROOT/REveGeoShape.hxx>
 #include <ROOT/REveBox.hxx>
 #include <ROOT/REveScene.hxx>
+#include <ROOT/REveCompound.hxx>
 #include <TGeoBBox.h>
 #include <TGeoMatrix.h>
 #include <ROOT/REveTrackPropagator.hxx>

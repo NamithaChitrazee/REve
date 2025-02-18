@@ -148,11 +148,11 @@ void REveMu2eDataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firs
         }
         } */
 
-      //unsigned int i = -1;
+      unsigned int i = 0;
       for(auto cptr : cluList){
         auto const& cluster = *cptr;
         //mu2e::CaloCluster const  &cluster= cluList.at(i);
-        //i += 1;
+        i += 1;
 
         // Info for label:
         std::string cluster_energy = std::to_string(cluster.energyDep());
@@ -170,7 +170,7 @@ void REveMu2eDataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firs
           + " Energy Dep. = "+cluster_energy+" MeV "+   '\n'
           + " Time = "+cluster_time+" ns " +  '\n'
           + " Pos =  ("+cluster_x+","+cluster_y+","+cluster_z+") mm";
-        std::string name = "disk" + std::to_string(cluster.diskID());
+        std::string name = "disk" + std::to_string(cluster.diskID()) + label;
         auto ps1 = new REX::REvePointSet(name, "CaloClusters Disk 1: "+label,0);
         auto ps2 = new REX::REvePointSet(name, "CaloClusters Disk 2: "+label,0);
 
@@ -205,8 +205,9 @@ void REveMu2eDataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firs
 
         // Add crystals
         if(addCrystalDraw){
+          auto allcryhits = new REX::REveCompound("cryhits"+std::to_string(i),"cryhits"+std::to_string(i),1);
           for(unsigned h =0 ; h < cluster.caloHitsPtrVector().size();h++)     {
-
+            
             art::Ptr<CaloHit>  crystalhit = cluster.caloHitsPtrVector()[h];
             int cryID = crystalhit->crystalID();
 
@@ -220,7 +221,7 @@ void REveMu2eDataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firs
             CLHEP::Hep3Vector crystalPos = cal.geomUtil().mu2eToDisk(cluster.diskID(),crystal.position()) ;
 
             //  make title
-            std::string crytitle =   "disk"+std::to_string(cal.crystal(crystalhit->crystalID()).diskID()) + " Crystal ID = " + std::to_string(cryID) +  '\n'
+            std::string crytitle =   "disk"+std::to_string(cal.crystal(crystalhit->crystalID()).diskID()) + " Crystal Hit = " + std::to_string(cryID) +  '\n'
               + " Energy Dep. = "+std::to_string(crystalhit->energyDep())+" MeV "+   '\n'
               + " Time = "+std::to_string(crystalhit->time())+" ns ";
             char const *crytitle_c = crytitle.c_str();
@@ -242,8 +243,9 @@ void REveMu2eDataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firs
             b->SetVertex(5, pointmmTocm(crystalPos.x()) - width, pointmmTocm(crystalPos.y())+ height , pointmmTocm(crystalPos.z())+ thickness   + abs(pointmmTocm(pointInMu2e.z()))+crystalZLen/2);//-++
             b->SetVertex(6, pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())+ height , pointmmTocm(crystalPos.z()) + thickness +abs(pointmmTocm(pointInMu2e.z()))+crystalZLen/2); //+++
             b->SetVertex(7,pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())- height, pointmmTocm(crystalPos.z())+ thickness + abs(pointmmTocm(pointInMu2e.z()))+crystalZLen/2);//+-+
-            scene->AddElement(b);
+            allcryhits->AddElement(b); 
           }
+          scene->AddElement(allcryhits);
         }
 
       }
@@ -339,7 +341,7 @@ void REveMu2eDataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLo
           + " energy dep : "
           + std::to_string(hit.energyDep())  +
           + "MeV";
-        auto ps1 = new REX::REvePointSet("ComboHit", chtitle,0);
+        auto ps1 = new REX::REvePointSet(chtitle, chtitle,0);
         ps1->SetNextPoint(HitPos.x(), HitPos.y() , HitPos.z());
         ps1->SetMarkerColor(colour);
         ps1->SetMarkerStyle(REveMu2eDataInterface::mstyle);
@@ -361,10 +363,13 @@ void REveMu2eDataInterface::AddCRVInfo(REX::REveManager *&eveMng, bool firstLoop
     for(unsigned int i=0; i < crvpulse_list.size(); i++){
       const CrvRecoPulseCollection* crvRecoPulse = crvpulse_list[i];
       if(crvRecoPulse->size() !=0){
-        std::string crvtitle = " tag : " + names[i];
-        auto ps1 = new REX::REvePointSet("CRVRecoPulse", crvtitle,0);
+        std::string crvtitle = " CRV Bar Hit tag : " + names[i];
+        auto ps1 = new REX::REvePointSet(crvtitle, crvtitle,0);
+        auto allcrvbars = new REX::REveCompound("allcrvbars"+std::to_string(i),"allcrvbars"+std::to_string(i),1);
         for(unsigned int j=0; j< crvRecoPulse->size(); j++){
+          
           mu2e::CrvRecoPulse const &crvpulse = (*crvRecoPulse)[j];
+          
           const CRSScintillatorBarIndex &crvBarIndex = crvpulse.GetScintillatorBarIndex();
           const CRSScintillatorBar &crvCounter = CRS->getBar(crvBarIndex);
           const CRSScintillatorBarDetail &barDetail = crvCounter.getBarDetail();
@@ -373,10 +378,14 @@ void REveMu2eDataInterface::AddCRVInfo(REX::REveManager *&eveMng, bool firstLoop
 
           CLHEP::Hep3Vector pointInMu2e = det-> toDetector(crvCounterPos);
           CLHEP::Hep3Vector sibardetails(barDetail.getHalfLengths()[0],barDetail.getHalfLengths()[1],barDetail.getHalfLengths()[2]);
-
+          std::string pulsetitle = " CRV Bar Hit tag : " 
+          + names[i] +  '\n'
+          + "CRVRecoPulse in Bar ID" +  '\n'
+          + std::to_string(crvBarIndex.asInt());
+          char const *pulsetitle_c = pulsetitle.c_str();
           if(addCRVBars){
             if(!extracted){
-              auto b = new REX::REveBox("box","label");
+              auto b = new REX::REveBox(pulsetitle_c,pulsetitle_c);
               b->SetMainColor(drawconfig.getInt("CRVBarColor"));
               b-> SetMainTransparency(drawconfig.getInt("CRVtrans"));
               b->SetLineWidth(drawconfig.getInt("GeomLineWidth"));
@@ -428,8 +437,7 @@ void REveMu2eDataInterface::AddCRVInfo(REX::REveManager *&eveMng, bool firstLoop
                 b->SetVertex(6, pointmmTocm(pointInMu2e.y()) + height, length,pointmmTocm(pointInMu2e.x()) + width );//+++
                 b->SetVertex(7, pointmmTocm(pointInMu2e.y()) - height, length,pointmmTocm(pointInMu2e.x()) + width );//+-+
               }
-              scene->AddElement(b);
-
+              allcrvbars->AddElement(b);
             }
             if(extracted){ //TODO same for nominal geom
 
@@ -439,7 +447,7 @@ void REveMu2eDataInterface::AddCRVInfo(REX::REveManager *&eveMng, bool firstLoop
               // char const *bartitle_c = base.c_str(); //TODO title
 
               // Draw "bars hit" in red:
-              auto b = new REX::REveBox("box");
+              auto b = new REX::REveBox(pulsetitle_c,pulsetitle_c);
               b->SetMainColor(drawconfig.getInt("CRVBarColor"));
               b-> SetMainTransparency(drawconfig.getInt("CRVtrans"));
               b->SetLineWidth(drawconfig.getInt("GeomLineWidth"));
@@ -475,6 +483,7 @@ void REveMu2eDataInterface::AddCRVInfo(REX::REveManager *&eveMng, bool firstLoop
           ps1->SetNextPoint(pointmmTocm(pointInMu2e.x()), pointmmTocm(pointInMu2e.y()) , pointmmTocm(pointInMu2e.z()));
 
         }
+        scene->AddElement(allcrvbars);
         // Draw reco pulse collection
         ps1->SetMarkerColor(i+3);
         ps1->SetMarkerStyle(REveMu2eDataInterface::mstyle);
@@ -498,10 +507,14 @@ void REveMu2eDataInterface::AddCRVClusters(REX::REveManager *&eveMng, bool first
     for(unsigned int i=0; i < crvpulse_list.size(); i++){
       const CrvCoincidenceClusterCollection* crvClusters = crvpulse_list[i];
       if(crvClusters->size() !=0){
-        std::string crvtitle = " tag : " + names[i];
-        auto ps1 = new REX::REvePointSet("CRVCoincidenceClusters", crvtitle,0);
+        
         for(unsigned int j=0; j< crvClusters->size(); j++){
+          auto allcrvbars = new REX::REveCompound("Bars for CRVConicidenceCluster"+std::to_string(j),"Bars for CRVConicidenceCluster"+std::to_string(j),1);
           mu2e::CrvCoincidenceCluster const &crvclu = (*crvClusters)[j];
+          std::string crvtitle = "CRVCoincidenceCluster" + std::to_string(j) + " tag : " + names[i] + '\n'
+          + " averge hit time = " + std::to_string(crvclu.GetAvgHitTime())+" ns " + '\n'
+          + " PEs = " + std::to_string(crvclu.GetPEs());
+          auto ps1 = new REX::REvePointSet(crvtitle, crvtitle,0);
           CLHEP::Hep3Vector pointInMu2e = det-> toDetector(crvclu.GetAvgHitPos());
           ps1->SetNextPoint(pointmmTocm(pointInMu2e.x()), pointmmTocm(pointInMu2e.y()) , pointmmTocm(pointInMu2e.z()));
           for(unsigned h =0 ; h < crvclu.GetCrvRecoPulses().size();h++)     {
@@ -515,10 +528,16 @@ void REveMu2eDataInterface::AddCRVClusters(REX::REveManager *&eveMng, bool first
 
             CLHEP::Hep3Vector pointInMu2e = det-> toDetector(crvCounterPos);
             CLHEP::Hep3Vector sibardetails(barDetail.getHalfLengths()[0],barDetail.getHalfLengths()[1],barDetail.getHalfLengths()[2]);
-
+            std::string pulsetitle = " CRV Bar Hit for  tag : " 
+            + names[i] +  '\n'
+            + "Bar ID" 
+            + std::to_string(crvBarIndex.asInt())+  '\n'
+            + "Coincidence start time " + std::to_string(crvclu.GetStartTime())+  '\n'
+            + "Coincidence end time " + std::to_string(crvclu.GetEndTime());
+            char const *pulsetitle_c = pulsetitle.c_str();
             if(addCRVBars){
               if(!extracted){
-                auto b = new REX::REveBox("box","label");
+                auto b = new REX::REveBox(pulsetitle_c,pulsetitle_c);
                 b->SetMainColor(drawconfig.getInt("CRVBarColor"));
                 b-> SetMainTransparency(drawconfig.getInt("CRVtrans"));
                 b->SetLineWidth(drawconfig.getInt("GeomLineWidth"));
@@ -573,18 +592,13 @@ void REveMu2eDataInterface::AddCRVClusters(REX::REveManager *&eveMng, bool first
                   b->SetVertex(7, pointmmTocm(pointInMu2e.y()) - height, length,pointmmTocm(pointInMu2e.x()) + width );//+-+
 
                 }
-                scene->AddElement(b);
+                allcrvbars->AddElement(b);
 
               }
-              if(extracted){ //TODO same for nominal geom
-
-                // CRV hit scintillation bars highlighted
-                // std::string const& base;
-                // std::string bartitle = crvCounter.name( base );
-                // char const *bartitle_c = base.c_str(); //TODO title
+              if(extracted){
 
                 // Draw "bars hit" in red:
-                auto b = new REX::REveBox("box");
+                auto b = new REX::REveBox(pulsetitle_c,pulsetitle_c);
                 b->SetMainColor(drawconfig.getInt("CRVBarColor"));
                 b-> SetMainTransparency(drawconfig.getInt("CRVtrans"));
                 b->SetLineWidth(drawconfig.getInt("GeomLineWidth"));
@@ -617,12 +631,12 @@ void REveMu2eDataInterface::AddCRVClusters(REX::REveManager *&eveMng, bool first
               }
             }
           }
-        }
-
         ps1->SetMarkerColor(drawconfig.getInt("CRVHitColor"));
         ps1->SetMarkerStyle(REveMu2eDataInterface::mstyle);
         ps1->SetMarkerSize(REveMu2eDataInterface::msize);
         if(ps1->GetSize() !=0 ) scene->AddElement(ps1);
+        scene->AddElement(allcrvbars);
+        }
       }
     }
   }
@@ -770,7 +784,7 @@ template<class KTRAJc> void REveMu2eDataInterface::AddTrkStrawHit(KalSeed const&
         + " z " + std::to_string(tshspos.z())  +  '\n'
         + " time :" + std::to_string(tshs.hitTime())+  '\n'
         + " energyDep :" + std::to_string(tshs.energyDep())+ "MeV";
-      auto trkstrawpoint = new REX::REvePointSet("TrkStrawHitSeed", title,1);
+      auto trkstrawpoint = new REX::REvePointSet(title, title,1);
       trkstrawpoint->SetMarkerStyle(REveMu2eDataInterface::mstyle);
       trkstrawpoint->SetMarkerSize(REveMu2eDataInterface::msize);
       trkstrawpoint->SetMarkerColor(drawconfig.getInt("TrkHitColor"));
@@ -830,7 +844,7 @@ void REveMu2eDataInterface::AddTrkHits(REX::REveManager *&eveMng, bool firstLoop
                     + std::to_string(hit.energyDep())  +
                     + "MeV";
 
-                  auto trkhit = new REX::REvePointSet("TrkHits", chtitle,0);
+                  auto trkhit = new REX::REvePointSet(chtitle, chtitle,0);
                   trkhit ->SetMarkerStyle(REveMu2eDataInterface::mstyle);
                   trkhit ->SetMarkerSize(REveMu2eDataInterface::msize);
                   // trkhit ->SetMarkerColor(drawconfig.getInt("RecoTrackColor")-4);

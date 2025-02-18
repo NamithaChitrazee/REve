@@ -5,12 +5,14 @@
 #include <ROOT/REveManager.hxx>
 #include <ROOT/REveLine.hxx>
 #include <ROOT/REveScene.hxx>
+#include <ROOT/REveCompound.hxx>
 #include "Offline/GeometryService/inc/DetectorSystem.hh"
 #include "Offline/Mu2eInterfaces/inc/Detector.hh"
 #include "Offline/DataProducts/inc/GenVector.hh"
 #include "Offline/MCDataProducts/inc/MCTrajectoryPoint.hh"
 #include "Offline/MCDataProducts/inc/MCTrajectoryCollection.hh"
 #include "Offline/MCDataProducts/inc/SurfaceStep.hh"
+#include "Offline/MCDataProducts/inc/MCRelationship.hh"
 #include <TApplication.h>
 #include <TEvePad.h>
 #include <TObject.h>
