@@ -550,8 +550,7 @@ void REveMu2eMainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* 
   double t2 = 1696.;
   std::vector<const KalSeedPtrCollection*> track_list = std::get<1>(data.track_tuple);
   if(drawOpts.addTracks and track_list.size() !=0) {
-    if(drawOpts.useBTrk) { pass_data->AddKalSeedPtrCollection(eveMng, firstLoop, data.track_tuple, eventScene); }
-    if(!drawOpts.useBTrk){ pass_data->FillKinKalTrajectory(eveMng, firstLoop, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, t1, t2); }
+    pass_data->FillKinKalTrajectory(eveMng, firstLoop, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, t1, t2); 
   }
   if(drawOpts.addComboHits) {
     std::vector<const ComboHitCollection*> combohit_list = std::get<1>(data.combohit_tuple);

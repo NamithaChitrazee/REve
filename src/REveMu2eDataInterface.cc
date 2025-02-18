@@ -205,9 +205,8 @@ void REveMu2eDataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firs
 
         // Add crystals
         if(addCrystalDraw){
-          auto allcryhits = new REX::REveCompound("cryhits"+std::to_string(i),"cryhits"+std::to_string(i),1);
-          for(unsigned h =0 ; h < cluster.caloHitsPtrVector().size();h++)     {
-            
+          auto allcryhits = new REX::REveCompound("CrystalHits for Cluster "+std::to_string(i),"CrystalHits for Cluster "+std::to_string(i),1); 
+          for(unsigned h =0 ; h < cluster.caloHitsPtrVector().size();h++)     {         
             art::Ptr<CaloHit>  crystalhit = cluster.caloHitsPtrVector()[h];
             int cryID = crystalhit->crystalID();
 
@@ -712,7 +711,7 @@ void REveMu2eDataInterface::AddHelixSeedCollection(REX::REveManager *&eveMng,boo
   }
 }
 
-void REveMu2eDataInterface::AddKalIntersection(KalSeed const& kalseed, REX::REveElement* &scene){
+void REveMu2eDataInterface::AddKalIntersection(KalSeed const& kalseed, REX::REveElement* &scene, REX::REveCompound *products){
   //Plot intersecitons:
   std::vector<mu2e::KalIntersection> const& inters = kalseed.intersections();
 
@@ -726,7 +725,7 @@ void REveMu2eDataInterface::AddKalIntersection(KalSeed const& kalseed, REX::REve
       + std::to_string(inter.mom()) + " , " + std::to_string(inter.dMom())  +
       + "MeV/c " + '\n'
       + "Surface " +  inter.surfaceId().name();
-    auto interpoint = new REX::REvePointSet("KalIntersections", title,1);
+    auto interpoint = new REX::REvePointSet(title, title,1);
 
     interpoint->SetMarkerStyle(REveMu2eDataInterface::mstyle);
     interpoint->SetMarkerSize(REveMu2eDataInterface::msize);
@@ -736,12 +735,12 @@ void REveMu2eDataInterface::AddKalIntersection(KalSeed const& kalseed, REX::REve
       interpoint->SetMarkerColor(kYellow);
     }
     interpoint->SetNextPoint(pointmmTocm(posKI.x()),pointmmTocm(posKI.y()) ,pointmmTocm(posKI.z()));
-    if(interpoint->GetSize() !=0 ) scene->AddElement(interpoint);
+    if(interpoint->GetSize() !=0 ) products->AddElement(interpoint);
   }
 
 }
 
-template<class KTRAJc> void REveMu2eDataInterface::AddTrkStrawHit(KalSeed const& kalseed, REX::REveElement* &scene,  std::unique_ptr<KTRAJc> &lhptr){
+template<class KTRAJc> void REveMu2eDataInterface::AddTrkStrawHit(KalSeed const& kalseed, REX::REveElement* &scene,  std::unique_ptr<KTRAJc> &lhptr, REX::REveCompound *trackproducts){
   std::cout<<"[REveMu2eDataInterface::AddTrkStrawHit]"<<std::endl;
   //Plot trk straw hits
   mu2e::GeomHandle<mu2e::Tracker> tracker;
@@ -775,23 +774,28 @@ template<class KTRAJc> void REveMu2eDataInterface::AddTrkStrawHit(KalSeed const&
       auto end1 = tshspos + nsigma*herr*ddir;
       auto end2 = tshspos - nsigma*herr*ddir;
       std::string err_title = "+/-"+std::to_string(nsigma) +"sigma";
-      auto line = new REX::REveLine("TrkStrawHit Error",err_title, 1);
-      line->SetNextPoint(pointmmTocm(end1.x()),pointmmTocm(end1.y()) ,pointmmTocm(end1.z()));
-      line->SetNextPoint(pointmmTocm(end2.x()),pointmmTocm(end2.y()) ,pointmmTocm(end2.z()));
+      
       //goes along that same line (ddir)
       std::string title = "TrkStrawHitSeed : x "  + std::to_string(tshspos.x())  +  '\n'
         + " y " + std::to_string(tshspos.y())  +  '\n'
         + " z " + std::to_string(tshspos.z())  +  '\n'
         + " time :" + std::to_string(tshs.hitTime())+  '\n'
-        + " energyDep :" + std::to_string(tshs.energyDep())+ "MeV";
+        + " energyDep :" + std::to_string(tshs.energyDep())+ "MeV" + '\n'
+        + " error : " + err_title;
+      auto point_with_error = new REX::REveCompound("TrkStrawHitSeed "+std::to_string(i), "TrkStrawHitSeed",1);
       auto trkstrawpoint = new REX::REvePointSet(title, title,1);
       trkstrawpoint->SetMarkerStyle(REveMu2eDataInterface::mstyle);
       trkstrawpoint->SetMarkerSize(REveMu2eDataInterface::msize);
       trkstrawpoint->SetMarkerColor(drawconfig.getInt("TrkHitColor"));
+      auto line = new REX::REveLine("TrkStrawHit Error"+err_title,err_title, 1);
+      line->SetNextPoint(pointmmTocm(end1.x()),pointmmTocm(end1.y()) ,pointmmTocm(end1.z()));
+      line->SetNextPoint(pointmmTocm(end2.x()),pointmmTocm(end2.y()) ,pointmmTocm(end2.z()));
+      line->SetLineColor(drawconfig.getInt("TrkHitColor"));
       if(!usedrift)trkstrawpoint->SetMarkerColor(drawconfig.getInt("TrkNoHitColor"));
       trkstrawpoint->SetNextPoint(pointmmTocm(tshspos.x()),pointmmTocm(tshspos.y()) ,pointmmTocm(tshspos.z()));
-      scene->AddElement(trkstrawpoint);
-      scene->AddElement(line);
+      point_with_error->AddElement(trkstrawpoint);
+      point_with_error->AddElement(line);
+      trackproducts->AddElement(point_with_error);
     }
   }
 }
@@ -889,11 +893,10 @@ template<class KTRAJ> void REveMu2eDataInterface::AddKinKalTrajectory( std::uniq
 }
 
 void REveMu2eDataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstloop, REX::REveElement* &scene, std::tuple<std::vector<std::string>, std::vector<const KalSeedPtrCollection*>> track_tuple, bool plotKalIntersection, bool addTrkHits, double& t1, double& t2){
+  std::cout<<"[REveMu2eDataInterface::FillKinKalTrajectory()]"<<std::endl;
   auto const& ptable = GlobalConstantsHandle<ParticleDataList>();
-
   std::vector<const KalSeedPtrCollection*> track_list = std::get<1>(track_tuple);
   std::vector<std::string> names = std::get<0>(track_tuple);
-
   for(unsigned int j=0; j< track_list.size(); j++){
     const KalSeedPtrCollection* seedcol = track_list[j];
     if(seedcol!=0){
@@ -905,6 +908,7 @@ void REveMu2eDataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool
         double t0;
         kseed.t0Segment(t0);
         std::stringstream ksstream;
+        REX::REveCompound *trackproducts = new REX::REveCompound("Track Products for KalSeed "+ ptable->particle(kseed.particle()).name() + " LoopHelix ","Track Products for KalSeed "+ ptable->particle(kseed.particle()).name() + " LoopHelix " ,1); 
         if(kseed.loopHelixFit())
         {
           auto trajectory=kseed.loopHelixFitTrajectory();
@@ -919,10 +923,14 @@ void REveMu2eDataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool
             << "cx "  << lh.cx() << " mm "
             << "cy "  << lh.cy() << " mm "
             << "phi0 "  << lh.phi0() << " rad " << std::endl
-            << "N hits " <<  nactive << " fit cons. " << kseed.fitConsistency() << std::endl;
+            << "N hits " <<  nactive << " fit cons. " << kseed.fitConsistency() << std::endl
+            << "Instance " << names[j] << std::endl;
           //   << "track arrival time " << t1 << std::endl;
+
           AddKinKalTrajectory<LHPT>(trajectory,scene,j, ksstream.str(), t1, t2);
-          if(addTrkHits) AddTrkStrawHit<LHPT>(kseed, scene, trajectory);
+          if(addTrkHits) {
+            AddTrkStrawHit<LHPT>(kseed, scene, trajectory,trackproducts);
+          }
         }
         else if(kseed.centralHelixFit())
         {
@@ -938,9 +946,12 @@ void REveMu2eDataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool
             << "z0 " << ch.z0( ) << " mm "
             << "phi0 " << ch.phi0( ) << " rad "
             << "omega " << ch.omega( )<< " mm^-1 " << std::endl
-            << "track arrival time " << t1;
+            << "track arrival time " << t1 << std::endl
+            << "Instance " << names[j] << std::endl;
           AddKinKalTrajectory<CHPT>(trajectory,scene,j, ksstream.str(), t1, t2);
-          if(addTrkHits) AddTrkStrawHit<CHPT>(kseed, scene, trajectory);
+          if(addTrkHits) {
+            AddTrkStrawHit<CHPT>(kseed, scene, trajectory,trackproducts);
+            }
         }
         else if(kseed.kinematicLineFit())
         {
@@ -955,102 +966,20 @@ void REveMu2eDataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool
             << " z0 " << kl.z0( ) << " mm " << std::endl
             << " phi0 " << kl.phi0( )<< " rad "
             << " theta " << kl.theta( ) << " rad " <<  std::endl
-            << " track arrival time " << t1;
+            << " track arrival time " << t1 << std::endl
+            << " Instance " << names[j] << std::endl;
           AddKinKalTrajectory<KLPT>(trajectory,scene,j, ksstream.str(), t1, t2);
-          if(addTrkHits) AddTrkStrawHit<KLPT>(kseed, scene, trajectory);
+          if(addTrkHits) { 
+            AddTrkStrawHit<KLPT>(kseed, scene, trajectory, trackproducts );
+          }
         }
-        if(plotKalIntersection) AddKalIntersection(kseed, scene);
+        if(plotKalIntersection) AddKalIntersection(kseed, scene,trackproducts );
+        if(addTrkHits or plotKalIntersection) { 
+        scene->AddElement(trackproducts);
+        }
       }
     }
   }
-}
-
-
-void REveMu2eDataInterface::AddKalSeedPtrCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const KalSeedPtrCollection*>> track_tuple, REX::REveElement* &scene){
-  //bool useKinKal = true; //TODO this will eventually be the default
-
-  std::vector<const KalSeedPtrCollection*> track_list = std::get<1>(track_tuple);
-  std::vector<std::string> names = std::get<0>(track_tuple);
-
-  for(unsigned int j=0; j< track_list.size(); j++){
-    const KalSeedPtrCollection* seedcol = track_list[j];
-    if(seedcol!=0){
-      for(unsigned int k = 0; k < seedcol->size(); k = k + 20){
-        auto const& kseed = *(*seedcol)[k];
-        auto const&segments = kseed.segments();
-        unsigned int nSegments=segments.size();
-
-        if(nSegments==0) continue;
-        const mu2e::KalSegment &segmentFirst = kseed.segments().front();
-        const mu2e::KalSegment &segmentLast = kseed.segments().back();
-        double fltLMin=segmentFirst.fmin();
-        double fltLMax=segmentLast.fmax();
-
-        for(unsigned int m = 0; m<nSegments; m++){
-
-          const mu2e::KalSegment &segment = segments.at(m);
-          fltLMin=segment.fmin();
-          fltLMax=segment.fmax();
-          std::string kaltitle = " tag : " + names[j] ;
-
-          if(kseed.loopHelixFit()){
-            auto lh = segment.loopHelix();
-            kaltitle = "KalSeed tag : " + names[j] +  '\n'
-              + " mom " + std::to_string(segment.mom()) +  '\n'
-              + " MeV/c t0 " + std::to_string(lh.t0()) +  '\n'
-              + " lam "  + std::to_string(lh.lam() ) +  '\n'
-              + " rad "  + std::to_string(lh.rad() ) +  '\n'
-              + " cx "  + std::to_string(lh.cx() ) +  '\n'
-              + " cy "  + std::to_string(lh.cy() ) +  '\n'
-              + " phi0 "  + std::to_string(lh.phi0() );
-          }
-          if(kseed.centralHelixFit() ){
-            auto ch = segment.centralHelix();
-            kaltitle = "KalSeed tag : " + names[j] +  '\n'
-              + " mom " + std::to_string(segment.mom()) +  '\n'
-              + " MeV/c t0 " + std::to_string(ch.t0()) +  '\n'
-              + " tandip " + std::to_string(ch.tanDip() ) +  '\n'
-              + " d0 " + std::to_string(ch.d0() ) +  '\n'
-              + " z0 " + std::to_string(ch.z0() ) +  '\n'
-              + " phi0 " + std::to_string(ch.phi0() ) +  '\n'
-              + " omega " + std::to_string(ch.omega() );
-          }
-          if(kseed.kinematicLineFit() ){
-            auto kl = segment.kinematicLine();
-            kaltitle = "KalSeed tag : " + names[j]
-              + " mom " + std::to_string(segment.mom())
-              + " MeV/c t0 " + std::to_string(kl.t0()) +  '\n'
-              + " d0 " + std::to_string(kl.d0() ) +  '\n'
-              + " z0 " + std::to_string(kl.z0() ) +  '\n'
-              + " phi0 " + std::to_string(kl.phi0() ) +  '\n'
-              + " theta " + std::to_string(kl.theta() );
-          }
-          auto line = new REX::REveLine(kaltitle,kaltitle,1);
-          if(m>0){
-            double fltLMaxPrev=segments.at(m-1).fmax();
-            fltLMin=(fltLMin+fltLMaxPrev)/2.0;
-          }
-          if(m+1<nSegments){
-            double fltLMinNext=segments.at(m+1).fmin();
-            fltLMax=(fltLMax+fltLMinNext)/2.0;
-          }
-          for(double fltL=fltLMin; fltL<=fltLMax; fltL+=1.0){
-            XYZVectorF pos;
-            segment.helix().position(fltL,pos);
-            CLHEP::Hep3Vector p =  GenVector::Hep3Vec(pos);
-            line->SetNextPoint(pointmmTocm(p.x()), pointmmTocm(p.y()) , pointmmTocm(p.z()));
-          }
-          int col = j+3;
-          if(col > 9 ){  col += col+10; }
-          line->SetLineColor(col);
-          line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
-          scene->AddElement(line);
-        }
-
-      }
-    }
-  }
-  //}
 }
 
 void REveMu2eDataInterface::AddCosmicTrackFit(REX::REveManager *&eveMng, bool firstLoop_, const mu2e::CosmicTrackSeedCollection *cosmiccol, REX::REveElement* &scene){

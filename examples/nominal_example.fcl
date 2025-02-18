@@ -32,11 +32,8 @@ physics.analyzers.Mu2eEventDisplay.filler.addHits : false #  adds ComboHits
 physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : true
 physics.analyzers.Mu2eEventDisplay.filler.addCrvHits : false
 physics.analyzers.Mu2eEventDisplay.filler.addTimeClusters : false
-
 physics.analyzers.Mu2eEventDisplay.addTrkStrawHits : true
-
 physics.analyzers.Mu2eEventDisplay.filler.addCosmicTrackSeeds : false
-
 physics.analyzers.Mu2eEventDisplay.filler.addMCTraj : true
 
 # allows movement through events in sequential order

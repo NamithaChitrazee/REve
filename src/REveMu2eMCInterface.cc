@@ -118,15 +118,13 @@ void REveMu2eMCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, b
           const char* particlename = GetParticleName(trajectoryIter->first->pdgId());
           if(x == 1){
             const std::vector<MCTrajectoryPoint> &points = trajectoryIter->second.points();
-            // Make label
+
             std::string energy = std::to_string(points[0].kineticEnergy());
-            std::cout<<trajectoryIter->first->pdgId()<<" energy "<<energy<<std::endl;
-            
+            // check for duplicates
             for(unsigned int ipart = 0; ipart < allParts.size() ; ipart++){
               MCRelationship checkrel(trajectoryIter->first,allParts.at(ipart));
               if(checkrel==MCRelationship::same) {
                   isSame = true;
-                  std::cout<<"isSame"<<std::endl;
                 }
             }
             if(!isSame) { allParts.push_back(trajectoryIter->first); }

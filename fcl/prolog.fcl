@@ -18,7 +18,6 @@ Mu2eEventDisplay : {
     addCrystalHits : false
     addCRVBars : false
     addKalInter : false
-    useBTrk : false
     specifyTag : false // IMPORTANT: override to make the following selections!!!
     filler : {
       diagLevel : 0
@@ -28,7 +27,7 @@ Mu2eEventDisplay : {
       TimeClusterCollection : ["MHDeM"]
       CaloDigiCollection : ["CaloDigiMaker"]
       CaloClusterCollection : ["CaloClusterFast"]
-      KalSeedPtrCollection : ["KKDeM"]
+      KalSeedPtrCollection : ["KKDe" ]
       HelixSeedCollection : ["MHFinderDe"]
       CosmicTrackSeedCollection : "CosmicTrackFinderTimeFit"
       MCTrajectoryCollection :  ["compressRecoMCs"]
@@ -59,7 +58,7 @@ REveDis : {
   producers: {
       MergeKK : {
         module_type : MergeKalSeeds
-        KalSeedCollections : ["KKDeM", "KKDeP", "KKUeM", "KKUeP", "KKDmuM", "KKDmuP", "KKUmuM", "KKUmuP", "KKLine" ]
+        KalSeedCollections : ["KKDe", "KKDe", "KKUe", "KKUe", "KKDmu", "KKDmu", "KKUmu", "KKUmu", "KKLine" ]
       }
   }
   filters : {
