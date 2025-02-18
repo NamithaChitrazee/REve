@@ -27,7 +27,7 @@ Mu2eEventDisplay : {
       TimeClusterCollection : ["MHDeM"]
       CaloDigiCollection : ["CaloDigiMaker"]
       CaloClusterCollection : ["CaloClusterFast"]
-      KalSeedPtrCollection : ["KKDe" ]
+      KalSeedPtrCollection : ["MergeKK"]
       HelixSeedCollection : ["MHFinderDe"]
       CosmicTrackSeedCollection : "CosmicTrackFinderTimeFit"
       MCTrajectoryCollection :  ["compressRecoMCs"]
@@ -58,7 +58,7 @@ REveDis : {
   producers: {
       MergeKK : {
         module_type : MergeKalSeeds
-        KalSeedCollections : ["KKDe", "KKDe", "KKUe", "KKUe", "KKDmu", "KKDmu", "KKUmu", "KKUmu", "KKLine" ]
+        KalSeedCollections : ["KKDeM", "KKDeP", "KKUeM", "KKUeP", "KKDmuM", "KKDmuP", "KKUmuM", "KKUmuP", "KKLine", "KKCentralHelix","KKDe", "KKUe", "KKDmu", "KKUmu" ]
       }
   }
   filters : {
