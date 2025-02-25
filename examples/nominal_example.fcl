@@ -35,6 +35,7 @@ physics.analyzers.Mu2eEventDisplay.filler.addTimeClusters : false
 physics.analyzers.Mu2eEventDisplay.addTrkStrawHits : true
 physics.analyzers.Mu2eEventDisplay.filler.addCosmicTrackSeeds : false
 physics.analyzers.Mu2eEventDisplay.filler.addMCTraj : true
+physics.analyzers.Mu2eEventDisplay.specifyTag : true
 
 # allows movement through events in sequential order
 physics.analyzers.Mu2eEventDisplay.seqMode : true

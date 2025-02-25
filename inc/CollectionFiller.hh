@@ -17,7 +17,7 @@
 
 namespace mu2e{
 
-  enum RecoDataProductName {ComboHits,  CRVRecoPulses, TimeClusters, CaloClusters, HelixSeeds, KalSeeds, CosmicTrackSeeds, TrkHits, CRVCoincidenceCluster, CaloDigis};
+  enum RecoDataProductName {ComboHits,  CrvRecoPulses, TimeClusters, CaloClusters, HelixSeeds, KalSeeds, CosmicTrackSeeds, TrkHits, CrvCoincidenceCluster, CaloDigis};
   enum MCDataProductName {MCTrajectories, SurfaceSteps};
   class CollectionFiller
   {
@@ -40,7 +40,7 @@ namespace mu2e{
         fhicl::Atom<bool> addHits{Name("addHits"), Comment("set to add the hits"),false};
         fhicl::Atom<bool> addCrvHits{Name("addCrvHits"), Comment("set to add crv hits"),false};
         fhicl::Atom<bool> addCrvClusters{Name("addCrvClusters"), Comment("set to add crv clusters"),false};
-        fhicl::Atom<bool> addTimeClusters{Name("addTimeClusters"), Comment("set to add the CRV hits"),false};
+        fhicl::Atom<bool> addTimeClusters{Name("addTimeClusters"), Comment("set to add the Crv hits"),false};
         fhicl::Atom<bool> addTrkHits{Name("addTrkHits"), Comment("set to add the Trk hits"),false};
         fhicl::Atom<bool> addCaloDigis{Name("addCaloDigis"), Comment("set to add calodigis"),false};
         fhicl::Atom<bool> addClusters{Name("addClusters"), Comment("set to add caloclusters"),false};

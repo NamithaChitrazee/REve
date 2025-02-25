@@ -63,7 +63,6 @@
 //Ofline
 #include "Offline/RecoDataProducts/inc/CaloCluster.hh"
 #include "Offline/RecoDataProducts/inc/ComboHit.hh"
-#include "Offline/RecoDataProducts/inc/CaloCluster.hh"
 #include "Offline/RecoDataProducts/inc/HelixSeed.hh"
 #include "Offline/GeometryService/inc/GeomHandle.hh"
 #include "Offline/CalorimeterGeom/inc/CaloGeomUtil.hh"
@@ -301,13 +300,12 @@ namespace mu2e
     <<" User Options: "
     <<" addHits : "<< filler_.addHits_
     <<" addTimeClusters : "<<filler_.addTimeClusters_
-    <<" addCRVpulses : "<<filler_.addCrvHits_
-    <<" addCRVclusters : "<<filler_.addCrvClusters_
+    <<" addCrvHits : "<<filler_.addCrvHits_
+    <<" addCrvClusters : "<<filler_.addCrvClusters_
     <<" addClusters : "<<filler_.addClusters_
     <<" addHelices : "<<filler_.addHelixSeeds_
     <<" addTracks : "<<filler_.addKalSeeds_
-    <<" addCosmicTrackSeeds : "<<filler_.addCosmicTrackSeeds_
-    <<" add CRV : "<<filler_.addCrvHits_<<std::endl;
+    <<" addCosmicTrackSeeds : "<<filler_.addCosmicTrackSeeds_ << std::endl;
   }
 
 
@@ -396,12 +394,12 @@ namespace mu2e
         }
 
         if(filler_.addCrvHits_) {
-          if(specifyTag_) { filler_.FillRecoCollections(event, data, CRVRecoPulses); }
+          if(specifyTag_) { filler_.FillRecoCollections(event, data, CrvRecoPulses); }
           else { FillAnyCollection<CrvRecoPulseCollection, const CrvRecoPulseCollection*>(event, _chits, data.crvpulse_tuple );}
         }
 
         if(filler_.addCrvClusters_) {
-          if(specifyTag_) { filler_.FillRecoCollections(event, data, CRVCoincidenceCluster); }
+          if(specifyTag_) { filler_.FillRecoCollections(event, data, CrvCoincidenceCluster); }
           else { FillAnyCollection<CrvCoincidenceClusterCollection, const CrvCoincidenceClusterCollection*>(event, _chits, data.crvcoin_tuple );}
         }
 
