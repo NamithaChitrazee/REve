@@ -205,8 +205,8 @@ void REveMu2eDataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firs
 
         // Add crystals
         if(addCrystalDraw){
-          auto allcryhits = new REX::REveCompound("CrystalHits for Cluster "+std::to_string(i),"CrystalHits for Cluster "+std::to_string(i),1); 
-          for(unsigned h =0 ; h < cluster.caloHitsPtrVector().size();h++)     {         
+          auto allcryhits = new REX::REveCompound("CrystalHits for Cluster "+std::to_string(i),"CrystalHits for Cluster "+std::to_string(i),1);
+          for(unsigned h =0 ; h < cluster.caloHitsPtrVector().size();h++)     {
             art::Ptr<CaloHit>  crystalhit = cluster.caloHitsPtrVector()[h];
             int cryID = crystalhit->crystalID();
 
@@ -242,7 +242,7 @@ void REveMu2eDataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firs
             b->SetVertex(5, pointmmTocm(crystalPos.x()) - width, pointmmTocm(crystalPos.y())+ height , pointmmTocm(crystalPos.z())+ thickness   + abs(pointmmTocm(pointInMu2e.z()))+crystalZLen/2);//-++
             b->SetVertex(6, pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())+ height , pointmmTocm(crystalPos.z()) + thickness +abs(pointmmTocm(pointInMu2e.z()))+crystalZLen/2); //+++
             b->SetVertex(7,pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())- height, pointmmTocm(crystalPos.z())+ thickness + abs(pointmmTocm(pointInMu2e.z()))+crystalZLen/2);//+-+
-            allcryhits->AddElement(b); 
+            allcryhits->AddElement(b);
           }
           scene->AddElement(allcryhits);
         }
@@ -366,9 +366,9 @@ void REveMu2eDataInterface::AddCRVInfo(REX::REveManager *&eveMng, bool firstLoop
         auto ps1 = new REX::REvePointSet(crvtitle, crvtitle,0);
         auto allcrvbars = new REX::REveCompound("allcrvbars"+std::to_string(i),"allcrvbars"+std::to_string(i),1);
         for(unsigned int j=0; j< crvRecoPulse->size(); j++){
-          
+
           mu2e::CrvRecoPulse const &crvpulse = (*crvRecoPulse)[j];
-          
+
           const CRSScintillatorBarIndex &crvBarIndex = crvpulse.GetScintillatorBarIndex();
           const CRSScintillatorBar &crvCounter = CRS->getBar(crvBarIndex);
           const CRSScintillatorBarDetail &barDetail = crvCounter.getBarDetail();
@@ -377,7 +377,7 @@ void REveMu2eDataInterface::AddCRVInfo(REX::REveManager *&eveMng, bool firstLoop
 
           CLHEP::Hep3Vector pointInMu2e = det-> toDetector(crvCounterPos);
           CLHEP::Hep3Vector sibardetails(barDetail.getHalfLengths()[0],barDetail.getHalfLengths()[1],barDetail.getHalfLengths()[2]);
-          std::string pulsetitle = " CRV Bar Hit tag : " 
+          std::string pulsetitle = " CRV Bar Hit tag : "
           + names[i] +  '\n'
           + "CRVRecoPulse in Bar ID" +  '\n'
           + std::to_string(crvBarIndex.asInt());
@@ -506,7 +506,7 @@ void REveMu2eDataInterface::AddCRVClusters(REX::REveManager *&eveMng, bool first
     for(unsigned int i=0; i < crvpulse_list.size(); i++){
       const CrvCoincidenceClusterCollection* crvClusters = crvpulse_list[i];
       if(crvClusters->size() !=0){
-        
+
         for(unsigned int j=0; j< crvClusters->size(); j++){
           auto allcrvbars = new REX::REveCompound("Bars for CRVConicidenceCluster"+std::to_string(j),"Bars for CRVConicidenceCluster"+std::to_string(j),1);
           mu2e::CrvCoincidenceCluster const &crvclu = (*crvClusters)[j];
@@ -527,9 +527,9 @@ void REveMu2eDataInterface::AddCRVClusters(REX::REveManager *&eveMng, bool first
 
             CLHEP::Hep3Vector pointInMu2e = det-> toDetector(crvCounterPos);
             CLHEP::Hep3Vector sibardetails(barDetail.getHalfLengths()[0],barDetail.getHalfLengths()[1],barDetail.getHalfLengths()[2]);
-            std::string pulsetitle = " CRV Bar Hit for  tag : " 
+            std::string pulsetitle = " CRV Bar Hit for  tag : "
             + names[i] +  '\n'
-            + "Bar ID" 
+            + "Bar ID"
             + std::to_string(crvBarIndex.asInt())+  '\n'
             + "Coincidence start time " + std::to_string(crvclu.GetStartTime())+  '\n'
             + "Coincidence end time " + std::to_string(crvclu.GetEndTime());
@@ -774,7 +774,7 @@ template<class KTRAJc> void REveMu2eDataInterface::AddTrkStrawHit(KalSeed const&
       auto end1 = tshspos + nsigma*herr*ddir;
       auto end2 = tshspos - nsigma*herr*ddir;
       std::string err_title = "+/-"+std::to_string(nsigma) +"sigma";
-      
+
       //goes along that same line (ddir)
       std::string title = "TrkStrawHitSeed : x "  + std::to_string(tshspos.x())  +  '\n'
         + " y " + std::to_string(tshspos.y())  +  '\n'
@@ -902,14 +902,14 @@ void REveMu2eDataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool
     if(seedcol!=0){
       for(auto const& kseedptr : *seedcol){
         auto const& kseed = *kseedptr;
-        unsigned nhits = kseed.hits().size();
+//        unsigned nhits = kseed.hits().size();
         unsigned nactive =0;
         for (auto const& hit : kseed.hits()){ if (hit.strawHitState() > WireHitState::inactive) ++nactive; }
         // use t0 to define the reference segment
         double t0;
         kseed.t0Segment(t0);
         std::stringstream ksstream;
-        REX::REveCompound *trackproducts = new REX::REveCompound("Track Products for KalSeed "+ ptable->particle(kseed.particle()).name() + " LoopHelix ","Track Products for KalSeed "+ ptable->particle(kseed.particle()).name() + " LoopHelix " ,1); 
+        REX::REveCompound *trackproducts = new REX::REveCompound("Track Products for KalSeed "+ ptable->particle(kseed.particle()).name() + " LoopHelix ","Track Products for KalSeed "+ ptable->particle(kseed.particle()).name() + " LoopHelix " ,1);
         if(kseed.loopHelixFit())
         {
           auto trajectory=kseed.loopHelixFitTrajectory();
@@ -968,12 +968,12 @@ void REveMu2eDataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool
             << " track arrival time " << t1 << std::endl
             << " Instance " << names[j] << std::endl;
           AddKinKalTrajectory<KLPT>(trajectory,scene,j, ksstream.str(), t1, t2);
-          if(addTrkHits) { 
+          if(addTrkHits) {
             AddTrkStrawHit<KLPT>(kseed, scene, trajectory, trackproducts );
           }
         }
         if(plotKalIntersection) AddKalIntersection(kseed, scene,trackproducts );
-        if(addTrkHits or plotKalIntersection) { 
+        if(addTrkHits or plotKalIntersection) {
         scene->AddElement(trackproducts);
         }
       }

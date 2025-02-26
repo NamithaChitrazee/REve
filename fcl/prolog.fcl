@@ -23,15 +23,16 @@ Mu2eEventDisplay : {
       diagLevel : 0
       ComboHitCollection : ["makeSH"]
       CrvRecoPulseCollection : ["SelectRecoMC"]
-      CrvCoincidenceClusterCollection : ["SelectRecoMC"]
+      CrvCoincidenceClusterCollection : ["SelectRecoMC:CrvCoincidenceClusterFinder" ]
       TimeClusterCollection : ["MHDeM"]
       CaloDigiCollection : ["CaloDigiMaker"]
-      CaloClusterCollection : ["CaloClusterFast"]
+      CaloClusterCollection : ["CaloClusterMaker"]
       KalSeedPtrCollection : ["MergeKK"]
       HelixSeedCollection : ["MHFinderDe"]
       CosmicTrackSeedCollection : "CosmicTrackFinderTimeFit"
       MCTrajectoryCollection :  ["compressRecoMCs"]
-      SurfaceStepCollection :  ["compressRecoMCs"]
+#      SurfaceStepCollection :  ["compressRecoMCs"]
+      SurfaceStepCollection :  []
       addHits : false
       addCrvHits : false
       addCrvClusters : false
@@ -58,8 +59,9 @@ REveDis : {
   producers: {
       MergeKK : {
         module_type : MergeKalSeeds
-        KalSeedCollections : ["KKDeM", "KKDeP", "KKUeM", "KKUeP", "KKDmuM", "KKDmuP", "KKUmuM", "KKUmuP", "KKLine", "KKCentralHelix",
-                           "KKDe", "KKUe", "KKDmu", "KKUmu" ]
+        KalSeedCollections : [ "KKDe", "KKUe", "KKDmu", "KKUmu", # loop helix fits (both charges)
+        "KKLine", "KKCHmu", # straight and curved fits
+        "KKDeM", "KKDeP", "KKUeM", "KKUeP", "KKDmuM", "KKDmuP", "KKUmuM", "KKUmuP" ] # legacy fits
       }
   }
   filters : {
