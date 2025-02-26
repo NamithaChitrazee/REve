@@ -31,7 +31,8 @@ Mu2eEventDisplay : {
       HelixSeedCollection : ["MHFinderDe"]
       CosmicTrackSeedCollection : "CosmicTrackFinderTimeFit"
       MCTrajectoryCollection :  ["compressRecoMCs"]
-      SurfaceStepCollection :  ["compressRecoMCs"]
+#      SurfaceStepCollection :  ["compressRecoMCs"]
+      SurfaceStepCollection :  []
       addHits : false
       addCrvHits : false
       addCrvClusters : false
