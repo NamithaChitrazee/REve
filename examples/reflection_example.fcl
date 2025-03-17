@@ -1,0 +1,67 @@
+# author : Sophie Middleton
+# purpose : example for helix tracks
+#include "Offline/fcl/minimalMessageService.fcl"
+#include "Offline/fcl/standardProducers.fcl"
+#include "Offline/fcl/standardServices.fcl"
+#include "Mu2eEventDisplay/fcl/prolog.fcl"
+
+services : @local::Services.Reco
+
+process_name : ReflectEm
+
+source : { module_type : RootInput }
+
+physics :
+{
+  analyzers : { @table::REveDis.analyzers}
+  filters : {
+    @table::REveDis.filters
+    Reflecte : {
+      @table::TrkReco.SelectReflections
+      UpstreamKalSeedCollection : "KKUe"
+      DownstreamKalSeedCollection : "KKDe"
+      debugLevel : 1
+    }
+  }
+  TriggerPath : [ Reflecte ]
+  EndPath  : [ @sequence::REveDis.seqBase]
+}
+physics.trigger_paths : [ TriggerPath ]
+physics.end_paths : [EndPath ]
+
+physics.analyzers.Mu2eEventDisplay.filler.KalSeedPtrCollection : [ "Reflecte" ]
+physics.analyzers.Mu2eEventDisplay.SelectEvents : [ "TriggerPath" ]
+
+
+# geometry options
+physics.analyzers.Mu2eEventDisplay.showCRV : true
+physics.analyzers.Mu2eEventDisplay.showPS : false
+physics.analyzers.Mu2eEventDisplay.showTS : false
+physics.analyzers.Mu2eEventDisplay.showDS : false
+physics.analyzers.Mu2eEventDisplay.addCRVBars : false
+physics.analyzers.Mu2eEventDisplay.addKalInter : true
+physics.analyzers.Mu2eEventDisplay.addCrystalHits : true
+physics.analyzers.Mu2eEventDisplay.filler.addHelixSeeds : false
+physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : true
+physics.analyzers.Mu2eEventDisplay.filler.addClusters : true
+physics.analyzers.Mu2eEventDisplay.filler.addHits : false #  adds ComboHits
+physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : true
+physics.analyzers.Mu2eEventDisplay.filler.addCrvHits : false
+physics.analyzers.Mu2eEventDisplay.filler.addTimeClusters : false
+physics.analyzers.Mu2eEventDisplay.addTrkStrawHits : true
+physics.analyzers.Mu2eEventDisplay.filler.addCosmicTrackSeeds : false
+physics.analyzers.Mu2eEventDisplay.filler.addMCTraj : true
+physics.analyzers.Mu2eEventDisplay.specifyTag : true
+
+# allows movement through events in sequential order
+physics.analyzers.Mu2eEventDisplay.seqMode : true
+physics.analyzers.Mu2eEventDisplay.strawdisplay : false
+
+# print statements
+physics.analyzers.Mu2eEventDisplay.diagLevel : 10
+
+# useless file name
+services.TFileService.fileName: "/dev/null"
+
+#include "reflect_em.fcl"
+
