@@ -66,7 +66,7 @@ sap.ui.define(['rootui5/eve7/controller/Main.controller',
                         let title = (p > 0) ? fname.substr(p+1) : fname;
                         this.amtfn = fname;
                         let cmd = "FileDialogSaveAs(\"" + fname + "\")";
-                        this.mgr.SendMIR(cmd, this.fw2gui.fElementId, "mu2e::REveMu2eGUI");
+                        this.mgr.SendMIR(cmd, this.fw2gui.fElementId, "mu2e::GUI");
                      },
                      onCancel: function() { },
                      onFailure: function() { console.log("DIALOF fail");}
@@ -78,7 +78,7 @@ sap.ui.define(['rootui5/eve7/controller/Main.controller',
          var world = this.mgr.childs[0].childs;
 
          world.forEach((item) => {
-            if (item._typename == "mu2e::REveMu2eGUI") {
+            if (item._typename == "mu2e::GUI") {
                this.fw2gui = item;
                var pthis = this;
                this.mgr.UT_refresh_event_info = function () {

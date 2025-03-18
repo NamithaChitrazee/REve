@@ -1,14 +1,14 @@
-#ifndef REveMu2eDataProduct_HH_
-#define REveMu2eDataProduct_HH_
+#ifndef DataProduct_HH_
+#define DataProduct_HH_
 
 #include <string>
 
 namespace mu2e {
 
-  class REveMu2eDataProduct {
+  class DataProduct {
    public:
-    REveMu2eDataProduct(std::string name) : _name(name) {};
-    REveMu2eDataProduct(){};
+    DataProduct(std::string name) : _name(name) {};
+    DataProduct(){};
     std::string& name() { return _name; }
 
    private:

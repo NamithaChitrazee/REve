@@ -1,5 +1,5 @@
 #include "Offline/ConfigTools/inc/SimpleConfig.hh"
-#include "Mu2eEventDisplay/inc/REveMu2eMainWindow.hh"
+#include "Mu2eEventDisplay/inc/MainWindow.hh"
 
 namespace REX = ROOT::Experimental;
 using namespace std;
@@ -17,7 +17,7 @@ double FrontTracker_gdmltag;
 std::string drawoptfilename("Mu2eEventDisplay/config/drawutils.txt");
 SimpleConfig drawconfigf(drawoptfilename);
 
-void REveMu2eMainWindow::makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX::REveElement* holder, int val, bool crystal1, bool crystal2, std::string name, int color)
+void MainWindow::makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX::REveElement* holder, int val, bool crystal1, bool crystal2, std::string name, int color)
 {
   bool isMother = name.find("ProductionTargetMother") != string::npos;
   auto gss = n->GetVolume()->GetShape();
@@ -59,7 +59,7 @@ void REveMu2eMainWindow::makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX
 int j = 0;
 int fp =0;
 
-void REveMu2eMainWindow::showNodesByName(TGeoNode* n, const std::string& str, bool onOff, int _diagLevel, REX::REveTrans& trans,  REX::REveElement* holder, int maxlevel, int level, bool caloshift, bool crystal,  std::vector<double> shift, bool print, bool single, int color) {
+void MainWindow::showNodesByName(TGeoNode* n, const std::string& str, bool onOff, int _diagLevel, REX::REveTrans& trans,  REX::REveElement* holder, int maxlevel, int level, bool caloshift, bool crystal,  std::vector<double> shift, bool print, bool single, int color) {
   ++level;
   if (level > maxlevel){
     return;
@@ -126,7 +126,7 @@ void REveMu2eMainWindow::showNodesByName(TGeoNode* n, const std::string& str, bo
   }
 }
 
-void REveMu2eMainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REveTrans& trans, int maxlevel, int level, std::vector<std::pair<std::string, std::vector<float>>> & offsets) {
+void MainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REveTrans& trans, int maxlevel, int level, std::vector<std::pair<std::string, std::vector<float>>> & offsets) {
   ++level;
   if (level > maxlevel){
     return;
@@ -186,7 +186,7 @@ void REveMu2eMainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REv
   }
 }
 
-void REveMu2eMainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets) {
+void MainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets) {
 
   double x_sol = 0; double y_sol = 0; double z_sol = 0;
   double x_pt = 0; double y_pt = 0; double z_pt =0;
@@ -235,7 +235,7 @@ void REveMu2eMainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, RE
       }
   }
 
-void REveMu2eMainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, REX::REveElement* trackerholder, REX::REveElement* caloholder, REX::REveElement* crystalsholder, REX::REveElement* crvholder, REX::REveElement* targetholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets){
+void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, REX::REveElement* trackerholder, REX::REveElement* caloholder, REX::REveElement* crystalsholder, REX::REveElement* crvholder, REX::REveElement* targetholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets){
     for(unsigned int i = 0; i < offsets.size(); i++){
       if(offsets[i].first.find("World") != string::npos){
         x_world = offsets[i].second[0];
@@ -355,7 +355,7 @@ void REveMu2eMainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans
   }
 }
 
-void REveMu2eMainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, REX::REveElement* trackerholder, REX::REveElement* caloholder, REX::REveElement* crystalsholder, REX::REveElement* crvholder, REX::REveElement* targetholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets){
+void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, REX::REveElement* trackerholder, REX::REveElement* caloholder, REX::REveElement* crystalsholder, REX::REveElement* crvholder, REX::REveElement* targetholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets){
     double x_crvex = 0; double y_crvex = 0;  double z_crvex = 0; double x_crvt1 = 0; double y_crvt1 = 0;  double z_crvt1 = 0; double x_crvt2 = 0; double y_crvt2 = 0;  double z_crvt2 = 0;
     for(unsigned int i = 0; i < offsets.size(); i++){
       if(offsets[i].first.find("World") != string::npos){
@@ -476,7 +476,7 @@ void REveMu2eMainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& tra
   }
 }
 
-void REveMu2eMainWindow::projectEvents(REX::REveManager *eveMng)
+void MainWindow::projectEvents(REX::REveManager *eveMng)
 {
   for (auto &ie : eveMng->GetEventScene()->RefChildren())
   {
@@ -493,7 +493,7 @@ void REveMu2eMainWindow::projectEvents(REX::REveManager *eveMng)
   }
 }
 
-void REveMu2eMainWindow::createProjectionStuff(REX::REveManager *eveMng)
+void MainWindow::createProjectionStuff(REX::REveManager *eveMng)
 {
   // -------------------Tracker XY View ----------------------------------
   TrackerXYGeomScene  = eveMng->SpawnNewScene("TrackerXY Geometry","TrackerXY");
@@ -540,7 +540,7 @@ void REveMu2eMainWindow::createProjectionStuff(REX::REveManager *eveMng)
 }
 
 
-void REveMu2eMainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventScene, bool firstLoop, bool firstLoopCalo, DataCollections &data, DrawOptions drawOpts, std::vector<int> particleIds, bool strawdisplay, GeomOptions geomOpts, KinKalOptions KKOpts){
+void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventScene, bool firstLoop, bool firstLoopCalo, DataCollections &data, DrawOptions drawOpts, std::vector<int> particleIds, bool strawdisplay, GeomOptions geomOpts, KinKalOptions KKOpts){
   if(!firstLoop){
     eventScene->DestroyElements();
   }
@@ -606,7 +606,7 @@ void REveMu2eMainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* 
   projectEvents(eveMng);
 }
 
-void REveMu2eMainWindow::makeGeometryScene(REX::REveManager *eveMng, GeomOptions geomOpt, std::string gdmlname)
+void MainWindow::makeGeometryScene(REX::REveManager *eveMng, GeomOptions geomOpt, std::string gdmlname)
 {
   std::vector<std::pair<std::string, std::vector<float>>> offsets; // a pair of offsets relative to the world
   TGeoManager *geom = TGeoManager::Import(gdmlname.c_str());
@@ -654,5 +654,5 @@ void REveMu2eMainWindow::makeGeometryScene(REX::REveManager *eveMng, GeomOptions
 }
 
 #ifdef __CINT__
-ClassImp(REveMu2eMainWindow)
+ClassImp(MainWindow)
 #endif

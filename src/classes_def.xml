@@ -1,10 +1,10 @@
 <lcgdict>
-  <class name="mu2e::REveMu2eMainWindow"/>
-  <class name="mu2e::REveMu2eDataInterface"/>
+  <class name="mu2e::MainWindow"/>
+  <class name="mu2e::DataInterface"/>
   <class name="mu2e::EventDisplayManager"/>
-  <class name="mu2e::REveMu2eGeomUtil"/>
-  <class name="mu2e::REveMu2eGUI"/>
-  <class name="mu2e::REveMu2eDataProduct"/>
-  <class name="mu2e::REveMu2eTextSelect"/>
-  <class name="mu2e::REveMu2ePrintInfo"/>
+  <class name="mu2e::GeomUtil"/>
+  <class name="mu2e::GUI"/>
+  <class name="mu2e::DataProduct"/>
+  <class name="mu2e::TextSelect"/>
+  <class name="mu2e::PrintInfo"/>
 </lcgdict>

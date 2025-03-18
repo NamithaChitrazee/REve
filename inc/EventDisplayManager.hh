@@ -8,8 +8,8 @@
 #include <mutex>
 #include <stdexcept>
 #include <iostream>
-#include "Mu2eEventDisplay/inc/REveMu2eGUI.hh"
-#include "Mu2eEventDisplay/inc/REveMu2eTextSelect.hh"
+#include "Mu2eEventDisplay/inc/GUI.hh"
+#include "Mu2eEventDisplay/inc/TextSelect.hh"
 #include "nlohmann/json.hpp"
 
 namespace ROOT::Experimental {
@@ -27,8 +27,8 @@ namespace mu2e {
       explicit EventDisplayManager(ROOT::Experimental::REveManager* eveMgr,
                                        std::condition_variable& cv,
                                        std::mutex& m,
-                                       REveMu2eGUI *fGui,
-                                       REveMu2eTextSelect *fText);
+                                       GUI *fGui,
+                                       TextSelect *fText);
 
     void NextEvent();
     void QuitRoot();
@@ -42,8 +42,8 @@ namespace mu2e {
       std::condition_variable* cv_{nullptr};
       std::mutex* m_{nullptr};
       bool doneProcessingEvents_{false};
-      REveMu2eGUI *fGui_{nullptr};
-      REveMu2eTextSelect *fText_{nullptr};
+      GUI *fGui_{nullptr};
+      TextSelect *fText_{nullptr};
     };
 }
 

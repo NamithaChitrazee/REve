@@ -1,9 +1,9 @@
-#include "Mu2eEventDisplay/inc/REveMu2eGUI.hh"
+#include "Mu2eEventDisplay/inc/GUI.hh"
 
 using namespace mu2e;
 
 
-int REveMu2eGUI::WriteCoreJson(nlohmann::json &j, int rnr_offset)
+int GUI::WriteCoreJson(nlohmann::json &j, int rnr_offset)
 {
   j["path"] = "Event/SubRun/Run"; 
   j["eventid"] = feventid;
@@ -12,9 +12,9 @@ int REveMu2eGUI::WriteCoreJson(nlohmann::json &j, int rnr_offset)
   j["UT_PostStream"] = "UT_refresh_event_info";
   return ROOT::Experimental::REveElement::WriteCoreJson(j, 0);
 }
-void REveMu2eGUI::setEvent(int event){ eventNumber = event; }
-void REveMu2eGUI::setRun(int run){ runNumber = run; }
-void REveMu2eGUI::getRunEvent(){ std::cout<<"GUI SETTTTT"<<runNumber<<" "<<eventNumber<<std::endl;}
+void GUI::setEvent(int event){ eventNumber = event; }
+void GUI::setRun(int run){ runNumber = run; }
+void GUI::getRunEvent(){ std::cout<<"GUI SETTTTT"<<runNumber<<" "<<eventNumber<<std::endl;}
 
 
   

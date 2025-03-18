@@ -1,5 +1,5 @@
-#ifndef _REveMu2ePrintInfo_hh
-#define _REveMu2ePrintInfo_hh
+#ifndef _PrintInfo_hh
+#define _PrintInfo_hh
 
 #include <ROOT/REveElement.hxx>
 #include "Offline/RecoDataProducts/inc/CaloCluster.hh"
@@ -17,10 +17,10 @@ namespace REX = ROOT::Experimental;
 using namespace ROOT::Experimental;
 
 namespace mu2e {
-class REveMu2ePrintInfo : public ROOT::Experimental::REveElement
+class PrintInfo : public ROOT::Experimental::REveElement
 {
   public:
-     REveMu2ePrintInfo() = default;
+     PrintInfo() = default;
      const mu2e::CaloClusterCollection* clustercol = 0;
      std::vector<const mu2e::CaloClusterCollection*> calocluster_list;
      std::vector<std::string> calocluster_labels;

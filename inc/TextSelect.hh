@@ -1,5 +1,5 @@
-#ifndef _REveMu2eTextSelect_hh
-#define _REveMu2eTextSelect_hh
+#ifndef _TextSelect_hh
+#define _TextSelect_hh
 
 #include <ROOT/REveElement.hxx>
 
@@ -7,17 +7,17 @@ namespace REX = ROOT::Experimental;
 using namespace ROOT::Experimental;
 
 namespace mu2e {
-class REveMu2eTextSelect : public ROOT::Experimental::REveElement
+class TextSelect : public ROOT::Experimental::REveElement
 {
   public:
-    //REveMu2eTextSelect(int &test_) : test(test_){};
-    /*REveMu2eTextSelect() = default; // ROOT needs a dictionary
-    REveMu2eTextSelect(){};
+    //TextSelect(int &test_) : test(test_){};
+    /*TextSelect() = default; // ROOT needs a dictionary
+    TextSelect(){};
 
-    explicit REveMu2eTextSelect(
+    explicit TextSelect(
         int runn,
         int eventn)
-        : REveElement{"REveMu2eTextSelect"}, runN(runn), eventN(eventn)
+        : REveElement{"TextSelect"}, runN(runn), eventN(eventn)
       {}*/
       
        void set(int run, int event);
