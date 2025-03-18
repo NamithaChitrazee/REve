@@ -1,4 +1,4 @@
-#include "Mu2eEventDisplay/inc/GUI.hh"
+#include "EventDisplay/inc/GUI.hh"
 
 using namespace mu2e;
 

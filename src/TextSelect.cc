@@ -1,4 +1,4 @@
-#include "Mu2eEventDisplay/inc/TextSelect.hh"
+#include "EventDisplay/inc/TextSelect.hh"
 
 using namespace mu2e;
 

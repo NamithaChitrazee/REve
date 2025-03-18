@@ -1,4 +1,4 @@
-#include "Mu2eEventDisplay/inc/DataInterface.hh"
+#include "EventDisplay/inc/DataInterface.hh"
 #include "Offline/DataProducts/inc/GenVector.hh"
 #include "Offline/ConfigTools/inc/SimpleConfig.hh"
 #include "Offline/GeometryService/inc/GeomHandle.hh"

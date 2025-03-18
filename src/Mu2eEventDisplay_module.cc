@@ -51,14 +51,14 @@
 #pragma GCC diagnostic pop
 
 //
-#include "Mu2eEventDisplay/inc/MainWindow.hh"
-#include "Mu2eEventDisplay/inc/EventDisplayManager.hh"
-#include "Mu2eEventDisplay/inc/CollectionFiller.hh"
-#include "Mu2eEventDisplay/inc/DataCollections.hh"
-#include "Mu2eEventDisplay/inc/GUI.hh"
-#include "Mu2eEventDisplay/inc/TextSelect.hh"
-#include "Mu2eEventDisplay/inc/DataProduct.hh"
-#include "Mu2eEventDisplay/inc/PrintInfo.hh"
+#include "EventDisplay/inc/MainWindow.hh"
+#include "EventDisplay/inc/EventDisplayManager.hh"
+#include "EventDisplay/inc/CollectionFiller.hh"
+#include "EventDisplay/inc/DataCollections.hh"
+#include "EventDisplay/inc/GUI.hh"
+#include "EventDisplay/inc/TextSelect.hh"
+#include "EventDisplay/inc/DataProduct.hh"
+#include "EventDisplay/inc/PrintInfo.hh"
 
 //Ofline
 #include "Offline/RecoDataProducts/inc/CaloCluster.hh"

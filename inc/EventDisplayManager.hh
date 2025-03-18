@@ -8,8 +8,8 @@
 #include <mutex>
 #include <stdexcept>
 #include <iostream>
-#include "Mu2eEventDisplay/inc/GUI.hh"
-#include "Mu2eEventDisplay/inc/TextSelect.hh"
+#include "EventDisplay/inc/GUI.hh"
+#include "EventDisplay/inc/TextSelect.hh"
 #include "nlohmann/json.hpp"
 
 namespace ROOT::Experimental {

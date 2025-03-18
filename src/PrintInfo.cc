@@ -1,4 +1,4 @@
-#include "Mu2eEventDisplay/inc/PrintInfo.hh"
+#include "EventDisplay/inc/PrintInfo.hh"
 #include "Offline/GlobalConstantsService/inc/GlobalConstantsHandle.hh"
 #include "Offline/GlobalConstantsService/inc/ParticleDataList.hh"
 
