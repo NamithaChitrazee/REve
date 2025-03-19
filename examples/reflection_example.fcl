@@ -62,6 +62,3 @@ physics.analyzers.Mu2eEventDisplay.diagLevel : 10
 
 # useless file name
 services.TFileService.fileName: "/dev/null"
-
-#include "reflect_em.fcl"
-
