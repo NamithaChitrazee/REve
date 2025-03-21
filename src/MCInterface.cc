@@ -1,15 +1,15 @@
 #include "Offline/ConfigTools/inc/SimpleConfig.hh"
 #include "Offline/GeometryService/inc/GeomHandle.hh"
-#include "Mu2eEventDisplay/inc/REveMu2eMCInterface.hh"
+#include "EventDisplay/inc/MCInterface.hh"
 using namespace mu2e;
 namespace REX = ROOT::Experimental;
 
-int REveMu2eMCInterface::Contains(std::vector<int> v, int x)
+int MCInterface::Contains(std::vector<int> v, int x)
 {
   return std::count(v.begin(), v.end(), abs(x));
 }
 
-const char* REveMu2eMCInterface::GetParticleName(int PDGCode){
+const char* MCInterface::GetParticleName(int PDGCode){
   const char* pid = "pid";
   switch(PDGCode) {
     case PDGCode::e_minus:
@@ -49,7 +49,7 @@ const char* REveMu2eMCInterface::GetParticleName(int PDGCode){
   return pid;
 }
 
-void REveMu2eMCInterface::SetLineColorPID(int PDGCode,REX::REveLine *line){
+void MCInterface::SetLineColorPID(int PDGCode,REX::REveLine *line){
   Color_t color;
   switch(PDGCode) {
     case PDGCode::e_minus:
@@ -90,7 +90,7 @@ void REveMu2eMCInterface::SetLineColorPID(int PDGCode,REX::REveLine *line){
 }
 
 
-void REveMu2eMCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const MCTrajectoryCollection *>> mctrack_tuple, REX::REveElement* &scene, std::vector<int> particleIds, bool extracted){
+void MCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const MCTrajectoryCollection *>> mctrack_tuple, REX::REveElement* &scene, std::vector<int> particleIds, bool extracted){
   std::cout<<"[ REveMCInterface::AddMCTrajectoryCollection() ]"<<std::endl;
   std::string drawfilename("Mu2eEventDisplay/config/drawutils.txt");
   SimpleConfig drawconfig(drawfilename);
@@ -157,7 +157,7 @@ void REveMu2eMCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, b
   }
 }
 
-void REveMu2eMCInterface::AddSurfaceStepCollection(REX::REveManager *&eveMng, bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const SurfaceStepCollection *>> surfstep_tuple, REX::REveElement* &scene, std::vector<int> particleIds, bool extracted){
+void MCInterface::AddSurfaceStepCollection(REX::REveManager *&eveMng, bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const SurfaceStepCollection *>> surfstep_tuple, REX::REveElement* &scene, std::vector<int> particleIds, bool extracted){
   std::cout<<"[ REveMCInterface::AddSurfaceStepCollection() ]"<<std::endl;
   std::vector<const SurfaceStepCollection*> ssteps_list = std::get<1>(surfstep_tuple);
   std::vector<std::string> names = std::get<0>(surfstep_tuple);
@@ -196,8 +196,8 @@ void REveMu2eMCInterface::AddSurfaceStepCollection(REX::REveManager *&eveMng, bo
                 + " momentum " + momentum + " MeV/c, energy loss = " + edep + "MeV";
               // add point
               auto surfpoint = new REX::REvePointSet(mctitle,mctitle,1);
-              surfpoint->SetMarkerStyle(REveMu2eMCInterface::mstyle);
-              surfpoint->SetMarkerSize(REveMu2eMCInterface::msize);
+              surfpoint->SetMarkerStyle(MCInterface::mstyle);
+              surfpoint->SetMarkerSize(MCInterface::msize);
               surfpoint->SetMarkerColor(kBlack);
               surfpoint->SetNextPoint(pointmmTocm(midpos.X()),pointmmTocm(midpos.Y()) ,pointmmTocm(midpos.Z()));
               //scene->AddElement(surfpoint);

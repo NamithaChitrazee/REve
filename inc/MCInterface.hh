@@ -1,5 +1,5 @@
-#ifndef REveMu2eMCInterface_hh
-#define REveMu2eMCInterface_hh
+#ifndef MCInterface_hh
+#define MCInterface_hh
 #include <ROOT/REveElement.hxx>
 #include <ROOT/REvePointSet.hxx>
 #include <ROOT/REveManager.hxx>
@@ -25,14 +25,14 @@
 using namespace mu2e;
 namespace REX = ROOT::Experimental;
 namespace mu2e{
-    class REveMu2eMCInterface {
+    class MCInterface {
         public:
           static int const mstyle = 20 ;
           static int const msize = 5;
-          explicit REveMu2eMCInterface(){};
-          explicit REveMu2eMCInterface(const REveMu2eMCInterface &);
-          REveMu2eMCInterface& operator=(const REveMu2eMCInterface &);
-          virtual ~REveMu2eMCInterface() = default;
+          explicit MCInterface(){};
+          explicit MCInterface(const MCInterface &);
+          MCInterface& operator=(const MCInterface &);
+          virtual ~MCInterface() = default;
           #ifndef __CINT__
           inline constexpr double pointmmTocm(double mm){ return mm/10; };
           int Contains(std::vector<int> v, int x);
@@ -42,7 +42,7 @@ namespace mu2e{
           void AddMCTrajectoryCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const MCTrajectoryCollection*>> track_tuple, REX::REveElement* &scene, std::vector<int> particles, bool extracted );
           void AddSurfaceStepCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const SurfaceStepCollection*>> track_tuple, REX::REveElement* &scene, std::vector<int> particles, bool extracted );
           #endif
-          ClassDef(REveMu2eMCInterface, 0);
+          ClassDef(MCInterface, 0);
       };
 }
 

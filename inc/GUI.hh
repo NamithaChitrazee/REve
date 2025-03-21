@@ -1,5 +1,5 @@
-#ifndef _REveMu2eGUI_hh
-#define _REveMu2eGUI_hh
+#ifndef _GUI_hh
+#define _GUI_hh
 
 #include <ROOT/REveElement.hxx>
 #include "nlohmann/json.hpp"
@@ -7,7 +7,7 @@ namespace REX = ROOT::Experimental;
 using namespace ROOT::Experimental;
 
 namespace mu2e {
-class REveMu2eGUI : public ROOT::Experimental::REveElement
+class GUI : public ROOT::Experimental::REveElement
 {
   public:
      int feventid{0};

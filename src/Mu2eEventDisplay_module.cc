@@ -50,15 +50,15 @@
 #pragma GCC diagnostic ignored "-Wpedantic"
 #pragma GCC diagnostic pop
 
-//REveMu2e
-#include "Mu2eEventDisplay/inc/REveMu2eMainWindow.hh"
-#include "Mu2eEventDisplay/inc/EventDisplayManager.hh"
-#include "Mu2eEventDisplay/inc/CollectionFiller.hh"
-#include "Mu2eEventDisplay/inc/DataCollections.hh"
-#include "Mu2eEventDisplay/inc/REveMu2eGUI.hh"
-#include "Mu2eEventDisplay/inc/REveMu2eTextSelect.hh"
-#include "Mu2eEventDisplay/inc/REveMu2eDataProduct.hh"
-#include "Mu2eEventDisplay/inc/REveMu2ePrintInfo.hh"
+//
+#include "EventDisplay/inc/MainWindow.hh"
+#include "EventDisplay/inc/EventDisplayManager.hh"
+#include "EventDisplay/inc/CollectionFiller.hh"
+#include "EventDisplay/inc/DataCollections.hh"
+#include "EventDisplay/inc/GUI.hh"
+#include "EventDisplay/inc/TextSelect.hh"
+#include "EventDisplay/inc/DataProduct.hh"
+#include "EventDisplay/inc/PrintInfo.hh"
 
 //Ofline
 #include "Offline/RecoDataProducts/inc/CaloCluster.hh"
@@ -152,7 +152,7 @@ namespace mu2e
         void run_application();
         void process_single_event();
         void printOpts();
-        template <class T, class S> void FillAnyCollection(const art::Event& evt, std::vector<std::shared_ptr<REveMu2eDataProduct>>& list, std::tuple<std::vector<std::string>, std::vector<S>>& tuple);
+        template <class T, class S> void FillAnyCollection(const art::Event& evt, std::vector<std::shared_ptr<DataProduct>>& list, std::tuple<std::vector<std::string>, std::vector<S>>& tuple);
 
         // Application control
         TApplication application_{"none", nullptr, nullptr};
@@ -189,7 +189,7 @@ namespace mu2e
         bool specifyTag_ = false;
         TDirectory*   directory_ = nullptr;
         CollectionFiller filler_;
-        REveMu2eMainWindow *frame_;
+        MainWindow *frame_;
         DataCollections data;
         bool firstLoop_ = true;
         bool firstLoopCalo_ = true;
@@ -200,9 +200,9 @@ namespace mu2e
         bool showEM_;
 
         // Setup Custom GUI
-        REveMu2eGUI *fGui{nullptr};
-        REveMu2ePrintInfo *fPrint{nullptr};
-        REveMu2eTextSelect *fText{nullptr};
+        GUI *fGui{nullptr};
+        PrintInfo *fPrint{nullptr};
+        TextSelect *fText{nullptr};
         double eventid_;
         double runid_;
         double subrunid_;
@@ -211,7 +211,7 @@ namespace mu2e
         int runn;
         int subrunn;
 
-        std::vector<std::shared_ptr<REveMu2eDataProduct>> listoflists;
+        std::vector<std::shared_ptr<DataProduct>> listoflists;
         GeomOptions geomOpts;
         ConfigFileLookupPolicy configFile;
     };
@@ -309,7 +309,7 @@ namespace mu2e
   }
 
 
-  template <class T, class S> void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std::shared_ptr<REveMu2eDataProduct>>& list, std::tuple<std::vector<std::string>, std::vector<S>>& tuple){
+  template <class T, class S> void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std::shared_ptr<DataProduct>>& list, std::tuple<std::vector<std::string>, std::vector<S>>& tuple){
       // get all instances of products of type T
       std::vector<art::Handle<T>> vah = evt.getMany<T>();
       std::string name;
@@ -346,7 +346,7 @@ namespace mu2e
       runid_ = event.run();
       subrunid_ = event.subRun();
 
-      std::vector<std::shared_ptr<REveMu2eDataProduct>> _chits;
+      std::vector<std::shared_ptr<DataProduct>> _chits;
 
       if((seqMode_) or ( runid_ == runn and subrunid_ == subrunn and eventid_ == eventn)){
         // Hand off control to display thread
@@ -445,11 +445,11 @@ namespace mu2e
       RWebWindowsManager::AssignMainThrd();
       eveMng_ = REX::REveManager::Create();
       //InitGuiInfo()
-      fGui = new REveMu2eGUI();
+      fGui = new GUI();
       fGui->SetName("Mu2eGUI");
 
-      fPrint = new REveMu2ePrintInfo();
-      fText = new REveMu2eTextSelect();
+      fPrint = new PrintInfo();
+      fText = new TextSelect();
 
       // call manager
       eventMgr_ = new EventDisplayManager{eveMng_, cv_, m_, fGui, fText};
@@ -459,7 +459,7 @@ namespace mu2e
 
       assert(world);
 
-      frame_ = new REveMu2eMainWindow();
+      frame_ = new MainWindow();
       frame_->makeGeometryScene(eveMng_, geomOpts, gdmlname_);
 
       //add path to the custom GUI code here, this overrides ROOT GUI

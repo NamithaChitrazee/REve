@@ -13,7 +13,7 @@
 #include <TGComboBox.h>
 #include <TGListBox.h>
 
-#include "Mu2eEventDisplay/inc/DataCollections.hh"
+#include "EventDisplay/inc/DataCollections.hh"
 
 namespace mu2e{
 

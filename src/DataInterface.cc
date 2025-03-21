@@ -1,4 +1,4 @@
-#include "Mu2eEventDisplay/inc/REveMu2eDataInterface.hh"
+#include "EventDisplay/inc/DataInterface.hh"
 #include "Offline/DataProducts/inc/GenVector.hh"
 #include "Offline/ConfigTools/inc/SimpleConfig.hh"
 #include "Offline/GeometryService/inc/GeomHandle.hh"
@@ -16,9 +16,9 @@ std::string drawfilename("Mu2eEventDisplay/config/drawutils.txt");
 SimpleConfig drawconfig(drawfilename);
 
 
-void REveMu2eDataInterface::AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CaloDigiCollection*>> calodigi_tuple, REX::REveElement* &scene, bool addCrystalDraw){
+void DataInterface::AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CaloDigiCollection*>> calodigi_tuple, REX::REveElement* &scene, bool addCrystalDraw){
 
-  std::cout<<"[REveMu2eDataInterface] AddCaloDigi "<<std::endl;
+  std::cout<<"[DataInterface] AddCaloDigi "<<std::endl;
   std::vector<const CaloDigiCollection*> calodigi_list = std::get<1>(calodigi_tuple);
   std::vector<std::string> names = std::get<0>(calodigi_tuple);
   for(unsigned int j = 0; j< calodigi_list.size(); j++){
@@ -77,9 +77,9 @@ void REveMu2eDataInterface::AddCaloDigis(REX::REveManager *&eveMng, bool firstLo
     }
   }
 }
-void REveMu2eDataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CaloClusterCollection*>> calocluster_tuple, REX::REveElement* &scene, bool addCrystalDraw, double t1, double t2){
+void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CaloClusterCollection*>> calocluster_tuple, REX::REveElement* &scene, bool addCrystalDraw, double t1, double t2){
 
-  std::cout<<"[REveMu2eDataInterface] AddCaloClusters "<<std::endl;
+  std::cout<<"[DataInterface] AddCaloClusters "<<std::endl;
   std::vector<const CaloClusterCollection*> calocluster_list = std::get<1>(calocluster_tuple);
   std::vector<std::string> names = std::get<0>(calocluster_tuple);
   for(unsigned int j = 0; j< calocluster_list.size(); j++){
@@ -192,12 +192,12 @@ void REveMu2eDataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firs
         if(abs(cluster.time() - t2) >= 600 ) color = kViolet;
 
         ps1->SetMarkerColor(color);
-        ps1->SetMarkerStyle(REveMu2eDataInterface::mstyle);
-        ps1->SetMarkerSize(REveMu2eDataInterface::msize);
+        ps1->SetMarkerStyle(DataInterface::mstyle);
+        ps1->SetMarkerSize(DataInterface::msize);
 
         ps2->SetMarkerColor(color);
-        ps2->SetMarkerStyle(REveMu2eDataInterface::mstyle);
-        ps2->SetMarkerSize(REveMu2eDataInterface::msize);
+        ps2->SetMarkerStyle(DataInterface::mstyle);
+        ps2->SetMarkerSize(DataInterface::msize);
 
         // Add to REve world
         scene->AddElement(ps1);
@@ -252,7 +252,7 @@ void REveMu2eDataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firs
   }
 }
 
-void REveMu2eDataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple, REX::REveElement* &scene, bool strawdisplay, bool AddErrorBar_){
+void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple, REX::REveElement* &scene, bool strawdisplay, bool AddErrorBar_){
 
   std::vector<const ComboHitCollection*> combohit_list = std::get<1>(combohit_tuple);
   std::vector<std::string> names = std::get<0>(combohit_tuple);
@@ -343,8 +343,8 @@ void REveMu2eDataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLo
         auto ps1 = new REX::REvePointSet(chtitle, chtitle,0);
         ps1->SetNextPoint(HitPos.x(), HitPos.y() , HitPos.z());
         ps1->SetMarkerColor(colour);
-        ps1->SetMarkerStyle(REveMu2eDataInterface::mstyle);
-        ps1->SetMarkerSize(REveMu2eDataInterface::msize);
+        ps1->SetMarkerStyle(DataInterface::mstyle);
+        ps1->SetMarkerSize(DataInterface::msize);
         if(ps1->GetSize() !=0 ) scene->AddElement(ps1);
       }
     }
@@ -352,7 +352,7 @@ void REveMu2eDataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLo
 }
 
 /*------------Function to add CRV information to the display:-------------*/
-void REveMu2eDataInterface::AddCRVInfo(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CrvRecoPulseCollection*>>  crvpulse_tuple, REX::REveElement* &scene, bool extracted, bool addCRVBars){
+void DataInterface::AddCRVInfo(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CrvRecoPulseCollection*>>  crvpulse_tuple, REX::REveElement* &scene, bool extracted, bool addCRVBars){
   std::cout<<"[ REveDataInterface::AddCRVInfo() ]"<<std::endl;
   std::vector<const CrvRecoPulseCollection*> crvpulse_list = std::get<1>(crvpulse_tuple);
   std::vector<std::string> names = std::get<0>(crvpulse_tuple);
@@ -485,8 +485,8 @@ void REveMu2eDataInterface::AddCRVInfo(REX::REveManager *&eveMng, bool firstLoop
         scene->AddElement(allcrvbars);
         // Draw reco pulse collection
         ps1->SetMarkerColor(i+3);
-        ps1->SetMarkerStyle(REveMu2eDataInterface::mstyle);
-        ps1->SetMarkerSize(REveMu2eDataInterface::msize);
+        ps1->SetMarkerStyle(DataInterface::mstyle);
+        ps1->SetMarkerSize(DataInterface::msize);
         if(ps1->GetSize() !=0 ) scene->AddElement(ps1);
       }
     }
@@ -496,7 +496,7 @@ void REveMu2eDataInterface::AddCRVInfo(REX::REveManager *&eveMng, bool firstLoop
 
 
 /*------------Function to add CRV information to the display:-------------*/
-void REveMu2eDataInterface::AddCRVClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CrvCoincidenceClusterCollection*>>  crvpulse_tuple, REX::REveElement* &scene, bool extracted, bool addCRVBars){
+void DataInterface::AddCRVClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CrvCoincidenceClusterCollection*>>  crvpulse_tuple, REX::REveElement* &scene, bool extracted, bool addCRVBars){
 
   std::vector<const CrvCoincidenceClusterCollection*> crvpulse_list = std::get<1>(crvpulse_tuple);
   std::vector<std::string> names = std::get<0>(crvpulse_tuple);
@@ -631,8 +631,8 @@ void REveMu2eDataInterface::AddCRVClusters(REX::REveManager *&eveMng, bool first
             }
           }
         ps1->SetMarkerColor(drawconfig.getInt("CRVHitColor"));
-        ps1->SetMarkerStyle(REveMu2eDataInterface::mstyle);
-        ps1->SetMarkerSize(REveMu2eDataInterface::msize);
+        ps1->SetMarkerStyle(DataInterface::mstyle);
+        ps1->SetMarkerSize(DataInterface::msize);
         if(ps1->GetSize() !=0 ) scene->AddElement(ps1);
         scene->AddElement(allcrvbars);
         }
@@ -643,7 +643,7 @@ void REveMu2eDataInterface::AddCRVClusters(REX::REveManager *&eveMng, bool first
 }
 
 /*------------Function to add TimeCluster Collection in 3D and 2D displays:-------------*/
-void REveMu2eDataInterface::AddTimeClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const TimeClusterCollection*>>  timecluster_tuple, REX::REveElement* &scene){
+void DataInterface::AddTimeClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const TimeClusterCollection*>>  timecluster_tuple, REX::REveElement* &scene){
 
   std::vector<const TimeClusterCollection*> timecluster_list = std::get<1>(timecluster_tuple);
   std::vector<std::string> names = std::get<0>(timecluster_tuple);
@@ -666,7 +666,7 @@ void REveMu2eDataInterface::AddTimeClusters(REX::REveManager *&eveMng, bool firs
           ps1->SetNextPoint(pointmmTocm(HitPos.x()), pointmmTocm(HitPos.y()) , pointmmTocm(HitPos.z()));
           ps1->SetMarkerColor(i+6);
           ps1->SetMarkerStyle(kOpenCircle);
-          ps1->SetMarkerSize(REveMu2eDataInterface::msize);
+          ps1->SetMarkerSize(DataInterface::msize);
           if(ps1->GetSize() !=0 ) scene->AddElement(ps1);
         }
       }
@@ -675,8 +675,8 @@ void REveMu2eDataInterface::AddTimeClusters(REX::REveManager *&eveMng, bool firs
 }
 
 
-void REveMu2eDataInterface::AddHelixSeedCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const HelixSeedCollection*>> helix_tuple, REX::REveElement* &scene){
-  std::cout<<"[REveMu2eDataInterface] AddHelices "<<std::endl;
+void DataInterface::AddHelixSeedCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const HelixSeedCollection*>> helix_tuple, REX::REveElement* &scene){
+  std::cout<<"[DataInterface] AddHelices "<<std::endl;
   std::vector<const HelixSeedCollection*> helix_list = std::get<1>(helix_tuple);
   std::vector<std::string> names = std::get<0>(helix_tuple);
   for(unsigned int j=0; j< helix_list.size(); j++){
@@ -711,7 +711,7 @@ void REveMu2eDataInterface::AddHelixSeedCollection(REX::REveManager *&eveMng,boo
   }
 }
 
-void REveMu2eDataInterface::AddKalIntersection(KalSeed const& kalseed, REX::REveElement* &scene, REX::REveCompound *products){
+void DataInterface::AddKalIntersection(KalSeed const& kalseed, REX::REveElement* &scene, REX::REveCompound *products){
   //Plot intersecitons:
   std::vector<mu2e::KalIntersection> const& inters = kalseed.intersections();
 
@@ -727,8 +727,8 @@ void REveMu2eDataInterface::AddKalIntersection(KalSeed const& kalseed, REX::REve
       + "Surface " +  inter.surfaceId().name();
     auto interpoint = new REX::REvePointSet(title, title,1);
 
-    interpoint->SetMarkerStyle(REveMu2eDataInterface::mstyle);
-    interpoint->SetMarkerSize(REveMu2eDataInterface::msize);
+    interpoint->SetMarkerStyle(DataInterface::mstyle);
+    interpoint->SetMarkerSize(DataInterface::msize);
     if(fabs(inter.dMom()) > 0.0){
       interpoint->SetMarkerColor(kViolet);// color material intersections differently from virtual surface intersections
     } else {
@@ -740,8 +740,8 @@ void REveMu2eDataInterface::AddKalIntersection(KalSeed const& kalseed, REX::REve
 
 }
 
-template<class KTRAJc> void REveMu2eDataInterface::AddTrkStrawHit(KalSeed const& kalseed, REX::REveElement* &scene,  std::unique_ptr<KTRAJc> &lhptr, REX::REveCompound *trackproducts){
-  std::cout<<"[REveMu2eDataInterface::AddTrkStrawHit]"<<std::endl;
+template<class KTRAJc> void DataInterface::AddTrkStrawHit(KalSeed const& kalseed, REX::REveElement* &scene,  std::unique_ptr<KTRAJc> &lhptr, REX::REveCompound *trackproducts){
+  std::cout<<"[DataInterface::AddTrkStrawHit]"<<std::endl;
   //Plot trk straw hits
   mu2e::GeomHandle<mu2e::Tracker> tracker;
   std::vector<mu2e::TrkStrawHitSeed> const& hits = kalseed.hits();
@@ -784,8 +784,8 @@ template<class KTRAJc> void REveMu2eDataInterface::AddTrkStrawHit(KalSeed const&
         + " error : " + err_title;
       auto point_with_error = new REX::REveCompound("TrkStrawHitSeed "+std::to_string(i), "TrkStrawHitSeed",1);
       auto trkstrawpoint = new REX::REvePointSet(title, title,1);
-      trkstrawpoint->SetMarkerStyle(REveMu2eDataInterface::mstyle);
-      trkstrawpoint->SetMarkerSize(REveMu2eDataInterface::msize);
+      trkstrawpoint->SetMarkerStyle(DataInterface::mstyle);
+      trkstrawpoint->SetMarkerSize(DataInterface::msize);
       trkstrawpoint->SetMarkerColor(drawconfig.getInt("TrkHitColor"));
       auto line = new REX::REveLine("TrkStrawHit Error"+err_title,err_title, 1);
       line->SetNextPoint(pointmmTocm(end1.x()),pointmmTocm(end1.y()) ,pointmmTocm(end1.z()));
@@ -800,15 +800,15 @@ template<class KTRAJc> void REveMu2eDataInterface::AddTrkStrawHit(KalSeed const&
   }
 }
 
-void REveMu2eDataInterface::AddTrkCaloHit(KalSeed const& kalseed, REX::REveElement* &scene){
+void DataInterface::AddTrkCaloHit(KalSeed const& kalseed, REX::REveElement* &scene){
   /*mu2e::TrkCaloHitSeed caloseed = kalseed.caloHit();
     art::Ptr<mu2e::CaloCluster> cluster = caloseed.caloCluster(); // TODO - use this to access x,y,z,t
     */
 }
 
 /*------------Function to color code the Tracker hits -------------*/
-void REveMu2eDataInterface::AddTrkHits(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple,std::tuple<std::vector<std::string>, std::vector<const KalSeedPtrCollection*>> track_tuple, REX::REveElement* &scene){
-  std::cout<<"[REveMu2eDataInterface] AddTrkHits  "<<std::endl;
+void DataInterface::AddTrkHits(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple,std::tuple<std::vector<std::string>, std::vector<const KalSeedPtrCollection*>> track_tuple, REX::REveElement* &scene){
+  std::cout<<"[DataInterface] AddTrkHits  "<<std::endl;
   std::vector<const ComboHitCollection*> combohit_list = std::get<1>(combohit_tuple);
   std::vector<const KalSeedPtrCollection*> track_list = std::get<1>(track_tuple);
 
@@ -849,8 +849,8 @@ void REveMu2eDataInterface::AddTrkHits(REX::REveManager *&eveMng, bool firstLoop
                     + "MeV";
 
                   auto trkhit = new REX::REvePointSet(chtitle, chtitle,0);
-                  trkhit ->SetMarkerStyle(REveMu2eDataInterface::mstyle);
-                  trkhit ->SetMarkerSize(REveMu2eDataInterface::msize);
+                  trkhit ->SetMarkerStyle(DataInterface::mstyle);
+                  trkhit ->SetMarkerSize(DataInterface::msize);
                   // trkhit ->SetMarkerColor(drawconfig.getInt("RecoTrackColor")-4);
                   trkhit ->SetMarkerColor(drawconfig.getInt("TrkHitColor"));
                   trkhit ->SetNextPoint(pointmmTocm(HitPos.x()),pointmmTocm(HitPos.y()) ,pointmmTocm(HitPos.z()));
@@ -869,7 +869,7 @@ void REveMu2eDataInterface::AddTrkHits(REX::REveManager *&eveMng, bool firstLoop
 using LHPT = KalSeed::LHPT;
 using CHPT = KalSeed::CHPT;
 using KLPT = KalSeed::KLPT;
-template<class KTRAJ> void REveMu2eDataInterface::AddKinKalTrajectory( std::unique_ptr<KTRAJ> &trajectory, REX::REveElement* &scene, unsigned int j, std::string kaltitle, double& t1, double& t2){
+template<class KTRAJ> void DataInterface::AddKinKalTrajectory( std::unique_ptr<KTRAJ> &trajectory, REX::REveElement* &scene, unsigned int j, std::string kaltitle, double& t1, double& t2){
   t1=trajectory->range().begin();
   t2=trajectory->range().end();
 
@@ -892,8 +892,8 @@ template<class KTRAJ> void REveMu2eDataInterface::AddKinKalTrajectory( std::uniq
   scene->AddElement(line);
 }
 
-void REveMu2eDataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstloop, REX::REveElement* &scene, std::tuple<std::vector<std::string>, std::vector<const KalSeedPtrCollection*>> track_tuple, bool plotKalIntersection, bool addTrkHits, double& t1, double& t2){
-  std::cout<<"[REveMu2eDataInterface::FillKinKalTrajectory()]"<<std::endl;
+void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstloop, REX::REveElement* &scene, std::tuple<std::vector<std::string>, std::vector<const KalSeedPtrCollection*>> track_tuple, bool plotKalIntersection, bool addTrkHits, double& t1, double& t2){
+  std::cout<<"[DataInterface::FillKinKalTrajectory()]"<<std::endl;
   auto const& ptable = GlobalConstantsHandle<ParticleDataList>();
   std::vector<const KalSeedPtrCollection*> track_list = std::get<1>(track_tuple);
   std::vector<std::string> names = std::get<0>(track_tuple);
@@ -981,9 +981,9 @@ void REveMu2eDataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool
   }
 }
 
-void REveMu2eDataInterface::AddCosmicTrackFit(REX::REveManager *&eveMng, bool firstLoop_, const mu2e::CosmicTrackSeedCollection *cosmiccol, REX::REveElement* &scene){
+void DataInterface::AddCosmicTrackFit(REX::REveManager *&eveMng, bool firstLoop_, const mu2e::CosmicTrackSeedCollection *cosmiccol, REX::REveElement* &scene){
 
-  std::cout<<"[REveMu2eDataInterface] AddCosmicTrackSeed "<<std::endl;
+  std::cout<<"[DataInterface] AddCosmicTrackSeed "<<std::endl;
   if(cosmiccol!=0){
     auto line = new REX::REveLine("Cosmic","Cosmic",2);
     for(unsigned int i=0; i< cosmiccol->size(); i++){

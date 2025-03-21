@@ -1,7 +1,7 @@
 #include <TObject.h>
 #include <TSystem.h>
 #include <TFile.h>
-#include "Mu2eEventDisplay/inc/CollectionFiller.hh"
+#include "EventDisplay/inc/CollectionFiller.hh"
 #include "art/Framework/Principal/SubRun.h"
 
 using namespace mu2e;

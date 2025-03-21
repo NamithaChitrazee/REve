@@ -1,5 +1,5 @@
-#ifndef _REveMu2eGeomUtil_hh
-#define _REveMu2eGeomUtil_hh
+#ifndef _GeomUtil_hh
+#define _GeomUtil_hh
 
 #include <ROOT/REveElement.hxx>
 #include <ROOT/REveManager.hxx>
@@ -10,18 +10,18 @@
 namespace REX = ROOT::Experimental;
 
 namespace mu2e {
-    class REveMu2eGeomUtil  : public REX::REveElement {
+    class GeomUtil  : public REX::REveElement {
 
         public :
-            explicit REveMu2eGeomUtil() { SetErrorHandler(DefaultErrorHandler); }
-            virtual ~REveMu2eGeomUtil() {}
+            explicit GeomUtil() { SetErrorHandler(DefaultErrorHandler); }
+            virtual ~GeomUtil() {}
             #ifndef __CINT__
             double FindStoppingTarget_z();
             double GetStoppingTarget_z(){ return StoppingTarget_z; }
             double StoppingTarget_z;
 
             #endif
-            ClassDef(REveMu2eGeomUtil, 0);
+            ClassDef(GeomUtil, 0);
 
 
 

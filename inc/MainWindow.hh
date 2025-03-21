@@ -1,5 +1,5 @@
-#ifndef _REveMu2eMainWindow_hh
-#define _REveMu2eMainWindow_hh
+#ifndef _MainWindow_hh
+#define _MainWindow_hh
 
 #include <vector>
 #include <string>
@@ -40,10 +40,10 @@
 #include <ROOT/REveTableInfo.hxx>
 #include <ROOT/REveViewContext.hxx>
 #include "art/Framework/Principal/Event.h"
-#include "Mu2eEventDisplay/inc/DataCollections.hh"
-#include "Mu2eEventDisplay/inc/REveMu2eDataInterface.hh"
-#include "Mu2eEventDisplay/inc/REveMu2eMCInterface.hh"
-#include "Mu2eEventDisplay/inc/REveMu2eGeomUtil.hh"
+#include "EventDisplay/inc/DataCollections.hh"
+#include "EventDisplay/inc/DataInterface.hh"
+#include "EventDisplay/inc/MCInterface.hh"
+#include "EventDisplay/inc/GeomUtil.hh"
 #include "Offline/StoppingTargetGeom/inc/StoppingTarget.hh"
 
 #include <utility>
@@ -136,14 +136,14 @@ namespace mu2e {
       : addCosmicTracks(cosmictracks), addHelices(helices), addTracks(tracks), addCaloDigis(calodigis), addClusters(clusters), addComboHits(combohits), addCRVInfo(crv), addCRVClusters(crvclu), addTimeClusters(timeclusters), addTrkHits(trkhits), addMCTrajectories(mctraj), addSurfaceSteps(surfsteps), addTrkErrBar(errbar), addCrystalDraw(crys), addCRVBars(crvbars) {};
      };
 
-    class REveMu2eMainWindow  : public REX::REveElement {
+    class MainWindow  : public REX::REveElement {
 
         public :
-            explicit REveMu2eMainWindow() { SetErrorHandler(DefaultErrorHandler); }
-            virtual ~REveMu2eMainWindow() {}
+            explicit MainWindow() { SetErrorHandler(DefaultErrorHandler); }
+            virtual ~MainWindow() {}
             #ifndef __CINT__
-            REveMu2eDataInterface *pass_data;
-            REveMu2eMCInterface *pass_mc;
+            DataInterface *pass_data;
+            MCInterface *pass_mc;
 
             void makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX::REveElement* holder, int j, bool crys1, bool crys2, std::string name, int color);
             void changeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX::REveElement* holder, int j, bool crys1, bool crys2, std::string name);
@@ -178,7 +178,7 @@ namespace mu2e {
             REX::REveViewer *rhoZView = nullptr;
 
             #else
-                ClassDef(REveMu2eMainWindow, 0);
+                ClassDef(MainWindow, 0);
             #endif
 
     };

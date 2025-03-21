@@ -1,21 +1,21 @@
-#include "Mu2eEventDisplay/inc/REveMu2ePrintInfo.hh"
+#include "EventDisplay/inc/PrintInfo.hh"
 #include "Offline/GlobalConstantsService/inc/GlobalConstantsHandle.hh"
 #include "Offline/GlobalConstantsService/inc/ParticleDataList.hh"
 
 using namespace mu2e;
 
-void REveMu2ePrintInfo::PrintMCInfo(){
+void PrintInfo::PrintMCInfo(){
   PrintSimInfo();
 }
 
-void REveMu2ePrintInfo::PrintRecoInfo(){
+void PrintInfo::PrintRecoInfo(){
   PrintKalInfo();
   PrintCaloInfo();
   PrintCRVInfo();
 }
 
 
-void REveMu2ePrintInfo::PrintSimInfo(){
+void PrintInfo::PrintSimInfo(){
 
   std::vector<const MCTrajectoryCollection*> track_list = std::get<1>(fmctrack_tuple);
   if(track_list.size() > 0){
@@ -55,7 +55,7 @@ void REveMu2ePrintInfo::PrintSimInfo(){
   }
 }
 
-void  REveMu2ePrintInfo::PrintKalInfo(){
+void  PrintInfo::PrintKalInfo(){
   auto const& ptable = GlobalConstantsHandle<ParticleDataList>();
   std::vector<const KalSeedPtrCollection*> ktrack_list = std::get<1>(ftrack_tuple);
   std::vector<std::string> names = std::get<0>(ftrack_tuple);
@@ -104,7 +104,7 @@ void  REveMu2ePrintInfo::PrintKalInfo(){
   }
 }
 
-void REveMu2ePrintInfo::PrintCaloInfo(){
+void PrintInfo::PrintCaloInfo(){
   std::vector<const CaloClusterCollection*> calocluster_list = std::get<1>(fcalocluster_tuple);
   if(calocluster_list.size()!=0){
     for(unsigned int j = 0; j< calocluster_list.size(); j++){
@@ -127,7 +127,7 @@ void REveMu2ePrintInfo::PrintCaloInfo(){
   }
 }
 
-void REveMu2ePrintInfo::PrintCRVInfo(){
+void PrintInfo::PrintCRVInfo(){
   std::cout<<"CRV COINCIDENCE INFORMATION"<<std::endl;
   std::vector<const CrvCoincidenceClusterCollection*> crvcoin_list = std::get<1>(fcrvcoin_tuple);
   if(crvcoin_list.size()!=0){

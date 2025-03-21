@@ -1,5 +1,5 @@
-#ifndef REveMu2eDataInterface_hh
-#define REveMu2eDataInterface_hh
+#ifndef DataInterface_hh
+#define DataInterface_hh
 #include <ROOT/REveElement.hxx>
 #include <ROOT/REvePointSet.hxx>
 #include <ROOT/REveManager.hxx>
@@ -42,14 +42,14 @@
 using namespace mu2e;
 namespace REX = ROOT::Experimental;
 namespace mu2e{
-    class REveMu2eDataInterface {
+    class DataInterface {
         public:
           static int const mstyle = 1;
           static int const msize = 5;
-          explicit REveMu2eDataInterface(){};
-          explicit REveMu2eDataInterface(const REveMu2eDataInterface &);
-          REveMu2eDataInterface& operator=(const REveMu2eDataInterface &);
-          virtual ~REveMu2eDataInterface() = default;
+          explicit DataInterface(){};
+          explicit DataInterface(const DataInterface &);
+          DataInterface& operator=(const DataInterface &);
+          virtual ~DataInterface() = default;
           #ifndef __CINT__
 
           inline constexpr double pointmmTocm(double mm){ return mm/10; };
@@ -69,7 +69,7 @@ namespace mu2e{
           void AddCosmicTrackFit(REX::REveManager *&eveMng, bool firstLoop_, const mu2e::CosmicTrackSeedCollection *cosmiccol, REX::REveElement* &scene);
 
           #endif
-          ClassDef(REveMu2eDataInterface, 0);
+          ClassDef(DataInterface, 0);
       };
 }
 

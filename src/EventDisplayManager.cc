@@ -1,4 +1,4 @@
-#include "Mu2eEventDisplay/inc/EventDisplayManager.hh"
+#include "EventDisplay/inc/EventDisplayManager.hh"
 
 
 namespace mu2e {
@@ -7,8 +7,8 @@ namespace mu2e {
     ROOT::Experimental::REveManager* eveMgr,
     std::condition_variable& cv,
     std::mutex& m,
-    REveMu2eGUI *fGui,
-    REveMu2eTextSelect *fText)
+    GUI *fGui,
+    TextSelect *fText)
     : REveElement{"EventManager"}, eveMng_{eveMgr}, cv_{&cv}, m_{&m}, fGui_(fGui), fText_(fText)
   {}
 
