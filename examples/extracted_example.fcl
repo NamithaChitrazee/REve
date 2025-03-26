@@ -3,7 +3,7 @@
 #include "Offline/fcl/minimalMessageService.fcl"
 #include "Offline/fcl/standardProducers.fcl"
 #include "Offline/fcl/standardServices.fcl"
-#include "Mu2eEventDisplay/fcl/prolog.fcl"
+#include "EventDisplay/fcl/prolog.fcl"
 services : @local::Services.Reco
 process_name : HelixED
 source : { module_type : RootInput }

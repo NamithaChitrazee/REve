@@ -14,7 +14,7 @@ double nCrystals = 674;
 double FrontTracker_gdmltag;
 
 // Get geom information from Event Display configs:
-std::string drawoptfilename("Mu2eEventDisplay/config/drawutils.txt");
+std::string drawoptfilename("EventDisplay/config/drawutils.txt");
 SimpleConfig drawconfigf(drawoptfilename);
 
 void MainWindow::makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX::REveElement* holder, int val, bool crystal1, bool crystal2, std::string name, int color)
