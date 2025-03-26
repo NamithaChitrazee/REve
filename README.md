@@ -1,8 +1,8 @@
-# Mu2eEventDisplay
+# EventDisplay
 
-This repo contains the current Mu2eEventDisplay source code, example fcls, tutorials and documentation.
+This repo contains the current EventDisplay source code, example fcls, tutorials and documentation.
 
-The Mu2eEventDisplay is based on REve which is an updated version of the well-known and widely used TEve ROOT based Event Visualization Software. REve uses modernized infrastcutrue and allows Web Access for remote use.
+The EventDisplay is based on REve which is an updated version of the well-known and widely used TEve ROOT based Event Visualization Software. REve uses modernized infrastcutrue and allows Web Access for remote use.
 
 For more information about REve and the implementation for Mu2e see: https://mu2ewiki.fnal.gov/wiki/Eve7EventDisplay#Examples_of_the_Eve-7_Mu2e_Display.
 
@@ -13,12 +13,12 @@ You can run the REve Mu2e code in the same way as any analyzer in Mu2e Offline.
 A number of "examples" are contained in the "examples" directory. The nominal_example.fcl is used for displaying reconstructed (and true MC) for nominal geometry:
 
 ```
-mu2e -c Mu2eEventDisplay/examples/nominal_example.fcl FILENAME.art  
+mu2e -c EventDisplay/examples/nominal_example.fcl FILENAME.art  
 ```
 
 Things can be added and removed on the GUI once set to "true" in the FCL. Just uncheck the boxes associated with the geometry you want to remove.
 
-NOTE: you should run this from your working directory, not inside of Mu2eEventDisplay. This is for the firefox browser path #FIXME.
+NOTE: you should run this from your working directory, not inside of EventDisplay. This is for the firefox browser path #FIXME.
 
 For extracted position data/MC please use the extracted_example.fcl
 

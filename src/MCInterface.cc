@@ -92,7 +92,7 @@ void MCInterface::SetLineColorPID(int PDGCode,REX::REveLine *line){
 
 void MCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const MCTrajectoryCollection *>> mctrack_tuple, REX::REveElement* &scene, std::vector<int> particleIds, bool extracted){
   std::cout<<"[ REveMCInterface::AddMCTrajectoryCollection() ]"<<std::endl;
-  std::string drawfilename("Mu2eEventDisplay/config/drawutils.txt");
+  std::string drawfilename("EventDisplay/config/drawutils.txt");
   SimpleConfig drawconfig(drawfilename);
 
   // eEtract the track and input tag:
@@ -168,7 +168,7 @@ void MCInterface::AddSurfaceStepCollection(REX::REveManager *&eveMng, bool first
       
       // make compund object to store hits
       auto allpoints = new REX::REveCompound(comptitle,comptitle,1);
-      std::string drawfilename("Mu2eEventDisplay/config/drawutils.txt");
+      std::string drawfilename("EventDisplay/config/drawutils.txt");
       SimpleConfig drawconfig(drawfilename);
 
       // eXtract the track and input tag:
