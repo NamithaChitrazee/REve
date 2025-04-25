@@ -38,7 +38,7 @@ install_headers(SUBDIRNAME EventDisplay SUBDIRS inc)
 #install_headers(SUBDIRNAME EventDisplay SUBDIRS tutorial)
 #install(DIRECTORY utils DESTINATION python)
 #install(DIRECTORY tutorial doc example-analysis-scripts validation DESTINATION ${CMAKE_INSTALL_DATAROOTDIR})
-install(DIRECTORY config gdml tutorial DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/EventDisplay)
+install(DIRECTORY CustomGUIv2 config gdml tutorial DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/EventDisplay)
 
 install_source(SUBDIRS src)
 install_headers(NO_RELATIVE_SUBDIR SUBDIRS inc SUBDIRNAME EventDisplay)
