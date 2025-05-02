@@ -262,7 +262,7 @@ namespace mu2e
   Mu2eEventDisplay::~Mu2eEventDisplay() {}
 
   void Mu2eEventDisplay::signalAppStart()
-  {
+  { 
       std::unique_lock lock{m_};
       cv_.notify_all();
   }
@@ -270,6 +270,7 @@ namespace mu2e
   void Mu2eEventDisplay::beginJob(){
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : beginJob()] -- starting ..."<<std::endl;
       {
+            
       std::unique_lock lock{m_};
 
       appThread_ = std::thread{[this] { run_application(); }};
@@ -444,6 +445,8 @@ namespace mu2e
   {
       RWebWindowsManager::AssignMainThrd();
       eveMng_ = REX::REveManager::Create();
+      eveMng_->AllowMultipleRemoteConnections(false, false);
+      ROOT::RWebWindowsManager::SetUseSessionKey(false);
       //InitGuiInfo()
       fGui = new GUI();
       fGui->SetName("Mu2eGUI");
