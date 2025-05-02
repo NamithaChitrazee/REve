@@ -443,8 +443,6 @@ namespace mu2e
 
   void Mu2eEventDisplay::setup_eve()
   {
-      
-      
       RWebWindowsManager::AssignMainThrd();
       eveMng_ = REX::REveManager::Create();
       eveMng_->AllowMultipleRemoteConnections(false, false);
@@ -468,8 +466,7 @@ namespace mu2e
       frame_->makeGeometryScene(eveMng_, geomOpts, gdmlname_);
 
       //add path to the custom GUI code here, this overrides ROOT GUI
-      
-      eveMng_->AddLocation("mydir/", "EventDisplay/CustomGUIv2");
+      eveMng_->AddLocation("mydir/", configFile("EventDisplay/CustomGUIv2"));
       eveMng_->SetDefaultHtmlPage("file:mydir/eventDisplay.html");
 
       // InitGuiInfo() cont'd
