@@ -108,7 +108,7 @@ namespace mu2e{
         std::cout<<"Plotting CaloDigi Instance: "<<name<<std::endl;
         data.calodigi_labels.push_back(name);
       }
-      data.calocluster_tuple = std::make_tuple(data.calocluster_labels,data.calocluster_list);
+      data.calodigi_tuple = std::make_tuple(data.calodigi_labels,data.calodigi_list);
     }
     if(FillAll_  or (CollectionName == CaloClusters)){
       for(const auto &tag : cluTag_){
