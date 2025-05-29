@@ -22,8 +22,8 @@ Mu2eEventDisplay : {
     filler : {
       diagLevel : 0
       ComboHitCollection : ["makeSH"]
-      CrvRecoPulseCollection : ["SelectRecoMC"]
-      CrvCoincidenceClusterCollection : ["SelectRecoMC:CrvCoincidenceClusterFinder" ]
+      CrvRecoPulseCollection : ["SelectReco"]
+      CrvCoincidenceClusterCollection : ["SelectReco:CrvCoincidenceClusterFinder" ]
       TimeClusterCollection : ["MHDeM"]
       CaloDigiCollection : ["CaloDigi"]
       CaloClusterCollection : ["CaloClusterMaker"]
