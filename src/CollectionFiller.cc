@@ -12,7 +12,7 @@ namespace mu2e{
     tcTag_(conf.tcTag()),
     crvrecoTag_(conf.crvrecoTag()),
     crvcoinTag_(conf.crvcoinTag()),
-    calodigTag_(conf.cluTag()),
+    calodigTag_(conf.calodigTag()),
     cluTag_(conf.cluTag()),
     helixSeedTag_(conf.helixSeedTag()),
     kalSeedTag_(conf.kalSeedTag()),

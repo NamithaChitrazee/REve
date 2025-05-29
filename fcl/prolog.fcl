@@ -25,12 +25,12 @@ Mu2eEventDisplay : {
       CrvRecoPulseCollection : ["SelectReco"]
       CrvCoincidenceClusterCollection : ["SelectReco:CrvCoincidenceClusterFinder" ]
       TimeClusterCollection : ["MHDeM"]
-      CaloDigiCollection : ["CaloDigiMaker"]
+      CaloDigiCollection : ["CaloDigi"]
       CaloClusterCollection : ["CaloClusterMaker"]
-      KalSeedPtrCollection : ["MergeKK"]
+      KalSeedPtrCollection : ["KKDmuH"]
       HelixSeedCollection : ["MHFinderDe"]
       CosmicTrackSeedCollection : "CosmicTrackFinderTimeFit"
-      MCTrajectoryCollection :  ["compressRecoMCs"]
+      MCTrajectoryCollection :  ["compressDigiMCs"]
 #      SurfaceStepCollection :  ["compressRecoMCs"]
       SurfaceStepCollection :  []
       addHits : false
