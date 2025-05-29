@@ -207,13 +207,10 @@ void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_, 
 
 
         // Set positions of clusters
-        if(cluster.diskID() == 0) {ps1->SetNextPoint(pointmmTocm(COG.x()), pointmmTocm(COG.y()) , abs(pointmmTocm(pointInMu2e.z())));
-          std::cout<<"ps1 x = "<<pointmmTocm(COG.x())<<" y = "<<pointmmTocm(COG.y())<<" z = "<<pointmmTocm(pointInMu2e.z())<<std::endl;
-        }
-        if(cluster.diskID() == 1) {
+        if(cluster.diskID() == 0) 
+          ps1->SetNextPoint(pointmmTocm(COG.x()), pointmmTocm(COG.y()) , abs(pointmmTocm(pointInMu2e.z())));
+        if(cluster.diskID() == 1)
           ps2->SetNextPoint(pointmmTocm(COG.x()), pointmmTocm(COG.y()) , abs(pointmmTocm(pointInMu2e.z())));
-          std::cout<<"ps2 x = "<<pointmmTocm(COG.x())<<" y = "<<pointmmTocm(COG.y())<<" z = "<<pointmmTocm(pointInMu2e.z())<<std::endl;
-        }
         
         // Set draw options
         /*TColor color1;
