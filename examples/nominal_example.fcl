@@ -27,7 +27,7 @@ physics.analyzers.Mu2eEventDisplay.addKalInter : true
 physics.analyzers.Mu2eEventDisplay.addCrystalHits : true
 physics.analyzers.Mu2eEventDisplay.filler.addHelixSeeds : false
 physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : true
-physics.analyzers.Mu2eEventDisplay.filler.addClusters : true
+physics.analyzers.Mu2eEventDisplay.filler.addClusters : false
 physics.analyzers.Mu2eEventDisplay.filler.addHits : false #  adds ComboHits
 physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : true
 physics.analyzers.Mu2eEventDisplay.filler.addCrvHits : false
@@ -35,7 +35,7 @@ physics.analyzers.Mu2eEventDisplay.filler.addTimeClusters : false
 physics.analyzers.Mu2eEventDisplay.addTrkStrawHits : true
 physics.analyzers.Mu2eEventDisplay.filler.addCosmicTrackSeeds : false
 physics.analyzers.Mu2eEventDisplay.filler.addMCTraj : true
-physics.analyzers.Mu2eEventDisplay.specifyTag : true
+physics.analyzers.Mu2eEventDisplay.specifyTag : false
 
 # allows movement through events in sequential order
 physics.analyzers.Mu2eEventDisplay.seqMode : true
