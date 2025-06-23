@@ -27,7 +27,7 @@ physics.analyzers.Mu2eEventDisplay.addKalInter : true
 physics.analyzers.Mu2eEventDisplay.addCrystalHits : true
 physics.analyzers.Mu2eEventDisplay.filler.addHelixSeeds : false
 physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : true
-physics.analyzers.Mu2eEventDisplay.filler.addClusters : false
+physics.analyzers.Mu2eEventDisplay.filler.addClusters : true
 physics.analyzers.Mu2eEventDisplay.filler.addHits : false #  adds ComboHits
 physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : true
 physics.analyzers.Mu2eEventDisplay.filler.addCrvHits : false
