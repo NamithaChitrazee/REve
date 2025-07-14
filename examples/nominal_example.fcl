@@ -61,4 +61,8 @@ services.TFileService.fileName: "/dev/null"
 #  "1202:636:337031",
 #  "1202:648:370322" ]
 #
-#
+
+source.inputCommands: ["keep *",
+    "drop mu2e::CaloClusters_CaloClusterFast_*_*"
+    ]
+
