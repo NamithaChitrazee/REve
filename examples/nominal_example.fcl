@@ -19,15 +19,15 @@ physics :
 }
 # geometry options
 physics.analyzers.Mu2eEventDisplay.showCRV : true
-physics.analyzers.Mu2eEventDisplay.showPS : true
-physics.analyzers.Mu2eEventDisplay.showTS : true
-physics.analyzers.Mu2eEventDisplay.showDS : true
+physics.analyzers.Mu2eEventDisplay.showPS : false
+physics.analyzers.Mu2eEventDisplay.showTS : false
+physics.analyzers.Mu2eEventDisplay.showDS : false
 physics.analyzers.Mu2eEventDisplay.addCRVBars : false
 physics.analyzers.Mu2eEventDisplay.addKalInter : true
 physics.analyzers.Mu2eEventDisplay.addCrystalHits : true
 physics.analyzers.Mu2eEventDisplay.filler.addHelixSeeds : false
 physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : true
-physics.analyzers.Mu2eEventDisplay.filler.addClusters : false
+physics.analyzers.Mu2eEventDisplay.filler.addClusters : true
 physics.analyzers.Mu2eEventDisplay.filler.addHits : false #  adds ComboHits
 physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : true
 physics.analyzers.Mu2eEventDisplay.filler.addCrvHits : false
