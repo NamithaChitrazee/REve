@@ -190,16 +190,17 @@ void MainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REveTrans& 
 void MainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets) {
   double x_ps = 0; double y_ps=0; double z_ps=0;
   double x_ts1 = 0; double y_ts1=0; double z_ts1=0;
-  //double x_ts3 = 0; double y_ts3=0; double z_ts3=0;
+  //double x_ts3 = 0; double y_ts3=0; 
+  double z_ts3=0;
   double x_ts5 = 0; double y_ts5=0; double z_ts5=0;
   double x_ptm = 0; double y_ptm=0; double z_ptm=0;
-  double x_sol = 0; double y_sol = 0; double z_sol = 0;
+  double x_ds3 = 0; double y_ds3 = 0; double z_ds3 = 0;
   for(unsigned int i = 0; i < offsets.size(); i++){
 
      if(offsets[i].first.find("DS3Vacuum") != string::npos)      {
-        x_sol = offsets[i].second[0];
-        y_sol = offsets[i].second[1];
-        z_sol = offsets[i].second[2];
+        x_ds3 = offsets[i].second[0];
+        y_ds3 = offsets[i].second[1];
+        z_ds3 = offsets[i].second[2];
       }
      if(offsets[i].first.find("DS2Vacuum") != string::npos)
      {
@@ -215,9 +216,10 @@ void MainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveE
       }
       /*if(offsets[i].first.find("TS3Vacuum") != string::npos)
       {
-        x_ts3= offsets[i].second[0];
-        y_ts3 = offsets[i].second[1];
+        //x_ts3= offsets[i].second[0];
+        //y_ts3 = offsets[i].second[1];
         z_ts3 = offsets[i].second[2];
+        std::cout<<"ts3 "<<z_ts3<<std::endl;
       }*/
       if(offsets[i].first.find("TS5Vacuum") != string::npos)
       {
@@ -235,15 +237,13 @@ void MainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveE
       {
         x_ptm = x_ps + offsets[i].second[0];
         y_ptm = y_ps + offsets[i].second[1];
-        z_ptm = z_ps + offsets[i].second[2];
-        //std::cout<<"PTM"<<x_ptm<<" "<<y_ptm<<std::endl;
       }
 
     }
     std::vector<double> shift;
-    shift.push_back(-1*x_sol);
-    shift.push_back(-1*y_sol);
-    shift.push_back(z_sol);
+    shift.push_back(-x_ds3);
+    shift.push_back(-y_ds3);
+    shift.push_back(-1*z_ds3-z_trk);
     // set tracker to be central in the frame (shift to 0,0,0)
     if(geomOpt.showPS){
 
@@ -262,9 +262,9 @@ void MainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveE
         "ProductionTargetFinStartingSection","ProductionTargetNegativeEndRing","ProductionTarget"};
         for(auto& i: substring_pt){
           std::vector<double> shift_pt;
-          shift_pt.push_back(x_ptm-x_sol);
-          shift_pt.push_back(y_ptm-y_sol );
-          shift_pt.push_back(z_ptm-z_sol-z_trk);
+          shift_pt.push_back(x_ptm-x_ds3);
+          shift_pt.push_back(y_ptm-y_ds3 );
+          shift_pt.push_back(z_ptm-z_ds3-z_trk);
           showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shift_pt, false, true, drawconfigf.getInt("BLColor"));
         }
       }
@@ -281,26 +281,26 @@ void MainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveE
         static std::vector <std::string> substring_ts1_internals  {  "Coll11","Coll12","Coll13","PbarAbsTS1Out"};
         for(auto& i: substring_ts1_internals){
           std::vector<double> shiftts1;
-          shiftts1.push_back(x_ts1-x_sol);
-          shiftts1.push_back(y_ts1-y_sol);
-          shiftts1.push_back(z_ts1-z_sol-z_trk);
+          shiftts1.push_back(x_ts1-x_ds3);
+          shiftts1.push_back(y_ts1-y_ds3);
+          shiftts1.push_back(z_ts1-z_ds3-z_trk);
           showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shiftts1, false, true, drawconfigf.getInt("BLColor"));
         }
          /*static std::vector <std::string> substring_ts3_internals  {  "Coll31","Coll32","pBarAbsSupport","PbarAbsDisk","PbarAbsWedge"};
         for(auto& i: substring_ts3_internals){
           std::vector<double> shiftts3;
-          shiftts3.push_back(x_ts3-x_sol);
-          shiftts3.push_back(y_ts3-y_sol);
-          shiftts3.push_back(z_ts3-z_sol-z_trk);
+          shiftts3.push_back(x_ts3-x_ds3);
+          shiftts3.push_back(y_ts3-y_ds3);
+          shiftts3.push_back(z_ts3-z_ds3-z_trk);
           showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shiftts3, false, true, drawconfigf.getInt("BLColor"));
         }*/
        
         static std::vector <std::string> substring_ts5_internals  {  "Coll51"};
         for(auto& i: substring_ts5_internals){
           std::vector<double> shiftts5;
-          shiftts5.push_back(x_ts5-x_sol);
-          shiftts5.push_back(y_ts5-y_sol);
-          shiftts5.push_back(z_ts5-z_sol-z_trk);
+          shiftts5.push_back(x_ts5-x_ds3);
+          shiftts5.push_back(y_ts5-y_ds3);
+          shiftts5.push_back(z_ts5-z_ds3-z_trk);
           showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shiftts5, false, true, drawconfigf.getInt("BLColor"));
         }
         
