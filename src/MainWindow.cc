@@ -190,8 +190,6 @@ void MainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REveTrans& 
 void MainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets) {
   double x_ps = 0; double y_ps=0; double z_ps=0;
   double x_ts1 = 0; double y_ts1=0; double z_ts1=0;
-  //double x_ts3 = 0; double y_ts3=0; 
-  double z_ts3=0;
   double x_ts5 = 0; double y_ts5=0; double z_ts5=0;
   double x_ptm = 0; double y_ptm=0; double z_ptm=0;
   double x_ds3 = 0; double y_ds3 = 0; double z_ds3 = 0;
@@ -214,13 +212,6 @@ void MainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveE
         y_ts1 = offsets[i].second[1];
         z_ts1 = offsets[i].second[2];
       }
-      /*if(offsets[i].first.find("TS3Vacuum") != string::npos)
-      {
-        //x_ts3= offsets[i].second[0];
-        //y_ts3 = offsets[i].second[1];
-        z_ts3 = offsets[i].second[2];
-        std::cout<<"ts3 "<<z_ts3<<std::endl;
-      }*/
       if(offsets[i].first.find("TS5Vacuum") != string::npos)
       {
         x_ts5= offsets[i].second[0];
@@ -237,6 +228,7 @@ void MainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveE
       {
         x_ptm = x_ps + offsets[i].second[0];
         y_ptm = y_ps + offsets[i].second[1];
+        z_ptm = z_ps + offsets[i].second[2];
       }
 
     }
