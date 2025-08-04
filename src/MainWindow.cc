@@ -6,10 +6,11 @@ using namespace std;
 using namespace mu2e;
 
 //positions of components for DS component offsets
-double x_d0 = 0; double x_d1 = 0; double x_cal = 0;double x_trk = 0;double x_ds3 = 0;double x_hall = 0;double x_world = 0;double x_st = 0; double x_ds2 = 0; double x_ipa =0;
-double y_d0 = 0; double y_d1 = 0; double y_cal  = 0;double y_trk = 0;double y_ds3 = 0;double y_hall = 0;double y_world = 0;double y_st = 0; double y_ds2 = 0; double y_ipa =0;
-double z_d0 = 0; double z_d1 = 0; double z_cal = 0;double z_trk = 0;double z_ds3 = 0;double z_hall = 0;double z_world = 0;double z_st = 0; double z_ds2 = 0; double z_ipa =0;
-double x_crv = 0 ; double y_crv = 0 ; double z_crv = 0;  double z_crv_u = 0;  double z_crv_d = 0;
+double x_d0 = 0; double x_d1 = 0; double x_cal = 0;double x_trk = 0;double x_ds3 = 0;double x_st = 0; double x_ds2 = 0; double x_ipa =0;
+double y_d0 = 0; double y_d1 = 0; double y_cal  = 0;double y_trk = 0;double y_ds3 = 0;double y_st = 0; double y_ds2 = 0; double y_ipa =0;
+double z_d0 = 0; double z_d1 = 0; double z_cal = 0;double z_trk = 0;double z_ds3 = 0;double z_st = 0; double z_ds2 = 0; double z_ipa =0;
+
+
 double nCrystals = 674;
 double FrontTracker_gdmltag;
 
@@ -110,8 +111,8 @@ void MainWindow::showNodesByName(TGeoNode* n, const std::string& str, bool onOff
         if(caloshift){
           fp++;
           double d = 0;
-          if(fp < nCrystals) { d = z_d0 - z_cal; }
-          else { d = z_d1 - z_cal; }
+          if(fp < nCrystals) { d = z_d0- z_cal ; }//
+          else { d = z_d1- z_cal ; }
           if(crystal) { t(1,4) = tv[0] + shift[0]; t(2,4) = tv[1] + shift[1] ; t(3,4) = tv[2] + d + shift[2]; }
           else { t(1,4) = tv[0] + shift[0]; t(2,4) = tv[1] + shift[1]; t(3,4) = tv[2]+ shift[2]; }
           if (fp < nCrystals and crystal) cry1 = true;
@@ -133,7 +134,7 @@ void MainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REveTrans& 
   }
   std::string name(n->GetName());
   j++;
-
+  //std::cout<<n->GetName()<<std::endl;
   REX::REveTrans ctrans;
   ctrans.SetFrom(trans.Array());
   TGeoMatrix     *gm = n->GetMatrix();
@@ -187,55 +188,138 @@ void MainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REveTrans& 
 }
 
 void MainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets) {
-
-  double x_sol = 0; double y_sol = 0; double z_sol = 0;
-  double x_pt = 0; double y_pt = 0; double z_pt =0;
+  double x_ps = 0; double y_ps=0; double z_ps=0;
+  double x_ts1 = 0; double y_ts1=0; double z_ts1=0;
+  double x_ts5 = 0; double y_ts5=0; double z_ts5=0;
+  double x_ptm = 0; double y_ptm=0; double z_ptm=0;
+  double x_ds3 = 0; double y_ds3 = 0; double z_ds3 = 0;
   for(unsigned int i = 0; i < offsets.size(); i++){
-      if(offsets[i].first.find("DS3Vacuum") != string::npos)      {
-        x_sol = offsets[i].second[0];
-        y_sol  = offsets[i].second[1];
-        z_sol = offsets[i].second[2];
+
+     if(offsets[i].first.find("DS3Vacuum") != string::npos)      {
+        x_ds3 = offsets[i].second[0];
+        y_ds3 = offsets[i].second[1];
+        z_ds3 = offsets[i].second[2];
       }
-      if(offsets[i].first.find("ProductionTarget") != string::npos)      {
-        x_pt = offsets[i].second[0];
-        y_pt  =offsets[i].second[1];
-        z_pt = offsets[i].second[2];
+     if(offsets[i].first.find("DS2Vacuum") != string::npos)
+     {
+        x_ds2 = offsets[i].second[0];
+        y_ds2 = offsets[i].second[1];
+        z_ds2 = offsets[i].second[2];
       }
+      if(offsets[i].first.find("TS1Vacuum") != string::npos)
+      {
+        x_ts1= offsets[i].second[0];
+        y_ts1 = offsets[i].second[1];
+        z_ts1 = offsets[i].second[2];
       }
-      std::vector<double> shift;
-      shift.push_back(-1*x_sol);
-      shift.push_back(-1*y_sol);
-      shift.push_back(z_sol);
-      // set tracker to be central in the frame (shift to 0,0,0)
-      if(geomOpt.showPS){
-        static std::vector <std::string> substring_ps  {"PSVacuum"};
-        for(auto& i: substring_ps){
+      if(offsets[i].first.find("TS5Vacuum") != string::npos)
+      {
+        x_ts5= offsets[i].second[0];
+        y_ts5 = offsets[i].second[1];
+        z_ts5 = offsets[i].second[2];
+      }
+      if(offsets[i].first.find("PSVacuum") != string::npos)
+      {
+        x_ps = offsets[i].second[0];
+        y_ps = offsets[i].second[1];
+        z_ps = offsets[i].second[2];
+      }
+      if(offsets[i].first.find("ProductionTargetMother") != string::npos)
+      {
+        x_ptm = x_ps + offsets[i].second[0];
+        y_ptm = y_ps + offsets[i].second[1];
+        z_ptm = z_ps + offsets[i].second[2];
+      }
+
+    }
+    std::vector<double> shift;
+    shift.push_back(-x_ds3);
+    shift.push_back(-y_ds3);
+    shift.push_back(-1*z_ds3-z_trk);
+    // set tracker to be central in the frame (shift to 0,0,0)
+    if(geomOpt.showPS){
+
+        // outer vessel
+        static std::vector <std::string> substring_psvac_vessel {"PSVacum","PSVacVesselInner","PSVacVesselOuter","PSRing1","PSRing2","PSVacVesselEndPlateD","PSVacVesselEndPlateU","psVacuumVesselVacuum"};
+         for(auto& i: substring_psvac_vessel){
           showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shift, false, true, drawconfigf.getInt("BLColor"));
         }
-        static std::vector <std::string> substring_pt  {"ProductionTarget"};
+         
+        static std::vector <std::string> substring_ptm  {"ProductionTargetMother"};
+        for(auto& i: substring_ptm){
+          showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shift, false, true, drawconfigf.getInt("BLColor"));
+        }
+        
+        static std::vector <std::string> substring_pt  {"ProductionTargetStartingCoreSection","ProductionTargetCoreSection","ProductionTargetFinTopSection","ProductionTargetFinTopStartingSection",
+        "ProductionTargetFinStartingSection","ProductionTargetNegativeEndRing","ProductionTarget"};
         for(auto& i: substring_pt){
-          std::vector<double> shiftpt;
-          shiftpt.push_back(x_pt);
-          shiftpt.push_back(y_pt);
-          shiftpt.push_back(z_pt);
-          showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shiftpt, false, true, drawconfigf.getInt("BLColor"));
+          std::vector<double> shift_pt;
+          shift_pt.push_back(x_ptm-x_ds3);
+          shift_pt.push_back(y_ptm-y_ds3 );
+          shift_pt.push_back(z_ptm-z_ds3-z_trk);
+          showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shift_pt, false, true, drawconfigf.getInt("BLColor"));
         }
       }
       if(geomOpt.showTS){
-        static std::vector <std::string> substring_ts  {"TS1Vacuum","TS1CryoInsVac","TS2Vacuum","TS2CryoInsVac","TS3Vacuum","TS3CryoInsVac","TS4Vacuum","TS4CryoInsVac","TS5Vacuum","TS5CryoInsVac"};
+        static std::vector <std::string> substring_ts  {"TS1Vacuum","TS1CryoInsVac","TS1InnerCryoShell","TS1OuterCryoShell","TS1DownstreamEndwall",
+        "TS2Vacuum","TS2CryoInsVac","TS2InnerCryoShell","TS2OuterCryoShell","TS2CryoInsVac",
+        "TS3Vacuum","TS3CryoInsVac","TS3InnerCryoShell","TS3OuterCryoShell",
+        "TSudInterconnectu","TSudInterconnectd",
+        "TS4Vacuum","TS4CryoInsVac","TS4InnerCryoShell","TS4OuterCryoShell",
+        "TS5Vacuum","TS5CryoInsVac","TS5InnerCryoShell","TS5OuterCryoShell"};
         for(auto& i: substring_ts){
           showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shift, false, true, drawconfigf.getInt("BLColor"));
         }
+        static std::vector <std::string> substring_ts1_internals  {  "Coll11","Coll12","Coll13","PbarAbsTS1Out"};
+        for(auto& i: substring_ts1_internals){
+          std::vector<double> shiftts1;
+          shiftts1.push_back(x_ts1-x_ds3);
+          shiftts1.push_back(y_ts1-y_ds3);
+          shiftts1.push_back(z_ts1-z_ds3-z_trk);
+          showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shiftts1, false, true, drawconfigf.getInt("BLColor"));
+        }
+         /*static std::vector <std::string> substring_ts3_internals  {  "Coll31","Coll32","pBarAbsSupport","PbarAbsDisk","PbarAbsWedge"};
+        for(auto& i: substring_ts3_internals){
+          std::vector<double> shiftts3;
+          shiftts3.push_back(x_ts3-x_ds3);
+          shiftts3.push_back(y_ts3-y_ds3);
+          shiftts3.push_back(z_ts3-z_ds3-z_trk);
+          showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shiftts3, false, true, drawconfigf.getInt("BLColor"));
+        }*/
+       
+        static std::vector <std::string> substring_ts5_internals  {  "Coll51"};
+        for(auto& i: substring_ts5_internals){
+          std::vector<double> shiftts5;
+          shiftts5.push_back(x_ts5-x_ds3);
+          shiftts5.push_back(y_ts5-y_ds3);
+          shiftts5.push_back(z_ts5-z_ds3-z_trk);
+          showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shiftts5, false, true, drawconfigf.getInt("BLColor"));
+        }
+        
+        
       }
       if(geomOpt.showDS){
-        static std::vector <std::string> substring_ds  {"DS*"};
-        for(auto& i: substring_ds){
+        static std::vector <std::string> substring_ds3  {"DS3Vacuum"};
+        for(auto& i: substring_ds3){
+     
+          showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shift, false, true, drawconfigf.getInt("BLColor"));
+        }
+        static std::vector <std::string> substring_ds2  {"DS2Vacuum"};
+        for(auto& i: substring_ds2){
           showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shift, false, true, drawconfigf.getInt("BLColor"));
         }
       }
   }
 
 void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, REX::REveElement* trackerholder, REX::REveElement* caloholder, REX::REveElement* crystalsholder, REX::REveElement* crvholder, REX::REveElement* targetholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets){
+
+    
+    double x_hall = 0;double x_world = 0;
+    double y_hall = 0;double y_world = 0;
+    double z_hall = 0;double z_world = 0;
+    double x_crv = 0 ; double y_crv = 0 ; double z_crv = 0; // double z_crv_u = 0;  double z_crv_d = 0;
+    x_trk = 0;y_trk = 0;z_trk = 0;
+
     for(unsigned int i = 0; i < offsets.size(); i++){
       if(offsets[i].first.find("World") != string::npos){
         x_world = offsets[i].second[0];
@@ -356,7 +440,13 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
 }
 
 void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, REX::REveElement* trackerholder, REX::REveElement* caloholder, REX::REveElement* crystalsholder, REX::REveElement* crvholder, REX::REveElement* targetholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets){
-    double x_crvex = 0; double y_crvex = 0;  double z_crvex = 0; double x_crvt1 = 0; double y_crvt1 = 0;  double z_crvt1 = 0; double x_crvt2 = 0; double y_crvt2 = 0;  double z_crvt2 = 0;
+    
+    //positions of components for DS component offsets
+    double x_hall = 0;double x_world = 0;
+    double y_hall = 0;double y_world = 0;
+    double z_hall = 0;double z_world = 0;
+    double x_crvex = 0; double y_crvex = 0;  double z_crvex = 0; double x_crvt1 = 0; double y_crvt1 = 0;  double z_crvt1 = 0;     
+    double x_crvt2 = 0; double y_crvt2 = 0;  double z_crvt2 = 0;
     for(unsigned int i = 0; i < offsets.size(); i++){
       if(offsets[i].first.find("World") != string::npos){
         x_world = offsets[i].second[0];
@@ -626,7 +716,8 @@ void MainWindow::makeGeometryScene(REX::REveManager *eveMng, GeomOptions geomOpt
     auto crystalsholder = new REX::REveElement("CalorimeterCrystals");
     auto crvholder = new REX::REveElement("CRV");
     auto targetholder = new REX::REveElement("TargetElements");
-    auto beamlineholder = new REX::REveElement("BeamlineElements");
+    auto beamlineholder = new REX::REveElement("DSBeamlineElements");
+    auto solenoidholder = new REX::REveElement("SolenoidElements");
     eveMng->GetGlobalScene()->AddElement(trackerholder);
     eveMng->GetGlobalScene()->AddElement(caloholder);
     eveMng->GetGlobalScene()->AddElement(crvholder);
@@ -643,7 +734,9 @@ void MainWindow::makeGeometryScene(REX::REveManager *eveMng, GeomOptions geomOpt
     if(!geomOpt.extracted) GeomDrawerNominal(topnode, trans, beamlineholder, trackerholder, caloholder, crystalsholder, crvholder, targetholder, drawconfigf.getInt("maxlevel"),drawconfigf.getInt("level"), geomOpt, offsets);
     if(geomOpt.extracted) GeomDrawerExtracted(topnode, trans, beamlineholder, trackerholder, caloholder, crystalsholder, crvholder, targetholder, drawconfigf.getInt("maxlevel"),drawconfigf.getInt("level"), geomOpt, offsets);
     if(geomOpt.showPS or geomOpt.showTS or geomOpt.showDS){
-      GeomDrawerSol(topnode, trans, beamlineholder, drawconfigf.getInt("maxlevel"),drawconfigf.getInt("level"), geomOpt, offsets);
+      eveMng->GetGlobalScene()->AddElement(solenoidholder);
+      GeomDrawerSol(topnode, trans, solenoidholder, drawconfigf.getInt("maxlevel"),drawconfigf.getInt("level"), geomOpt, offsets);
+      
     }
   }
 
