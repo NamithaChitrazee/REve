@@ -578,8 +578,10 @@ void MainWindow::projectEvents(REX::REveManager *eveMng)
 
     mngRhoZ  ->ImportElements(ie, rhoZEventScene);
 
-    if(ie->GetName().find("disk0") != string::npos ) mngXYCaloDisk0->ImportElements(ie, XYCaloDisk0EventScene);
-    if(ie->GetName().find("disk1") != string::npos ) mngXYCaloDisk1->ImportElements(ie, XYCaloDisk1EventScene);
+    if(ie->GetName().find("disk0") != string::npos )
+      mngXYCaloDisk0->ImportElements(ie, XYCaloDisk0EventScene);
+    if(ie->GetName().find("disk1") != string::npos )
+      mngXYCaloDisk1->ImportElements(ie, XYCaloDisk1EventScene);
   }
 }
 
@@ -659,7 +661,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
 
   if(drawOpts.addCaloDigis){
     std::vector<const CaloDigiCollection*> calodigi_list = std::get<1>(data.calodigi_tuple);
-    if(calodigi_list.size() !=0 ) pass_data->AddCaloDigis(eveMng, firstLoop, data.calodigi_tuple, eventScene, drawOpts.addCrystalDraw);
+    if(calodigi_list.size() !=0 ) pass_data->AddCaloDigis(eveMng, firstLoop, data.calodigi_tuple, eventScene);
   }
 
   if(drawOpts.addClusters){

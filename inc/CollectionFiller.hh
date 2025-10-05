@@ -30,7 +30,7 @@ namespace mu2e{
         fhicl::Sequence<art::InputTag>tcTag{Name("TimeClusterCollection"),Comment("ttcTag")};
         fhicl::Sequence<art::InputTag>crvrecoTag{Name("CrvRecoPulseCollection"),Comment("crvTag")};
         fhicl::Sequence<art::InputTag>crvcoinTag{Name("CrvCoincidenceClusterCollection"),Comment("crvcoinTag")};
-        fhicl::Sequence<art::InputTag>calodigTag{Name("CaloDigiCollection"),Comment("caldigTag")};
+        fhicl::Sequence<art::InputTag>calodigTag{Name("CaloDigiCollection"),Comment("calodigTag")};
         fhicl::Sequence<art::InputTag>cluTag{Name("CaloClusterCollection"),Comment("cluTag")};
         fhicl::Sequence<art::InputTag>helixSeedTag{Name("HelixSeedCollection"),Comment("helixseedTag")};
         fhicl::Sequence<art::InputTag>kalSeedTag{Name("KalSeedPtrCollection"),Comment("kalseedTag")};
