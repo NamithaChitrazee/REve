@@ -33,6 +33,7 @@ Mu2eEventDisplay : {
       MCTrajectoryCollection :  ["compressRecoMCs"]
 #      SurfaceStepCollection :  ["compressRecoMCs"]
       SurfaceStepCollection :  []
+      SimParticleCollection :  ["compressSTMDet"]
       addHits : false
       addCrvHits : false
       addCrvClusters : false
@@ -44,6 +45,7 @@ Mu2eEventDisplay : {
       addCosmicTrackSeeds : false
       addMCTraj : true
       addSurfSteps : true
+      addSimParts : true
       FillAll : false
     }
     particles :   [11,13,2212,2112,211,22,212]

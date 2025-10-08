@@ -19,6 +19,7 @@ namespace mu2e{
     cosmicTrackSeedTag_(conf.cosmicTrackSeedTag()),
     MCTrajTag_(conf.MCTrajTag()),
     SurfStepsTag_(conf.SurfStepsTag()),
+    SimTag_(conf.SimTag()),
     addHits_(conf.addHits()),
     addCrvHits_(conf.addCrvHits()),
     addCrvClusters_(conf.addCrvClusters()),
@@ -31,6 +32,7 @@ namespace mu2e{
     addCosmicTrackSeeds_(conf.addCosmicTrackSeeds()),
     addMCTraj_(conf.addMCTraj()),
     addSurfSteps_(conf.addSurfSteps()),
+    addSimParts_(conf.addSimParts()),
     FillAll_(conf.FillAll())
   {}
 
@@ -188,6 +190,22 @@ namespace mu2e{
 
       }
       data.surfstep_tuple = std::make_tuple(data.surfstep_labels,data.surfstep_list);
+
+    }
+    
+    if(FillAll_ or (CollectionName==SimParticles)){
+
+      for(const auto &tag : SimTag_){
+        auto chH = evt.getValidHandle<mu2e::SimParticleCollection>(tag);
+        data.simcol = chH.product();
+        data.sim_list.push_back(data.simcol);
+
+        std::string name = TurnNameToString(tag);
+        std::cout<<"Plotting SimParticle Instance: "<<name<<std::endl;
+        data.sim_labels.push_back(name);
+
+      }
+      data.sim_tuple = std::make_tuple(data.sim_labels,data.sim_list);
 
     }
 

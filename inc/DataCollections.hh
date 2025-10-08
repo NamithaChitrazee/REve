@@ -10,6 +10,7 @@
 #include "Offline/RecoDataProducts/inc/CosmicTrackSeed.hh"
 #include "Offline/MCDataProducts/inc/MCTrajectoryPoint.hh"
 #include "Offline/MCDataProducts/inc/MCTrajectoryCollection.hh"
+#include "Offline/MCDataProducts/inc/SimParticle.hh"
 #include "Offline/MCDataProducts/inc/SurfaceStep.hh"
 //Art/FCL:
 #include "art/Framework/Principal/Event.h"
@@ -44,6 +45,7 @@ namespace mu2e{
       const mu2e::KalSeedPtrCollection* kalSeedcol = 0;
       const mu2e::CosmicTrackSeedCollection* CosmicTrackSeedcol = 0;
       const mu2e::MCTrajectoryCollection *mctrajcol = 0;
+      const mu2e::SimParticleCollection *simcol = 0;
       const mu2e::SurfaceStepCollection *surfstepcol = 0;
       //lists:
       std::vector<const mu2e::HelixSeedCollection*> helix_list;
@@ -55,6 +57,7 @@ namespace mu2e{
       std::vector<const mu2e::CrvCoincidenceClusterCollection*> crvcoin_list;
       std::vector<const mu2e::TimeClusterCollection*> timecluster_list;
       std::vector<const mu2e::MCTrajectoryCollection*> mctrack_list;
+      std::vector<const mu2e::SimParticleCollection*> sim_list;
       std::vector<const mu2e::SurfaceStepCollection*> surfstep_list;
       //Input Tag Labels:
       std::vector<std::string> helix_labels;
@@ -66,6 +69,7 @@ namespace mu2e{
       std::vector<std::string> combohit_labels;
       std::vector<std::string> crvpulse_labels;
       std::vector<std::string> crvcoin_labels;
+      std::vector<std::string> sim_labels;
       std::vector<std::string> timecluster_labels;
       //Link Labels and Lists:
       std::tuple<std::vector<std::string>, std::vector<const mu2e::HelixSeedCollection*>> helix_tuple;
@@ -77,6 +81,7 @@ namespace mu2e{
       std::tuple<std::vector<std::string>, std::vector<const mu2e::CrvCoincidenceClusterCollection*>> crvcoin_tuple;
       std::tuple<std::vector<std::string>, std::vector<const mu2e::TimeClusterCollection*>> timecluster_tuple;
       std::tuple<std::vector<std::string>, std::vector<const mu2e::MCTrajectoryCollection*>> mctrack_tuple;
+      std::tuple<std::vector<std::string>, std::vector<const mu2e::SimParticleCollection*>> sim_tuple;
       std::tuple<std::vector<std::string>, std::vector<const mu2e::SurfaceStepCollection*>> surfstep_tuple;
 
       void Reset(){
@@ -89,6 +94,7 @@ namespace mu2e{
         this->crvcoin_list.clear();
         this->timecluster_list.clear();
         this->mctrack_list.clear();
+        this->sim_list.clear();
 
         this->track_labels.clear();
         this->calodigi_labels.clear();
@@ -99,6 +105,7 @@ namespace mu2e{
         this->helix_labels.clear();
         this->crvcoin_labels.clear();
         this->timecluster_labels.clear();
+        this->sim_labels.clear();
       }
 
       virtual ~DataCollections(){};

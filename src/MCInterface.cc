@@ -210,3 +210,80 @@ void MCInterface::AddSurfaceStepCollection(REX::REveManager *&eveMng, bool first
     }
   }
 }
+
+void MCInterface::AddSimParticleCollection(REX::REveManager *&eveMng, bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const SimParticleCollection *>> sim_tuple, REX::REveElement* &scene, std::vector<int> particleIds, bool extracted){
+  std::cout<<"[ REveMCInterface::AddSimParticleCollection() ]"<<std::endl;
+  std::vector<const SimParticleCollection*> sim_list = std::get<1>(sim_tuple);
+  std::vector<std::string> names = std::get<0>(sim_tuple);
+
+  if(sim_list.size() !=0){
+    for(unsigned int i=0; i < sim_list.size(); i++){
+      std::string comptitle = "SimParticleCollection" + names[i];
+
+      // make compund object to store hits
+      auto allpoints = new REX::REveCompound(comptitle,comptitle,1);
+      std::string drawfilename("EventDisplay/config/drawutils.txt");
+      SimpleConfig drawconfig(drawfilename);
+
+      // eXtract the track and input tag:
+      std::vector<const SimParticleCollection*> sim_list = std::get<1>(sim_tuple);
+      std::vector<std::string> names = std::get<0>(sim_tuple);
+
+      // Loop over SimParticle
+      for(unsigned int j=0; j< sim_list.size(); j++){
+        const SimParticleCollection* simcol = sim_list[j];
+
+        if(simcol!=0){
+          for( auto const& simpair : *simcol) {
+            // Check user defined list of particles to plot
+            const mu2e::SimParticle& simpart = simpair.second;
+            auto pdgid = simpart.pdgId();
+            int x = Contains(particleIds,pdgid);
+            GeomHandle<DetectorSystem> det;
+            
+
+            if(x == 1){
+              // Make label
+              //std::string momentum = 0;//std::to_string(simpart.startMomentum().R());
+              std::string edep = std::to_string(simpart.endKineticEnergy());
+              CLHEP::Hep3Vector StartPos = det->toDetector(simpart.startPosition());
+              CLHEP::Hep3Vector EndPos = det->toDetector(simpart.endPosition());
+              double momentum = sqrt(simpart.startMomentum().x()*simpart.startMomentum().x()+simpart.startMomentum().y()*simpart.startMomentum().y() + simpart.startMomentum().z()*simpart.startMomentum().z());
+              std::string mctitle_start = " SimParticle PDGid" + std::to_string(pdgid ) + '\n'
+                + " Start Position: " + '\n'
+                + " x "  + std::to_string(StartPos.x())
+                + " y " + std::to_string(StartPos.y())
+                + " z " + std::to_string(StartPos.z())
+                + " time :" + std::to_string(simpart.startGlobalTime()  )+  '\n'
+                + " Start Momentum " + std::to_string(momentum) + " MeV/c, KE = " + edep + "MeV";
+              std::string mctitle_end = " SimParticle PDGid" + std::to_string(pdgid ) + '\n'
+                + " End Position: " + '\n'
+                + " x "  + std::to_string( EndPos.x())
+                + " y " + std::to_string( EndPos.y())
+                + " z " + std::to_string( EndPos.z())
+                + " time :" + std::to_string(simpart.endGlobalTime()  )+  '\n'
+                + " KE = " + edep + "MeV"; //" momentum " + momentum + " MeV/c, 
+
+              // add point
+              auto simpoint_start = new REX::REvePointSet(mctitle_start,mctitle_start,1);
+              simpoint_start->SetMarkerStyle(MCInterface::mstyle);
+              simpoint_start->SetMarkerSize(MCInterface::msize);
+              simpoint_start->SetMarkerColor(kBlue);
+              simpoint_start->SetNextPoint(pointmmTocm(StartPos.x()), pointmmTocm(StartPos.y()),pointmmTocm(StartPos.z()));
+
+              
+              auto simpoint_end = new REX::REvePointSet(mctitle_end,mctitle_end,1);
+              simpoint_end->SetMarkerStyle(MCInterface::mstyle);
+              simpoint_end->SetMarkerSize(MCInterface::msize);
+              simpoint_end->SetMarkerColor(kRed);
+              simpoint_start->SetNextPoint(pointmmTocm(EndPos.x()), pointmmTocm(EndPos.y()),pointmmTocm(EndPos.z()));
+              allpoints->AddElement(simpoint_start);
+              allpoints->AddElement(simpoint_end);
+            }
+          }
+        }
+      }
+      scene->AddElement(allpoints);
+    }
+  }
+}
