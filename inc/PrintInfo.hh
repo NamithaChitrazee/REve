@@ -5,6 +5,7 @@
 #include "Offline/RecoDataProducts/inc/CaloCluster.hh"
 #include "Offline/MCDataProducts/inc/MCTrajectoryPoint.hh"
 #include "Offline/MCDataProducts/inc/MCTrajectoryCollection.hh"
+#include "Offline/MCDataProducts/inc/SimParticle.hh"
 #include "Offline/RecoDataProducts/inc/KalSeed.hh"
 #include "Offline/RecoDataProducts/inc/CrvCoincidenceCluster.hh"
 
@@ -30,6 +31,11 @@ class PrintInfo : public ROOT::Experimental::REveElement
      std::vector<const mu2e::MCTrajectoryCollection*> mctrack_list;
      std::vector<std::string> mctrack_labels;
      std::tuple<std::vector<std::string>, std::vector<const mu2e::MCTrajectoryCollection*>> fmctrack_tuple;
+     
+     const mu2e::SimParticleCollection *simcol = 0;
+     std::vector<const mu2e::SimParticleCollection*> sim_list;
+     std::vector<std::string> sim_labels;
+     std::tuple<std::vector<std::string>, std::vector<const mu2e::SimParticleCollection*>> fsim_tuple;
 
      const mu2e::KalSeedPtrCollection* kalSeedcol = 0;
      std::vector<const mu2e::KalSeedPtrCollection*> track_list;
