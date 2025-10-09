@@ -812,7 +812,7 @@ template<class KTRAJc> void DataInterface::AddTrkStrawHit(KalSeed const& kalseed
       std::string title = "TrkStrawHitSeed : x "  + std::to_string(tshspos.x())  +  '\n'
         + " y " + std::to_string(tshspos.y())  +  '\n'
         + " z " + std::to_string(tshspos.z())  +  '\n'
-        + " time :" + std::to_string(tshs.hitTime())+  '\n'
+        + " time :" + std::to_string(tshs.time())+  '\n'
         + " energyDep :" + std::to_string(tshs.energyDep())+ "MeV" + '\n'
         + " error : " + err_title;
       auto point_with_error = new REX::REveCompound("TrkStrawHitSeed "+std::to_string(i), "TrkStrawHitSeed",1);
