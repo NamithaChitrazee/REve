@@ -388,6 +388,10 @@ namespace mu2e
           if(specifyTag_) { filler_.FillMCCollections(event, data, SurfaceSteps); }
           else { FillAnyCollection<SurfaceStepCollection, const SurfaceStepCollection*>(event, _chits, data.surfstep_tuple ); }
         }
+        if(filler_.addSimParts_) {
+          if(specifyTag_) { filler_.FillMCCollections(event, data, SimParticles); }
+          else { FillAnyCollection<SimParticleCollection, const SimParticleCollection*>(event, _chits, data.sim_tuple ); }
+        }
 
         if(filler_.addTimeClusters_) {
           if(specifyTag_) { filler_.FillRecoCollections(event, data, TimeClusters);}
@@ -512,7 +516,7 @@ namespace mu2e
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] -- calls to data interface "<<std::endl;
 
       // fill draw options
-      DrawOptions drawOpts(filler_.addCosmicTrackSeeds_, filler_.addHelixSeeds_, filler_.addKalSeeds_, filler_.addCaloDigis_, filler_.addClusters_, filler_.addHits_,  filler_.addCrvHits_, filler_.addCrvClusters_, filler_.addTimeClusters_, filler_.addTrkHits_, filler_.addMCTraj_, filler_.addSurfSteps_, addErrBar_, addCrystalHits_, addCRVBars_);
+      DrawOptions drawOpts(filler_.addCosmicTrackSeeds_, filler_.addHelixSeeds_, filler_.addKalSeeds_, filler_.addCaloDigis_, filler_.addClusters_, filler_.addHits_,  filler_.addCrvHits_, filler_.addCrvClusters_, filler_.addTimeClusters_, filler_.addTrkHits_, filler_.addMCTraj_, filler_.addSurfSteps_, filler_.addSimParts_, addErrBar_, addCrystalHits_, addCRVBars_);
 
       // fill kinkal options
       KinKalOptions KKOpts(addKalInter_, addTrkStrawHits_, addTrkCaloHits_);

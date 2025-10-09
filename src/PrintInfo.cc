@@ -23,7 +23,7 @@ void PrintInfo::PrintSimInfo(){
       const MCTrajectoryCollection* trajcol = track_list[j];
       if(trajcol !=0){
         std::map<art::Ptr<mu2e::SimParticle>,mu2e::MCTrajectory>::const_iterator trajectoryIter;
-        std::cout<<"SIM PARTICLE INFORMATION"<<std::endl;
+        std::cout<<"MC TRAJ (Primary) SIM PARTICLE INFORMATION"<<std::endl;
         std::cout<<"Number of SimParticles = "<<trajcol->size()<<std::endl;
         std::cout<<"  "<<std::endl;
         std::cout<<" ID  "<<"   PDGID   "<<" Energy    "<<"    p0x     "<<"     p0y      "<<"       p0z    "
@@ -35,7 +35,7 @@ void PrintInfo::PrintSimInfo(){
           std::string p0y = std::to_string(trajectoryIter->first->startMomentum().y());
           std::string p0z = std::to_string(trajectoryIter->first->startMomentum().z());
           std::string energy = std::to_string(trajectoryIter->first->startMomentum().e());
-          std::string posx = std::to_string(trajectoryIter->first->startPosition().x());
+          std::string posx = std::to_string(trajectoryIter->first->startPosition().x()); //FIXME - this is in Mu2e coords
           std::string posy = std::to_string(trajectoryIter->first->startPosition().y());
           std::string posz = std::to_string(trajectoryIter->first->startPosition().z());
           std::string t1 = std::to_string(trajectoryIter->first->endGlobalTime());
@@ -49,6 +49,49 @@ void PrintInfo::PrintSimInfo(){
 
           std::cout<<" "<<id<<"      "<<pdgID<<"     "<<energy<<"    "<<p0x<<"     "<<p0y<<"     "<<p0z
             <<"  "<<posx<<"  "<<posy<<"   "<<posz<<"  "<<t0<<"   "<<p1x<<"  "<<p1y<<"  "<<p1z<<"   "<<t1<<std::endl;
+        }
+      }
+    }
+  }
+
+  std::vector<const SimParticleCollection*> sim_list = std::get<1>(fsim_tuple);
+    if(track_list.size() > 0){
+      for(unsigned int j=0; j< sim_list.size(); j++){
+        const SimParticleCollection* simcol = sim_list[j];
+        if(simcol !=0){
+          
+          std::cout<<"SIM PARTICLE INFORMATION"<<std::endl;
+          std::cout<<"Number of SimParticles = "<<simcol->size()<<std::endl;
+          std::cout<<"  "<<std::endl;
+          std::cout<<" ID  "<<"   PDGID   "<<" Energy    "<<"    p0x     "<<"     p0y      "<<"       p0z    "
+            <<"      posx    "<<"     posy      "<<"    posz    "<<"  t0      "<<"     p1x   "<<"    p1y   "<<"   p1z    "<<"    t1"<<std::endl;
+          const SimParticleCollection* simcol = sim_list[j];
+
+          if(simcol!=0){
+            for( auto const& simpair : *simcol) {
+              // Check user defined list of particles to plot
+              const mu2e::SimParticle& simpart = simpair.second;
+              std::string pdgID = std::to_string(simpart.pdgId());
+              std::string t0 = std::to_string(simpart.startGlobalTime() );
+              std::string p0x = std::to_string(simpart.startMomentum().x());
+              std::string p0y = std::to_string(simpart.startMomentum().y());
+              std::string p0z = std::to_string(simpart.startMomentum().z());
+              std::string energy = std::to_string(simpart.startMomentum().e());
+              std::string posx = std::to_string(simpart.startPosition().x()); //FIXME - this is in Mu2e coords
+              std::string posy = std::to_string(simpart.startPosition().y());
+              std::string posz = std::to_string(simpart.startPosition().z());
+              std::string t1 = std::to_string(simpart.endGlobalTime());
+              std::string p1x = std::to_string(simpart.endMomentum().x());
+              std::string p1y = std::to_string(simpart.endMomentum().y());
+              std::string p1z = std::to_string(simpart.endMomentum().z());
+              std::string pos1x = std::to_string(simpart.endPosition().x());
+              std::string pos1y = std::to_string(simpart.endPosition().y());
+              std::string pos1z = std::to_string(simpart.endPosition().z());
+              std::string id = std::to_string(simpart.id().asInt());
+
+              std::cout<<" "<<id<<"      "<<pdgID<<"     "<<energy<<"    "<<p0x<<"     "<<p0y<<"     "<<p0z
+              <<"  "<<posx<<"  "<<posy<<"   "<<posz<<"  "<<t0<<"   "<<p1x<<"  "<<p1y<<"  "<<p1z<<"   "<<t1<<std::endl;
+          }
         }
       }
     }

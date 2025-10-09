@@ -18,7 +18,7 @@
 namespace mu2e{
 
   enum RecoDataProductName {ComboHits,  CrvRecoPulses, TimeClusters, CaloClusters, HelixSeeds, KalSeeds, CosmicTrackSeeds, TrkHits, CrvCoincidenceCluster, CaloDigis};
-  enum MCDataProductName {MCTrajectories, SurfaceSteps};
+  enum MCDataProductName {MCTrajectories, SurfaceSteps, SimParticles};
   class CollectionFiller
   {
     public:
@@ -37,6 +37,7 @@ namespace mu2e{
         fhicl::Atom<art::InputTag>cosmicTrackSeedTag{Name("CosmicTrackSeedCollection"),Comment("cosmicTrackSeedTag")};
         fhicl::Sequence<art::InputTag>MCTrajTag{Name("MCTrajectoryCollection"),Comment("MCTrajTag")};
         fhicl::Sequence<art::InputTag>SurfStepsTag{Name("SurfaceStepCollection"),Comment("SurfaceSteps Collection Tag")};
+        fhicl::Sequence<art::InputTag>SimTag{Name("SimParticleCollection"),Comment("SimTag")};
         fhicl::Atom<bool> addHits{Name("addHits"), Comment("set to add the hits"),false};
         fhicl::Atom<bool> addCrvHits{Name("addCrvHits"), Comment("set to add crv hits"),false};
         fhicl::Atom<bool> addCrvClusters{Name("addCrvClusters"), Comment("set to add crv clusters"),false};
@@ -49,6 +50,7 @@ namespace mu2e{
         fhicl::Atom<bool> addCosmicTrackSeeds{Name("addCosmicTrackSeeds"), Comment("set to add cosmic track seeds"),false};
         fhicl::Atom<bool> addMCTraj{Name("addMCTraj"), Comment("set to add MCTrajectories"),false};
         fhicl::Atom<bool> addSurfSteps{Name("addSurfSteps"), Comment("set to add SurfaceStep MC"),false};
+        fhicl::Atom<bool> addSimParts{Name("addSimParts"), Comment("set to add SimParticles MC"),false};
         fhicl::Atom<bool> FillAll{Name("FillAll"), Comment("to see all available products"), false};
       };
 
@@ -67,10 +69,11 @@ namespace mu2e{
       art::InputTag cosmicTrackSeedTag_;
       std::vector<art::InputTag> MCTrajTag_;
       std::vector<art::InputTag> SurfStepsTag_;
+      std::vector<art::InputTag> SimTag_;
       art::Event *_event;
       art::Run *_run;
       bool addHits_,  addCrvHits_, addCrvClusters_, addTimeClusters_, addTrkHits_, addCaloDigis_, addClusters_, addHelixSeeds_, addKalSeeds_, addCosmicTrackSeeds_, addMCTraj_,
-           addSurfSteps_, FillAll_;
+           addSurfSteps_, addSimParts_, FillAll_;
       void FillRecoCollections(const art::Event& evt, DataCollections &data, RecoDataProductName code);
       void FillMCCollections(const art::Event& evt, DataCollections &data, MCDataProductName code);
       //template <class L> void test(const L& item);

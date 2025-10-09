@@ -12,6 +12,7 @@
 #include "Offline/MCDataProducts/inc/MCTrajectoryPoint.hh"
 #include "Offline/MCDataProducts/inc/MCTrajectoryCollection.hh"
 #include "Offline/MCDataProducts/inc/SurfaceStep.hh"
+#include "Offline/MCDataProducts/inc/SimParticle.hh"
 #include "Offline/MCDataProducts/inc/MCRelationship.hh"
 #include <TApplication.h>
 #include <TEvePad.h>
@@ -41,6 +42,7 @@ namespace mu2e{
           void toExtracted(CLHEP::Hep3Vector& Pos);
           void AddMCTrajectoryCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const MCTrajectoryCollection*>> track_tuple, REX::REveElement* &scene, std::vector<int> particles, bool extracted );
           void AddSurfaceStepCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const SurfaceStepCollection*>> track_tuple, REX::REveElement* &scene, std::vector<int> particles, bool extracted );
+          void AddSimParticleCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const SimParticleCollection*>> track_tuple, REX::REveElement* &scene, std::vector<int> particles, bool extracted );
           #endif
           ClassDef(MCInterface, 0);
       };

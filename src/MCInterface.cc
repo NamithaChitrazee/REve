@@ -210,3 +210,80 @@ void MCInterface::AddSurfaceStepCollection(REX::REveManager *&eveMng, bool first
     }
   }
 }
+
+void MCInterface::AddSimParticleCollection(REX::REveManager *&eveMng, bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const SimParticleCollection *>> sim_tuple, REX::REveElement* &scene, std::vector<int> particleIds, bool extracted){
+  std::cout<<"[ REveMCInterface::AddSimParticleCollection() ]"<<std::endl;
+  std::vector<const SimParticleCollection*> sim_list = std::get<1>(sim_tuple);
+  std::vector<std::string> names = std::get<0>(sim_tuple);
+
+  if(sim_list.size() !=0){
+    for(unsigned int i=0; i < sim_list.size(); i++){
+      std::string comptitle = "SimParticleCollection" + names[i];
+
+      // make compund object to store hits
+      std::string drawfilename("EventDisplay/config/drawutils.txt");
+      SimpleConfig drawconfig(drawfilename);
+
+      // eXtract the track and input tag:
+      std::vector<const SimParticleCollection*> sim_list = std::get<1>(sim_tuple);
+      std::vector<std::string> names = std::get<0>(sim_tuple);
+
+      // Loop over SimParticle
+      //for(unsigned int j=0; j< sim_list.size(); j++){
+        const SimParticleCollection* simcol = sim_list[i];
+      
+        if(simcol!=0){
+          auto SimCollection = new REX::REveCompound("SimParticles","SimParticles",1);
+          for( auto const& simpair : *simcol) {
+            // Check user defined list of particles to plot
+            const mu2e::SimParticle& simpart = simpair.second;
+            auto pdgid = simpart.pdgId();
+            auto startCode = simpart.creationCode().name() ;
+            auto stopCode = simpart.stoppingCode().name()  ;
+            int x = Contains(particleIds,pdgid);
+            GeomHandle<DetectorSystem> det;
+            
+
+            if(x == 1){
+              // Make label
+              //std::string momentum = 0;//std::to_string(simpart.startMomentum().R());
+              std::string edep = std::to_string(simpart.endKineticEnergy());
+              CLHEP::Hep3Vector StartPos = det->toDetector(simpart.startPosition());
+              CLHEP::Hep3Vector EndPos = det->toDetector(simpart.endPosition());
+              double momentum = sqrt(simpart.startMomentum().x()*simpart.startMomentum().x()+simpart.startMomentum().y()*simpart.startMomentum().y() + simpart.startMomentum().z()*simpart.startMomentum().z());
+              std::string mctitle_start = " SimParticle PDGid " + std::to_string(simpart.pdgId()) + '\n'
+                + " Creation code " + (startCode) + " Stopping code " + (stopCode) + '\n'
+                + " Start Position: " + '\n'
+                + " x "  + std::to_string(StartPos.x())
+                + " y " + std::to_string(StartPos.y())
+                + " z " + std::to_string(StartPos.z())
+                + " time :" + std::to_string(simpart.startGlobalTime()  )+  '\n'
+                + " Start Momentum " + std::to_string(momentum) + " Start Energy " + std::to_string(simpart.startMomentum().e()) + '\n'
+                + " End Position: " + '\n'
+                + " x "  + std::to_string( EndPos.x())
+                + " y " + std::to_string( EndPos.y())
+                + " z " + std::to_string( EndPos.z())
+                + " time :" + std::to_string(simpart.endGlobalTime()  );
+
+              // add point
+              
+              // add point
+              //auto simpoint_start = new REX::REvePointSet(mctitle_start,mctitle_start,1);
+              // create line with the above label
+              auto simpart_line = new REX::REveLine(mctitle_start,mctitle_start,1);
+              simpart_line->SetNextPoint(pointmmTocm(StartPos.x()), pointmmTocm(StartPos.y()),pointmmTocm(StartPos.z()));
+              simpart_line->SetNextPoint(pointmmTocm(EndPos.x()), pointmmTocm(EndPos.y()),pointmmTocm(EndPos.z()));
+              // set line colour
+              SetLineColorPID(pdgid, simpart_line );
+              simpart_line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
+              SimCollection->AddElement(simpart_line);
+
+              
+            }
+         // }
+        }
+         scene->AddElement(SimCollection);
+      }
+    }
+  }
+}

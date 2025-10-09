@@ -240,7 +240,28 @@ void MainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveE
     if(geomOpt.showPS){
 
         // outer vessel
-        static std::vector <std::string> substring_psvac_vessel {"PSVacum","PSVacVesselInner","PSVacVesselOuter","PSRing1","PSRing2","PSVacVesselEndPlateD","PSVacVesselEndPlateU","psVacuumVesselVacuum"};
+        static std::vector <std::string> substring_psvac_vessel {"PSVacum",
+        "PSEnclosureFlange",
+        "PSEnclosureWindow_1",
+        "PSEnclosureWindow_2",
+        "PSEnclosureWindowFrameInside1"
+        ,"PSEnclosureWindowFrameOutside0",
+        "PSEnclosureWindowFrameInside0",
+        "PSEnclosureWindowFrameOutside1"
+        ,"PSEnclosureWindow_3",
+        "PSEnclosurePipeHole",
+        "PSEnclosureWindowFrameInside2",
+        "PSEnclosureWindowFrameOutside2"
+        ,"PSVacVesselInner",
+        "PSVacVesselOuter",
+        "PSRing1",
+        "PSRing2",
+        "PSVacVesselEndPlateD",
+        "PSVacVesselEndPlateU"
+        ,"psVacuumVesselVacuum",
+        "PSEnclosureEndPlate",
+        "TS1UpstreamEndwall",
+        "PSEnclosureShell"};
          for(auto& i: substring_psvac_vessel){
           showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shift, false, true, drawconfigf.getInt("BLColor"));
         }
@@ -249,9 +270,32 @@ void MainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveE
         for(auto& i: substring_ptm){
           showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shift, false, true, drawconfigf.getInt("BLColor"));
         }
+        /*
+        "PbarAbsTS1InPeg2","PbarAbsTS1InPeg3","PbarAbsTS1InPeg1",
+        "PSShieldShell1",
+"PSShieldShell2",
+"PSShieldShell3",
+"PSShieldShell4",
+"PSShieldEndRing1",
+"PSShieldEndRing2",
+"PSShieldEndRing3",
+"PbarAbsTS1In",
+"PbarAbsTS1InSup",
+"PbarAbsTS1InFrameUp",
+"PbarAbsTS1InFrameDown",
+"PSVacuumPbarAbsTS1InSupTab1",
+"PbarAbsTS1InSupTab2",
+"PbarAbsTS1InSupTab3"
+        */
         
-        static std::vector <std::string> substring_pt  {"ProductionTargetStartingCoreSection","ProductionTargetCoreSection","ProductionTargetFinTopSection","ProductionTargetFinTopStartingSection",
-        "ProductionTargetFinStartingSection","ProductionTargetNegativeEndRing","ProductionTarget"};
+        static std::vector <std::string> substring_pt  {
+            "ProductionTargetStartingCoreSection",
+            "ProductionTargetCoreSection",
+            "ProductionTargetFinTopSection",
+            "ProductionTargetFinTopStartingSection",
+            "ProductionTargetFinStartingSection",
+            "ProductionTargetNegativeEndRing",
+            "ProductionTarget"};
         for(auto& i: substring_pt){
           std::vector<double> shift_pt;
           shift_pt.push_back(x_ptm-x_ds3);
@@ -261,16 +305,52 @@ void MainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveE
         }
       }
       if(geomOpt.showTS){
-        static std::vector <std::string> substring_ts  {"TS1Vacuum","TS1CryoInsVac","TS1InnerCryoShell","TS1OuterCryoShell","TS1DownstreamEndwall",
-        "TS2Vacuum","TS2CryoInsVac","TS2InnerCryoShell","TS2OuterCryoShell","TS2CryoInsVac",
-        "TS3Vacuum","TS3CryoInsVac","TS3InnerCryoShell","TS3OuterCryoShell",
-        "TSudInterconnectu","TSudInterconnectd",
-        "TS4Vacuum","TS4CryoInsVac","TS4InnerCryoShell","TS4OuterCryoShell",
-        "TS5Vacuum","TS5CryoInsVac","TS5InnerCryoShell","TS5OuterCryoShell"};
+        static std::vector <std::string> substring_ts     {"TS1Vacuum",
+        "TS1CryoInsVac",
+        "TS1InnerCryoShell",
+        "TS1OuterCryoShell",
+        "TS1DownstreamEndwall",
+        "TS2Vacuum",
+        "TS2CryoInsVac",
+        "TS2InnerCryoShell",
+        "TS2OuterCryoShell",
+        "TS2CryoInsVac",
+        "TS3Vacuum",
+        "TS3CryoInsVac",
+        "TS3InnerCryoShell",
+        "TS3OuterCryoShell",
+        "TSudInterconnectu",
+        "TSudInterconnectd",
+        "TS4Vacuum",
+        "TS4CryoInsVac",
+        "TS4InnerCryoShell",
+        "TS4OuterCryoShell",
+        "TS5Vacuum",
+        "TS5CryoInsVac",
+        "TS5InnerCryoShell",
+        "TS5OuterCryoShell"};
         for(auto& i: substring_ts){
           showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shift, false, true, drawconfigf.getInt("BLColor"));
         }
-        static std::vector <std::string> substring_ts1_internals  {  "Coll11","Coll12","Coll13","PbarAbsTS1Out"};
+        static std::vector <std::string> substring_ts1_internals  {  
+          "Coll11",
+          "Coll12",
+          "Coll13",
+          "PbarAbsTS1Out",
+          "TS1ThermalShieldEndPlateMLI1",
+          "TS1ThermalShieldEndPlateMLI2",
+          "TS1ThermalShieldEndPlateMid",
+          "TS1InnerThermalShieldMLI1",
+          "TS1InnerThermalShieldMid",
+          "TS1InnerThermalShieldMLI2",
+          "TS1OuterThermalShieldMLI1",
+          "TS1OuterThermalShieldMid",
+          "TS1OuterThermalShieldMLI2",
+          "TS1_Coil1",
+          "TS1_Coil2",
+          "TS1_Coil3",
+          "TS1_Coil4",
+          "TS1CA"};
         for(auto& i: substring_ts1_internals){
           std::vector<double> shiftts1;
           shiftts1.push_back(x_ts1-x_ds3);
@@ -578,7 +658,7 @@ void MainWindow::projectEvents(REX::REveManager *eveMng)
 
     mngRhoZ  ->ImportElements(ie, rhoZEventScene);
 
-    if(ie->GetName().find("disk0") != string::npos )
+     if(ie->GetName().find("disk0") != string::npos )
       mngXYCaloDisk0->ImportElements(ie, XYCaloDisk0EventScene);
     if(ie->GetName().find("disk1") != string::npos )
       mngXYCaloDisk1->ImportElements(ie, XYCaloDisk1EventScene);
@@ -692,6 +772,10 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
   std::vector<const SurfaceStepCollection*> surfstep_list = std::get<1>(data.surfstep_tuple);
   if(drawOpts.addSurfaceSteps and surfstep_list.size() !=0){
     pass_mc->AddSurfaceStepCollection(eveMng, firstLoop,  data.surfstep_tuple, eventScene, particleIds, geomOpts.extracted);
+  }
+  std::vector<const SimParticleCollection*> sim_list = std::get<1>(data.sim_tuple);
+  if(drawOpts.addSimParts and sim_list.size() !=0){
+    pass_mc->AddSimParticleCollection(eveMng, firstLoop,  data.sim_tuple, eventScene, particleIds, geomOpts.extracted);
   }
 
   // ... project these events onto 2D geometry:
