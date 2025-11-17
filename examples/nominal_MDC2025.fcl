@@ -64,6 +64,8 @@ services.TFileService.fileName: "/dev/null"
 #  "1202:636:337031",
 #  "1202:648:370322" ]
 #
+physics.analyzers.Mu2eEventDisplay.gdmlname :"Offline/gen/gdml/mu2e_common.gdml"
+
 
 source.inputCommands: ["keep *",
     "drop mu2e::CaloClusters_CaloClusterFast_*_*"

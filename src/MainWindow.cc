@@ -606,7 +606,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
           showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, false, false, drawconfigf.getInt("CALColor") );
         }
       if(geomOpt.showCaloCrystals){
-        static std::vector <std::string> substrings_crystals  {"CaloCrystal","CaloCrystalCsI","CaloCrystalLYSO"};
+        static std::vector <std::string> substrings_crystals  {"CaloWrapper"};
         for(auto& i: substrings_crystals){
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
