@@ -12,8 +12,17 @@ For more information about REve and the implementation for Mu2e see: https://mu2
 To use the display to scroll through events sequentially utilize either the ```nominal_example``` for nominal Mu2e geometry or ```extracted_example``` for the extracted geometry and run as you would any other .fcl:
 
 ```
-mu2e -c nominal_example.fcl <filename.art>
+mu2e -c <chosen_geom.fcl> <filename.art>
 ```
+
+The current available options for the .fcl are located in the ```examples``` directory. There are four main examples:
+
+* nominal_MDC2020.fcl: with the original CRV geometry, to be used the MDC2020 samples
+* nominal_MDC2025.fcl: with the MDC2025 CRV geometry
+* extracted_MDC2020.fcl: for those still using MDC2020 extracted samples, to be retired
+* extracted_MDC2025.fcl: for those doing extracted studies with MDC2025 samples.
+
+These .fcl can be edited as you wish (adding or removing certain features), they should provide good starting points for any study.
 
 ## Go to an given event
 
