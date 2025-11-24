@@ -285,6 +285,7 @@ void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_, 
   }
 }
 
+//Enables the visualization of cluster of hits flagged as background by the FlagBkgHits module. This is work in progress. More features coming soon.
 void DataInterface::AddBkgClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const BkgClusterCollection*>> bkgcluster_tuple, REX::REveElement* &scene){
   std::cout<<"BkgClusterCollection "<<std::endl;
   std::vector<const BkgClusterCollection*> bkgcluster_list = std::get<1>(bkgcluster_tuple);
