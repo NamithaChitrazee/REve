@@ -23,6 +23,8 @@
 #include "Offline/RecoDataProducts/inc/KalSeed.hh"
 #include "Offline/RecoDataProducts/inc/CosmicTrackSeed.hh"
 #include "Offline/RecoDataProducts/inc/ComboHit.hh"
+#include "Offline/RecoDataProducts/inc/BkgClusterHit.hh"
+#include "Offline/RecoDataProducts/inc/BkgCluster.hh"
 #include "Offline/RecoDataProducts/inc/TimeCluster.hh"
 #include "Offline/CalorimeterGeom/inc/CaloGeomUtil.hh"
 #include "Offline/CalorimeterGeom/inc/Calorimeter.hh"
@@ -53,6 +55,7 @@ namespace mu2e{
           #ifndef __CINT__
 
           inline constexpr double pointmmTocm(double mm){ return mm/10; };
+          void AddBkgClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const BkgClusterCollection*>> bkgcluster_tuple, REX::REveElement* &scene);
           void AddComboHits(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple, REX::REveElement* &scene, bool strawdisplay, bool AddErrBar);
           void AddTimeClusters(REX::REveManager *&eveMng, bool firstloop, std::tuple<std::vector<std::string>, std::vector<const TimeClusterCollection*>> timecluster_tuple, REX::REveElement* &scene);
           void AddTrkHits(REX::REveManager *&eveMng, bool firstLoop_,  std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple, std::tuple<std::vector<std::string>, std::vector<const KalSeedPtrCollection*>> track_tuple, REX::REveElement* &scene);
