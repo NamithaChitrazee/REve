@@ -6,6 +6,14 @@ The EventDisplay is based on REve which is an updated version of the well-known 
 
 For more information about REve and the implementation for Mu2e see: https://mu2ewiki.fnal.gov/wiki/Eve7EventDisplay#Examples_of_the_Eve-7_Mu2e_Display.
 
+# Steps to clone and build
+
+git clone https://github.com/Mu2e/EventDisplay.git
+
+muse build -j 20
+
+muse build GDML
+
 # Useage
 
 ## Sequential on known file
@@ -43,7 +51,6 @@ If you are working with an ntuple, you may not know all the commands to figure o
 ```
 
 where the run, subrun and event numbers are identified from your analysis to be an event of interest in that root file.
-
 
 
 # Tutorial
