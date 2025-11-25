@@ -4,6 +4,7 @@
 #include "Offline/GeometryService/inc/GeomHandle.hh"
 #include "Offline/Mu2eKinKal/inc/WireHitState.hh"
 #include "Offline/RecoDataProducts/inc/TrkStrawHitSeed.hh"
+#include "Offline/RecoDataProducts/inc/StrawHitFlag.hh"
 #include "Offline/GlobalConstantsService/inc/GlobalConstantsHandle.hh"
 #include "Offline/GlobalConstantsService/inc/ParticleDataList.hh"
 #include <sstream>
@@ -284,47 +285,53 @@ void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_, 
     }
   }
 }
-
-//Enables the visualization of cluster of hits flagged as background by the FlagBkgHits module. This is work in progress. More features coming soon.
+ 
 void DataInterface::AddBkgClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const BkgClusterCollection*>> bkgcluster_tuple, REX::REveElement* &scene){
   std::cout<<"BkgClusterCollection "<<std::endl;
   std::vector<const BkgClusterCollection*> bkgcluster_list = std::get<1>(bkgcluster_tuple);
   // std::vector<std::string> names = std::get<0>(bkgcluster_tuple);
   std::cout<<"BkgClusterCollection size = "<<bkgcluster_list.size()<<std::endl;
+  std::string bctitle = "BkgCluster";
+  auto ps1 = new REX::REvePointSet(bctitle, bctitle,0);
+  int colour = 6;
   for(unsigned int j = 0; j < bkgcluster_list.size(); j++){
     const BkgClusterCollection* bccol = bkgcluster_list[j];
     if(bccol->size() !=0 ){
       // Loop over hits
       for(unsigned int i=0; i< bccol->size(); i++){
         mu2e::BkgCluster const  &bkgcluster= (*bccol)[i];
-        int colour = (i+3);
-        std::cout<<"BkgCluster ="<<bkgcluster.hits().size()<<std::endl;
+        //int colour = (i+3);
+        //std::cout<<"BkgCluster ="<<bkgcluster.hits().size()<<std::endl;
         CLHEP::Hep3Vector ClusterPos(pointmmTocm(bkgcluster.pos().x()), pointmmTocm(bkgcluster.pos().y()), pointmmTocm(bkgcluster.pos().z()));
-        std::string bctitle = "BkgCluster";
-        auto ps1 = new REX::REvePointSet(bctitle, bctitle,0);
         ps1->SetNextPoint(ClusterPos.x(), ClusterPos.y() , ClusterPos.z());
-        ps1->SetMarkerColor(colour);
-        ps1->SetMarkerStyle(DataInterface::mstyle);
-        ps1->SetMarkerSize(DataInterface::msize);
-        if(ps1->GetSize() !=0 ) scene->AddElement(ps1);
       }
     }
   }
+  ps1->SetMarkerColor(colour);
+  ps1->SetMarkerStyle(DataInterface::mstyle);
+  ps1->SetMarkerSize(DataInterface::msize);
+  if(ps1->GetSize() !=0 ) scene->AddElement(ps1);
 }
 
 void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple, REX::REveElement* &scene, bool strawdisplay, bool AddErrorBar_){
 
   std::vector<const ComboHitCollection*> combohit_list = std::get<1>(combohit_tuple);
   std::vector<std::string> names = std::get<0>(combohit_tuple);
-
   // Loop over hit lists
   for(unsigned int j = 0; j < combohit_list.size(); j++){
     const ComboHitCollection* chcol = combohit_list[j];
-    int colour = (j+3);
+    std::cout<<"Name = "<<names[j]<<std::endl;
+    int colour = 4; //kBlue
     if(chcol->size() !=0 ){
       // Loop over hits
       for(unsigned int i=0; i< chcol->size(); i++){
         mu2e::ComboHit const  &hit= (*chcol)[i];
+        //std::cout<<"Hit flag = "<<hit.flag()<<std::endl;
+        //if(hit.flag().hasAnyProperty(mu2e::StrawHitFlagDetail::bkg)) {
+        if ( hit.flag().hasAnyProperty(StrawHitFlagDetail::bkg)) {
+          //std::cout<<"Background hit"<<std::endl;
+          colour = 2; //kRed
+        }
         // Display hit straws if selected too in FCL file
         if(strawdisplay){
           mu2e::GeomHandle<mu2e::Tracker> tracker;
@@ -405,7 +412,7 @@ void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_, std
         ps1->SetMarkerColor(colour);
         ps1->SetMarkerStyle(DataInterface::mstyle);
         ps1->SetMarkerSize(DataInterface::msize);
-        if(ps1->GetSize() !=0 ) scene->AddElement(ps1);
+        if(ps1->GetSize() !=0) scene->AddElement(ps1);
       }
     }
   }
