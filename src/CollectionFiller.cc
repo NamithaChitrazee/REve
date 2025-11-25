@@ -9,6 +9,7 @@ namespace mu2e{
 
   CollectionFiller::CollectionFiller(const Config& conf) :
     chTag_(conf.chTag()),
+    bcTag_(conf.bcTag()),
     tcTag_(conf.tcTag()),
     crvrecoTag_(conf.crvrecoTag()),
     crvcoinTag_(conf.crvcoinTag()),
@@ -21,6 +22,7 @@ namespace mu2e{
     SurfStepsTag_(conf.SurfStepsTag()),
     SimTag_(conf.SimTag()),
     addHits_(conf.addHits()),
+    addBkgClusters_(conf.addBkgClusters()),
     addCrvHits_(conf.addCrvHits()),
     addCrvClusters_(conf.addCrvClusters()),
     addTimeClusters_(conf.addTimeClusters()),
@@ -54,6 +56,17 @@ namespace mu2e{
         data.combohit_labels.push_back(name);
       }
       data.combohit_tuple = std::make_tuple(data.combohit_labels,data.combohit_list);
+    }
+    if(FillAll_  or (CollectionName == BkgClusters)){
+      for(const auto &tag : bcTag_){
+        auto bcH = evt.getValidHandle<mu2e::BkgClusterCollection>(tag);
+        data.bccol = bcH.product();
+        data.bkgcluster_list.push_back(data.bccol);
+        std::string name = TurnNameToString(tag);
+        std::cout<<"Plotting BkgCluster Instance: "<<name<<std::endl;
+        data.bkgcluster_labels.push_back(name);
+      }
+      data.bkgcluster_tuple = std::make_tuple(data.bkgcluster_labels,data.bkgcluster_list);
     }
     if(FillAll_ or (addCrvHits_ and CollectionName==CrvRecoPulses)){
       for(const auto &tag : crvrecoTag_){

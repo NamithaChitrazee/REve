@@ -729,6 +729,11 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
     if(combohit_list.size() !=0 ) pass_data->AddComboHits(eveMng, firstLoop, data.combohit_tuple, eventScene, strawdisplay, drawOpts.addTrkErrBar);
   }
 
+  if(drawOpts.addBkgClusters) {
+    std::vector<const BkgClusterCollection*> bkgcluster_list = std::get<1>(data.bkgcluster_tuple);
+    if(bkgcluster_list.size() !=0 ) pass_data->AddBkgClusters(eveMng, firstLoop, data.bkgcluster_tuple, eventScene);
+  }
+
   if(drawOpts.addCRVInfo){
     std::vector<const CrvRecoPulseCollection*> crvpulse_list = std::get<1>(data.crvpulse_tuple);
     if(crvpulse_list.size() !=0) pass_data->AddCRVInfo(eveMng, firstLoop, data.crvpulse_tuple, eventScene, geomOpts.extracted, drawOpts.addCRVBars);

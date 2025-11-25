@@ -22,6 +22,7 @@ Mu2eEventDisplay : {
     filler : {
       diagLevel : 0
       ComboHitCollection : ["makeSH"]
+      BkgClusterCollection : ["flagPH"]
       CrvRecoPulseCollection : ["SelectRecoMC"]
       CrvCoincidenceClusterCollection : ["SelectRecoMC:CrvCoincidenceClusterFinder" ]
       TimeClusterCollection : ["MHDeM"]
@@ -35,6 +36,7 @@ Mu2eEventDisplay : {
       SurfaceStepCollection :  []
       SimParticleCollection :  ["compressSTMDet"]
       addHits : false
+      addBkgClusters : false
       addCrvHits : false
       addCrvClusters : false
       addTimeClusters : false

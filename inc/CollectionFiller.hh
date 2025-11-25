@@ -17,7 +17,7 @@
 
 namespace mu2e{
 
-  enum RecoDataProductName {ComboHits,  CrvRecoPulses, TimeClusters, CaloClusters, HelixSeeds, KalSeeds, CosmicTrackSeeds, TrkHits, CrvCoincidenceCluster, CaloDigis};
+  enum RecoDataProductName {ComboHits,  BkgClusters, CrvRecoPulses, TimeClusters, CaloClusters, HelixSeeds, KalSeeds, CosmicTrackSeeds, TrkHits, CrvCoincidenceCluster, CaloDigis};
   enum MCDataProductName {MCTrajectories, SurfaceSteps, SimParticles};
   class CollectionFiller
   {
@@ -27,6 +27,7 @@ namespace mu2e{
         using Comment=fhicl::Comment;
         fhicl::Atom<int> diagLevel{Name("diagLevel"), Comment("for info"),0};
         fhicl::Sequence<art::InputTag>chTag{Name("ComboHitCollection"),Comment("chTag")};
+        fhicl::Sequence<art::InputTag>bcTag{Name("BkgClusterCollection"),Comment("bcTag")};
         fhicl::Sequence<art::InputTag>tcTag{Name("TimeClusterCollection"),Comment("ttcTag")};
         fhicl::Sequence<art::InputTag>crvrecoTag{Name("CrvRecoPulseCollection"),Comment("crvTag")};
         fhicl::Sequence<art::InputTag>crvcoinTag{Name("CrvCoincidenceClusterCollection"),Comment("crvcoinTag")};
@@ -39,6 +40,7 @@ namespace mu2e{
         fhicl::Sequence<art::InputTag>SurfStepsTag{Name("SurfaceStepCollection"),Comment("SurfaceSteps Collection Tag")};
         fhicl::Sequence<art::InputTag>SimTag{Name("SimParticleCollection"),Comment("SimTag")};
         fhicl::Atom<bool> addHits{Name("addHits"), Comment("set to add the hits"),false};
+        fhicl::Atom<bool> addBkgClusters{Name("addBkgClusters"), Comment("set to add the bkg clusters"),false};
         fhicl::Atom<bool> addCrvHits{Name("addCrvHits"), Comment("set to add crv hits"),false};
         fhicl::Atom<bool> addCrvClusters{Name("addCrvClusters"), Comment("set to add crv clusters"),false};
         fhicl::Atom<bool> addTimeClusters{Name("addTimeClusters"), Comment("set to add the Crv hits"),false};
@@ -59,6 +61,7 @@ namespace mu2e{
       CollectionFiller& operator=(const CollectionFiller &);
 
       std::vector<art::InputTag> chTag_;
+      std::vector<art::InputTag> bcTag_;
       std::vector<art::InputTag> tcTag_;
       std::vector<art::InputTag> crvrecoTag_;
       std::vector<art::InputTag> crvcoinTag_;
@@ -72,7 +75,7 @@ namespace mu2e{
       std::vector<art::InputTag> SimTag_;
       art::Event *_event;
       art::Run *_run;
-      bool addHits_,  addCrvHits_, addCrvClusters_, addTimeClusters_, addTrkHits_, addCaloDigis_, addClusters_, addHelixSeeds_, addKalSeeds_, addCosmicTrackSeeds_, addMCTraj_,
+      bool addHits_,  addBkgClusters_, addCrvHits_, addCrvClusters_, addTimeClusters_, addTrkHits_, addCaloDigis_, addClusters_, addHelixSeeds_, addKalSeeds_, addCosmicTrackSeeds_, addMCTraj_,
            addSurfSteps_, addSimParts_, FillAll_;
       void FillRecoCollections(const art::Event& evt, DataCollections &data, RecoDataProductName code);
       void FillMCCollections(const art::Event& evt, DataCollections &data, MCDataProductName code);
