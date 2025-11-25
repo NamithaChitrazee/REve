@@ -251,6 +251,7 @@ void MCInterface::AddSimParticleCollection(REX::REveManager *&eveMng, bool first
               CLHEP::Hep3Vector StartPos = det->toDetector(simpart.startPosition());
               CLHEP::Hep3Vector EndPos = det->toDetector(simpart.endPosition());
               double momentum = sqrt(simpart.startMomentum().x()*simpart.startMomentum().x()+simpart.startMomentum().y()*simpart.startMomentum().y() + simpart.startMomentum().z()*simpart.startMomentum().z());
+              double endmomentum = sqrt(simpart.endMomentum().x()*simpart.endMomentum().x()+simpart.endMomentum().y()*simpart.endMomentum().y() + simpart.endMomentum().z()*simpart.endMomentum().z());
               std::string mctitle_start = " SimParticle PDGid " + std::to_string(simpart.pdgId()) + '\n'
                 + " Creation code " + (startCode) + " Stopping code " + (stopCode) + '\n'
                 + " Start Position: " + '\n'
@@ -263,11 +264,10 @@ void MCInterface::AddSimParticleCollection(REX::REveManager *&eveMng, bool first
                 + " x "  + std::to_string( EndPos.x())
                 + " y " + std::to_string( EndPos.y())
                 + " z " + std::to_string( EndPos.z())
-                + " time :" + std::to_string(simpart.endGlobalTime()  );
+                + " time :" + std::to_string(simpart.endGlobalTime()  )+ '\n'
+                + " End Momentum " + std::to_string(endmomentum) + " End Energy " + std::to_string(simpart.endMomentum().e()) ;
 
-              // add point
               
-              // add point
               //auto simpoint_start = new REX::REvePointSet(mctitle_start,mctitle_start,1);
               // create line with the above label
               auto simpart_line = new REX::REveLine(mctitle_start,mctitle_start,1);

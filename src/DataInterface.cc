@@ -56,20 +56,24 @@ void DataInterface::AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_, std
           diskID = 1;
         }
         CLHEP::Hep3Vector crystalPos = cal.geomUtil().mu2eToDisk(diskID,crystal.position()) ;
-        CLHEP::Hep3Vector pointInMu2e = det->toMu2e(crystalPos);
+        //CLHEP::Hep3Vector pointInMu2e = det->toMu2e(crystalPos);
 
         std::string crytitle =  "Crystal ID = " + std::to_string(cryID) +  '\n'
           + " Time = " + std::to_string(digi.t0())+" ns ";
         char const *crytitle_c = crytitle.c_str();
 
-        std::string name = "disk" + std::to_string(diskID);
-        auto ps1 = new REX::REvePointSet(name, "CaloClusters Disk 1: ",0);
-        auto ps2 = new REX::REvePointSet(name, "CaloClusters Disk 2: ",0);
+        std::string name = "disk " + std::to_string(diskID);
 
-
+        std::string label =   " CaloDigi Instance = " + names[0] +  '\n'
+          + " SiPM. = "+std::to_string(sipmID)+   '\n'
+          + " t0 = "+std::to_string(digi.t0())+" ns " +  '\n'
+          + " peakPos = "+std::to_string(digi.peakpos());
+        auto ps1 = new REX::REvePointSet(label,label, 0);
+        auto ps2 = new REX::REvePointSet(label, label, 0);
+        
         // Set positions of clusters
         if(diskID == 0)
-          ps1->SetNextPoint(pointmmTocm(crystal.position().x()), pointmmTocm(crystal.position().y()) , zpos );
+          ps1->SetNextPoint(pointmmTocm(crystalPos.x()), pointmmTocm(crystalPos.y()) , zpos );
         if(diskID == 1) 
           ps2->SetNextPoint(pointmmTocm(crystalPos.x()), pointmmTocm(crystalPos.y()) , zpos );
 
@@ -88,7 +92,7 @@ void DataInterface::AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_, std
         scene->AddElement(ps2);
 
         // plot the crystals which are present in this event:
-        auto b = new REX::REveBox("crystal",crytitle_c);
+        auto b = new REX::REveBox(crytitle_c,crytitle_c);
         b->SetMainColor(color);
         double width = crystalXLen/2;
         double height = crystalYLen/2;
