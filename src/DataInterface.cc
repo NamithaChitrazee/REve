@@ -317,11 +317,16 @@ void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_, std
 
   std::vector<const ComboHitCollection*> combohit_list = std::get<1>(combohit_tuple);
   std::vector<std::string> names = std::get<0>(combohit_tuple);
+  
+  std::string chtitle = "ComboHit";
+  auto ps1 = new REX::REvePointSet(chtitle, chtitle,0);
+  int colour = 4; //kBlue
+
+  auto linegroup = new REX::REveCompound("Error bars", "Error bars", 1);
   // Loop over hit lists
   for(unsigned int j = 0; j < combohit_list.size(); j++){
     const ComboHitCollection* chcol = combohit_list[j];
     std::cout<<"Name = "<<names[j]<<std::endl;
-    int colour = 4; //kBlue
     if(chcol->size() !=0 ){
       // Loop over hits
       for(unsigned int i=0; i< chcol->size(); i++){
@@ -395,27 +400,30 @@ void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_, std
           //std::cout<<"errors "<<x1<<" "<<y1<<" "<<z1<<std::endl;
           error->SetLineColor(kRed);
           error->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
-          scene->AddElement(error);
+          linegroup->AddElement(error);
+          //scene->AddElement(error);
+          
         }
         CLHEP::Hep3Vector HitPos(pointmmTocm(hit.pos().x()), pointmmTocm(hit.pos().y()), pointmmTocm(hit.pos().z()));
-        std::string chtitle = "ComboHits tag = "
-          + (names[j])  +  '\n'
-          + " position : x "  + std::to_string(hit.pos().x())  +  '\n'
-          + " y " + std::to_string(hit.pos().y())  +  '\n'
-          + " z " + std::to_string(hit.pos().z())  +  '\n'
-          + " time :" + std::to_string(hit.time()) +  '\n'
-          + " energy dep : "
-          + std::to_string(hit.energyDep())  +
-          + "MeV";
-        auto ps1 = new REX::REvePointSet(chtitle, chtitle,0);
+        //std::string chtitle = "ComboHits tag = "
+        //  + (names[j])  +  '\n'
+        //  + " position : x "  + std::to_string(hit.pos().x())  +  '\n'
+        //  + " y " + std::to_string(hit.pos().y())  +  '\n'
+        //  + " z " + std::to_string(hit.pos().z())  +  '\n'
+        //  + " time :" + std::to_string(hit.time()) +  '\n'
+        //  + " energy dep : "
+        //  + std::to_string(hit.energyDep())  +
+        //  + "MeV";
+        
         ps1->SetNextPoint(HitPos.x(), HitPos.y() , HitPos.z());
         ps1->SetMarkerColor(colour);
-        ps1->SetMarkerStyle(DataInterface::mstyle);
-        ps1->SetMarkerSize(DataInterface::msize);
-        if(ps1->GetSize() !=0) scene->AddElement(ps1);
       }
-    }
+    }   
   }
+  ps1->SetMarkerStyle(DataInterface::mstyle);
+  ps1->SetMarkerSize(DataInterface::msize);
+  if(ps1->GetSize() !=0) scene->AddElement(ps1);
+  scene->AddElement(linegroup);
 }
 
 /*------------Function to add CRV information to the display:-------------*/
@@ -781,30 +789,28 @@ void DataInterface::AddHelixSeedCollection(REX::REveManager *&eveMng,bool firstl
 void DataInterface::AddKalIntersection(KalSeed const& kalseed, REX::REveElement* &scene, REX::REveCompound *products){
   //Plot intersecitons:
   std::vector<mu2e::KalIntersection> const& inters = kalseed.intersections();
-
+  std::cout<<"AddKalIntersection"<<std::endl;
+  auto interpoint = new REX::REvePointSet("kalseed intersection", "kalseed intersection",1);
+  interpoint->SetMarkerStyle(DataInterface::mstyle);
+  interpoint->SetMarkerSize(DataInterface::msize);
   for(auto const& inter : inters){
     KinKal::VEC3 posKI = inter.position3();
-    std::string title = "KalIntersection position : x "  + std::to_string(posKI.x())  +  '\n'
+    /*std::string title = "KalIntersection position : x "  + std::to_string(posKI.x())  +  '\n'
       + " y " + std::to_string(posKI.y())  +  '\n'
       + " z " + std::to_string(posKI.z())  +  '\n'
       + " time :" + std::to_string(inter.time()) +  '\n'
       + " mom , dmom : "
       + std::to_string(inter.mom()) + " , " + std::to_string(inter.dMom())  +
       + "MeV/c " + '\n'
-      + "Surface " +  inter.surfaceId().name();
-    auto interpoint = new REX::REvePointSet(title, title,1);
-
-    interpoint->SetMarkerStyle(DataInterface::mstyle);
-    interpoint->SetMarkerSize(DataInterface::msize);
+      + "Surface " +  inter.surfaceId().name();*/
     if(fabs(inter.dMom()) > 0.0){
       interpoint->SetMarkerColor(kViolet);// color material intersections differently from virtual surface intersections
     } else {
       interpoint->SetMarkerColor(kYellow);
     }
     interpoint->SetNextPoint(pointmmTocm(posKI.x()),pointmmTocm(posKI.y()) ,pointmmTocm(posKI.z()));
-    if(interpoint->GetSize() !=0 ) products->AddElement(interpoint);
   }
-
+  if(interpoint->GetSize() !=0 ) products->AddElement(interpoint);
 }
 
 template<class KTRAJc> void DataInterface::AddTrkStrawHit(KalSeed const& kalseed, REX::REveElement* &scene,  std::unique_ptr<KTRAJc> &lhptr, REX::REveCompound *trackproducts){
@@ -813,13 +819,17 @@ template<class KTRAJc> void DataInterface::AddTrkStrawHit(KalSeed const& kalseed
   mu2e::GeomHandle<mu2e::Tracker> tracker;
   std::vector<mu2e::TrkStrawHitSeed> const& hits = kalseed.hits();
 
+  auto trkstrawpoint = new REX::REvePointSet("trkstrawhit", "trkstrawhit",1);
+  trkstrawpoint->SetMarkerStyle(DataInterface::mstyle);
+  trkstrawpoint->SetMarkerSize(DataInterface::msize);
+  trkstrawpoint->SetMarkerColor(3);//drawconfig.getInt("TrkHitColor"));
   for(unsigned int i = 0; i < hits.size(); i++){
     const mu2e::TrkStrawHitSeed &tshs = hits.at(i);
     auto const& straw = tracker->straw(tshs.strawId());
     mu2e::WireHitState whs(mu2e::WireHitState::State(tshs._ambig),
         mu2e::StrawHitUpdaters::algorithm(tshs._algo),
         tshs._kkshflag);
-    bool active = whs.active();
+    bool active = true; //whs.active();
     bool usedrift = whs.driftConstraint();
     if(active){ // maybe draw inactive hits but with a different color? TODO
       // then find the position at the reference POCA: start with the position on the wire
@@ -843,21 +853,17 @@ template<class KTRAJc> void DataInterface::AddTrkStrawHit(KalSeed const& kalseed
       std::string err_title = "+/-"+std::to_string(nsigma) +"sigma";
 
       //goes along that same line (ddir)
-      std::string title = "TrkStrawHitSeed : x "  + std::to_string(tshspos.x())  +  '\n'
-        + " y " + std::to_string(tshspos.y())  +  '\n'
-        + " z " + std::to_string(tshspos.z())  +  '\n'
-        + " time :" + std::to_string(tshs.time())+  '\n'
-        + " energyDep :" + std::to_string(tshs.energyDep())+ "MeV" + '\n'
-        + " error : " + err_title;
-      auto point_with_error = new REX::REveCompound("TrkStrawHitSeed "+std::to_string(i), "TrkStrawHitSeed",1);
-      auto trkstrawpoint = new REX::REvePointSet(title, title,1);
-      trkstrawpoint->SetMarkerStyle(DataInterface::mstyle);
-      trkstrawpoint->SetMarkerSize(DataInterface::msize);
-      trkstrawpoint->SetMarkerColor(drawconfig.getInt("TrkHitColor"));
+      //std::string title = "TrkStrawHitSeed : x "  + std::to_string(tshspos.x())  +  '\n'
+      //  + " y " + std::to_string(tshspos.y())  +  '\n'
+      //  + " z " + std::to_string(tshspos.z())  +  '\n'
+      //  + " time :" + std::to_string(tshs.time())+  '\n'
+      //  + " energyDep :" + std::to_string(tshs.energyDep())+ "MeV" + '\n'
+      //  + " error : " + err_title;
+      auto point_with_error = new REX::REveCompound("TrkStrawHitSeed", "TrkStrawHitSeed", 1);
       auto line = new REX::REveLine("TrkStrawHit Error"+err_title,err_title, 1);
       line->SetNextPoint(pointmmTocm(end1.x()),pointmmTocm(end1.y()) ,pointmmTocm(end1.z()));
       line->SetNextPoint(pointmmTocm(end2.x()),pointmmTocm(end2.y()) ,pointmmTocm(end2.z()));
-      line->SetLineColor(drawconfig.getInt("TrkHitColor"));
+      line->SetLineColor(2); //(drawconfig.getInt("TrkHitColor"));
       if(!usedrift)trkstrawpoint->SetMarkerColor(drawconfig.getInt("TrkNoHitColor"));
       trkstrawpoint->SetNextPoint(pointmmTocm(tshspos.x()),pointmmTocm(tshspos.y()) ,pointmmTocm(tshspos.z()));
       point_with_error->AddElement(trkstrawpoint);
@@ -865,6 +871,7 @@ template<class KTRAJc> void DataInterface::AddTrkStrawHit(KalSeed const& kalseed
       trackproducts->AddElement(point_with_error);
     }
   }
+ if(trkstrawpoint->GetSize() !=0 ) scene->AddElement(trkstrawpoint);
 }
 
 void DataInterface::AddTrkCaloHit(KalSeed const& kalseed, REX::REveElement* &scene){
@@ -879,6 +886,10 @@ void DataInterface::AddTrkHits(REX::REveManager *&eveMng, bool firstLoop_, std::
   std::vector<const ComboHitCollection*> combohit_list = std::get<1>(combohit_tuple);
   std::vector<const KalSeedPtrCollection*> track_list = std::get<1>(track_tuple);
 
+  auto trkhit = new REX::REvePointSet("TrkHit", "TrkHit",0);
+  trkhit ->SetMarkerStyle(DataInterface::mstyle);
+  trkhit ->SetMarkerSize(DataInterface::msize);
+  trkhit ->SetMarkerColor(3); //drawconfig.getInt("TrkHitColor"));
   GeomHandle<DetectorSystem> det;
   std::vector<StrawId> trksid(drawconfig.getInt("maxStrawID"));
   unsigned int trkhitsize=0;
@@ -907,21 +918,16 @@ void DataInterface::AddTrkHits(REX::REveManager *&eveMng, bool firstLoop_, std::
                   usedtrksid[q]=hit._sid;//Save the Straw ID if the KalSeed and Combo hit ID matches
                   usedid[q]=q;
                   CLHEP::Hep3Vector HitPos(hit.pos().x(), hit.pos().y(), hit.pos().z());
-                  std::string chtitle = "TrkSeedHit position : x "  + std::to_string(hit.pos().x())  +  '\n'
-                    + " y " + std::to_string(hit.pos().y())  +  '\n'
-                    + " z " + std::to_string(hit.pos().z())  +  '\n'
-                    + " time :" + std::to_string(hit.time()) +  '\n'
-                    + " energy dep : "
-                    + std::to_string(hit.energyDep())  +
-                    + "MeV";
+                  //std::string chtitle = "TrkSeedHit position : x "  + std::to_string(hit.pos().x())  +  '\n'
+                  //  + " y " + std::to_string(hit.pos().y())  +  '\n'
+                  //  + " z " + std::to_string(hit.pos().z())  +  '\n'
+                  //  + " time :" + std::to_string(hit.time()) +  '\n'
+                  //  + " energy dep : "
+                  //  + std::to_string(hit.energyDep())  +
+                  //  + "MeV";
 
-                  auto trkhit = new REX::REvePointSet(chtitle, chtitle,0);
-                  trkhit ->SetMarkerStyle(DataInterface::mstyle);
-                  trkhit ->SetMarkerSize(DataInterface::msize);
                   // trkhit ->SetMarkerColor(drawconfig.getInt("RecoTrackColor")-4);
-                  trkhit ->SetMarkerColor(drawconfig.getInt("TrkHitColor"));
                   trkhit ->SetNextPoint(pointmmTocm(HitPos.x()),pointmmTocm(HitPos.y()) ,pointmmTocm(HitPos.z()));
-                  if(trkhit->GetSize() !=0 ) scene->AddElement(trkhit);
                   // std::cout<<"TrkHit = "<<HitPos.x()<<"  "<<HitPos.y()<<" "<<HitPos.z()<<std::endl;
                 }
               }
@@ -931,12 +937,14 @@ void DataInterface::AddTrkHits(REX::REveManager *&eveMng, bool firstLoop_, std::
       }
     }
   }
+ if(trkhit->GetSize() !=0 ) scene->AddElement(trkhit); 
 }
 
 using LHPT = KalSeed::LHPT;
 using CHPT = KalSeed::CHPT;
 using KLPT = KalSeed::KLPT;
 template<class KTRAJ> void DataInterface::AddKinKalTrajectory( std::unique_ptr<KTRAJ> &trajectory, REX::REveElement* &scene, unsigned int j, std::string kaltitle, double& t1, double& t2){
+  std::cout<<"AddKinKalTrajectory"<<std::endl;
   t1=trajectory->range().begin();
   t2=trajectory->range().end();
 
@@ -954,7 +962,7 @@ template<class KTRAJ> void DataInterface::AddKinKalTrajectory( std::unique_ptr<K
     double zt=p.z();
     line->SetNextPoint(pointmmTocm(xt), pointmmTocm(yt) , pointmmTocm(zt));
   }
-  line->SetLineColor(j+6);
+  line->SetLineColor(2);
   line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
   scene->AddElement(line);
 }
