@@ -62,8 +62,7 @@ void mu2e::EventDisplayManager::goToRunEvent(int runId, int eventId)
     
     if (ROOT::Experimental::gEve != nullptr) {
         
-        // *** CRITICAL FIX: Use the likely correct function name ***
-        ROOT::Experimental::REveElement* element = ROOT::Experimental::gEve->FindElementById(4285);//fTextId_); 
+        ROOT::Experimental::REveElement* element = ROOT::Experimental::gEve->FindElementById(4285);//fTextId_); //FIXME note the hardcoding
         
         if (element != nullptr) {
             fText_obj = dynamic_cast<TextSelect*>(element);
@@ -71,7 +70,6 @@ void mu2e::EventDisplayManager::goToRunEvent(int runId, int eventId)
     }
     
     if (fText_obj == nullptr) {
-        // Report the ID it just tried to look up:
         std::cerr << "CRITICAL ERROR: TextSelect object not found via gEve->FindElementWithId(" 
                   << fTextId_ << "). Cannot set Run/Event." << std::endl; 
         return;  
