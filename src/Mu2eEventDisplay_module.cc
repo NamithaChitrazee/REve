@@ -160,9 +160,7 @@ namespace mu2e
 
         // Display control
         art::EventID displayedEventID_{};
-        REX::REveManager* eveMng_{nullptr};
-        EventDisplayManager* eventMgr_{nullptr};
-
+        
         // Control between the main thread and event-display thread
         std::condition_variable cv_{};
         std::mutex m_{};
@@ -200,9 +198,12 @@ namespace mu2e
         bool showEM_;
 
         // Setup Custom GUI
-        GUI *fGui{nullptr};
-        PrintInfo *fPrint{nullptr};
-        TextSelect *fText{nullptr};
+        
+        std::unique_ptr<GUI> fGui{nullptr};
+        std::unique_ptr<TextSelect> fText{nullptr};
+        std::unique_ptr<PrintInfo> fPrint{nullptr};
+        REX::REveManager* eveMng_{nullptr};
+        std::unique_ptr<EventDisplayManager> eventMgr_{nullptr};
         double eventid_;
         double runid_;
         double subrunid_;
@@ -351,6 +352,20 @@ namespace mu2e
 
       if((seqMode_) or ( runid_ == runn and subrunid_ == subrunn and eventid_ == eventn)){
         // Hand off control to display thread
+        // --- NEW: Read User Input from TextSelect ---
+        // fText is the pointer to the TextSelect instance initialized in setup_eve()
+        if (fText) {
+            std::pair<int, int> user_input = fText->getRunEvent();
+            int user_run = user_input.first;
+            int user_event = user_input.second;
+
+            // *** Print the accessible run and event to the console ***
+            std::cout << "\n[Mu2eEventDisplay::analyze] -------------------------" << std::endl;
+            std::cout << "[Mu2eEventDisplay::analyze] User Input Detected (from TextSelect):" << std::endl;
+            std::cout << "[Mu2eEventDisplay::analyze] Run Number:  " << user_run << std::endl;
+            std::cout << "[Mu2eEventDisplay::analyze] Event Number: " << user_event << std::endl;
+            std::cout << "[Mu2eEventDisplay::analyze] -------------------------\n" << std::endl;
+        }
         std::unique_lock lock{m_};
         if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] -- Fill collections "<<std::endl;
         //auto start1 = std::chrono::high_resolution_clock::now();
@@ -419,7 +434,7 @@ namespace mu2e
         if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] Ended Event "<<std::endl;
         seqMode_ = true;
 
-        std::cout<<"test VALUE "<<eventMgr_->run<<std::endl;
+        //std::cout<<"test VALUE "<<eventMgr_->run<<std::endl;
       }
   }
 
@@ -447,24 +462,32 @@ namespace mu2e
 
   void Mu2eEventDisplay::setup_eve()
   {
+  
       RWebWindowsManager::AssignMainThrd();
       eveMng_ = REX::REveManager::Create();
       eveMng_->AllowMultipleRemoteConnections(false, false);
       ROOT::RWebWindowsManager::SetUseSessionKey(false);
-      //InitGuiInfo()
-      fGui = new GUI();
-      fGui->SetName("Mu2eGUI");
+      fGui = std::make_unique<GUI>();
+    fGui->SetName("Mu2eGUI");
+    fPrint = std::make_unique<PrintInfo>();
+    fText = std::make_unique<TextSelect>(); 
+    
+    // 2. Instantiate Manager using raw pointers from the unique_ptr objects
+    //    Use .get() to pass the raw pointer address to the constructor.
+    eventMgr_ = std::make_unique<EventDisplayManager>(
+        eveMng_, 
+        cv_, 
+        m_, 
+        fGui.get() // Pass raw pointer from unique_ptr
+    );
 
-      fPrint = new PrintInfo();
-      fText = new TextSelect();
+    // 3. Pass the valid TextSelect pointer using the setter
+    eventMgr_->setTextSelect(fText.get());
+    
+    // 4. Register elements and commands
+    auto world = eveMng_->GetWorld();
+    assert(world);
 
-      // call manager
-      eventMgr_ = new EventDisplayManager{eveMng_, cv_, m_, fGui, fText};
-
-      // access the world
-      auto world = eveMng_->GetWorld();
-
-      assert(world);
 
       frame_ = new MainWindow();
       frame_->makeGeometryScene(eveMng_, geomOpts, gdmlname_);
@@ -473,21 +496,25 @@ namespace mu2e
       eveMng_->AddLocation("mydir/", configFile("EventDisplay/CustomGUIv2"));
       eveMng_->SetDefaultHtmlPage("file:mydir/eventDisplay.html");
 
-      // InitGuiInfo() cont'd
-      world->AddElement(fGui);
-      world->AddElement(fText);
-      world->AddElement(eventMgr_);
-      world->AddElement(fPrint);
-      std::cout<<"[Mu2eEventDisplay::setup_eve] run in display is set to "<<eventMgr_->run<<std::endl;
-
-      world->AddCommand("QuitRoot",  "sap-icon://log",  eventMgr_, "QuitRoot()");
-      world->AddCommand("NextEvent", "sap-icon://step", eventMgr_, "NextEvent()");
-      world->AddCommand("PrintMCInfo", "sap-icon://step", fPrint, "PrintMCInfo()");
-      world->AddCommand("PrintRecoInfo", "sap-icon://step", fPrint, "PrintRecoInfo()");
+     
+    world->AddElement(fText.get());
+    world->AddElement(eventMgr_.get());
+    world->AddElement(fPrint.get());
+     world->AddElement(fGui.get());
+     
+    
+    // ... (AddCommand calls must also use .get()) ...
+eventMgr_->setTextSelectId(fText->GetElementId()); // GetElementId() returns the assigned EId_t
+      world->AddCommand("QuitRoot",  "sap-icon://log",  eventMgr_.get(), "QuitRoot()");
+      world->AddCommand("NextEvent", "sap-icon://step", eventMgr_.get(), "NextEvent()");
+      world->AddCommand("PrintMCInfo", "sap-icon://step", fPrint.get(), "PrintMCInfo()");
+      world->AddCommand("PrintRecoInfo", "sap-icon://step", fPrint.get(), "PrintRecoInfo()");
       std::unique_lock lock{m_};
       cv_.notify_all();
 
   }
+  
+  
 
   // Actually interesting function responsible for drawing the current event
   void Mu2eEventDisplay::process_single_event()
@@ -506,7 +533,7 @@ namespace mu2e
       fPrint->ftrack_tuple = data.track_tuple;
 
       std::cout<<"[Mu2eEventDisplay::process_single_event] display has run number set to "<<eventMgr_->run<<std::endl;
-      std::cout<<"[Mu2eEventDisplay::process_single_event] value in the text class "<<fText->get()<<std::endl;
+      //std::cout<<"[Mu2eEventDisplay::process_single_event] value in the text class "<<fText->get()<<std::endl;
 
       fGui->StampObjProps();
 

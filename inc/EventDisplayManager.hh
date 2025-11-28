@@ -11,6 +11,7 @@
 #include "EventDisplay/inc/GUI.hh"
 #include "EventDisplay/inc/TextSelect.hh"
 #include "nlohmann/json.hpp"
+#include <ROOT/REveManager.hxx>
 
 namespace ROOT::Experimental {
   class REveManager;
@@ -27,8 +28,7 @@ namespace mu2e {
       explicit EventDisplayManager(ROOT::Experimental::REveManager* eveMgr,
                                        std::condition_variable& cv,
                                        std::mutex& m,
-                                       GUI *fGui,
-                                       TextSelect *fText);
+                                       GUI *fGui);
 
     void NextEvent();
     void QuitRoot();
@@ -37,6 +37,9 @@ namespace mu2e {
     void setR(int runId);
     void goToRunEvent(int runId, int eventId);
     int run{0};
+    void setTextSelect(TextSelect* fText);
+    std::uint32_t fTextId_{0};
+    void setTextSelectId(std::uint32_t textId);
     private:
       ROOT::Experimental::REveManager* eveMng_{nullptr};
       std::condition_variable* cv_{nullptr};

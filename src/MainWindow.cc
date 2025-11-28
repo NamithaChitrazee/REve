@@ -104,7 +104,7 @@ void MainWindow::showNodesByName(TGeoNode* n, const std::string& str, bool onOff
         t(2,1) = rm[3]; t(2,2) = rm[4]; t(2,3) = rm[5];
         t(3,1) = rm[6]; t(3,2) = rm[7]; t(3,3) = rm[8];
         t(1,4) = tv[0] + shift[0]; t(2,4) = tv[1]  + shift[1]; t(3,4) = tv[2] + shift[2];
-        std::cout<<name<<"  "<<tv[0] + shift[0]<<" "<<tv[1]  + shift[1] << " "<< tv[2] + shift[2]<<std::endl;
+        //std::cout<<name<<"  "<<tv[0] + shift[0]<<" "<<tv[1]  + shift[1] << " "<< tv[2] + shift[2]<<std::endl;
 
         if(name.find("TrackerPlaneEnvelope_00") != string::npos) {
           FrontTracker_gdmltag = j;
@@ -484,7 +484,7 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
         showNodesByName(node,i,kFALSE, 0, trans, trackerholder, maxlevel, level, false, false, shift, false, true, drawconfigf.getInt("TRKColor"));
       }
     }
-    // everything else needs to be shifted such that its relative to the tracker center at 0,0,0
+    
     if(geomOpt.showST and !geomOpt.extracted){
       static std::vector <std::string> substrings_stoppingtarget  {"TargetFoil"};
       shift.at(0) = x_st - x_trk;
@@ -511,21 +511,24 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
           showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, true, false, drawconfigf.getInt("CALColor"));
         }
       }
-      static std::vector <std::string> substrings_pipes1  {"CaloFP_pipe","CaloFP_pipe1","CaloFP_pipe2","CaloFP_pipe3","CaloFP_pipe4","CaloFP_pipe5"};
-        for(auto& i: substrings_pipes1){
-          shift.at(0) = x_fp1 - x_trk;
-          shift.at(1) = y_fp1 - y_trk;
-          shift.at(2) = z_fp1 - z_trk;
-          showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, false,false, shift, true, false, drawconfigf.getInt("CALColor")); //TODO - add disk shift
-          
-        }
-        static std::vector <std::string> substrings_pipes0  {"CaloFP_pipe","CaloFP_pipe1","CaloFP_pipe2","CaloFP_pipe3","CaloFP_pipe4","CaloFP_pipe5"};
-        for(auto& i: substrings_pipes0){
-          shift.at(0) = x_fp0 - x_trk; //crystal len/2
-          shift.at(1) = y_fp0 - y_trk;
-          shift.at(2) = z_fp0 - z_trk - 20/2;
-          showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, false, true, drawconfigf.getInt("CALColor"));
-        }
+      bool showPipes = false;
+      if(showPipes){
+        static std::vector <std::string> substrings_pipes1  {"CaloFP_pipe","CaloFP_pipe1","CaloFP_pipe2","CaloFP_pipe3","CaloFP_pipe4","CaloFP_pipe5"};
+          for(auto& i: substrings_pipes1){
+            shift.at(0) = x_fp1 - x_trk;
+            shift.at(1) = y_fp1 - y_trk;
+            shift.at(2) = z_fp1 - z_trk;
+            showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, false,false, shift, true, false, drawconfigf.getInt("CALColor"));
+            
+          }
+          static std::vector <std::string> substrings_pipes0  {"CaloFP_pipe","CaloFP_pipe1","CaloFP_pipe2","CaloFP_pipe3","CaloFP_pipe4","CaloFP_pipe5"};
+          for(auto& i: substrings_pipes0){
+            shift.at(0) = x_fp0 - x_trk; 
+            shift.at(1) = y_fp0 - y_trk;
+            shift.at(2) = z_fp0 - z_trk - 20/2; //crystal len/2
+            showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, false, true, drawconfigf.getInt("CALColor"));
+          }
+      }
     }
     if(geomOpt.showST and !geomOpt.extracted){
       static std::vector <std::string> substrings_pa  {"protonabs1","protonabs3","protonabs4"};

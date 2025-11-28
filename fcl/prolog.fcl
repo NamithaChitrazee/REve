@@ -3,7 +3,7 @@ BEGIN_PROLOG
 Mu2eEventDisplay : {
     module_type : Mu2eEventDisplay
     diagLevel : 1
-    showCRV : false
+    showCRV : true
     showPS : false
     showTS : false
     showDS : false
@@ -45,7 +45,7 @@ Mu2eEventDisplay : {
       addCosmicTrackSeeds : false
       addMCTraj : true
       addSurfSteps : true
-      addSimParts : true
+      addSimParts : false
       FillAll : false
     }
     particles :   [11,13,2212,2112,211,22,212]
