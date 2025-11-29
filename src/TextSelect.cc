@@ -1,5 +1,3 @@
-// EventDisplay/src/TextSelect.cc (New Implementation)
-
 #include "EventDisplay/inc/TextSelect.hh"
 #include <iostream>
 
@@ -22,8 +20,5 @@ std::pair<int, int> TextSelect::getRunEvent() {
     std::cout<<"user has received "<<runN << " " << eventN <<std::endl;
     return {runN, eventN};
 }
-
-// Ensure the necessary dictionary is generated for these types if using REve
-// For simplicity, we omit the old, incompatible functions like 'int get()'
 
 }

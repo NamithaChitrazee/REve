@@ -20,7 +20,6 @@ class GUI : public ROOT::Experimental::REveElement
      void PrintEventInfo();
      int runNumber{0};
      int eventNumber{0};
-
 };
 }
 

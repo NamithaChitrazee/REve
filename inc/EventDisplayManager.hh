@@ -33,18 +33,14 @@ namespace mu2e {
     void NextEvent();
     void QuitRoot();
     void autoplay(int x);
-    int getR();
-    void setR(int runId);
     void goToRunEvent(int runId, int eventId);
     int run{0};
-    void setTextSelect(TextSelect* fText);
     std::uint32_t fTextId_{0};
     void setTextSelectId(std::uint32_t textId);
     private:
       ROOT::Experimental::REveManager* eveMng_{nullptr};
       std::condition_variable* cv_{nullptr};
       std::mutex* m_{nullptr};
-      bool doneProcessingEvents_{false};
       GUI *fGui_{nullptr};
       TextSelect *fText_{nullptr};
     };

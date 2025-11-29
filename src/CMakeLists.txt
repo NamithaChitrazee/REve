@@ -13,7 +13,6 @@ cet_make_library(
       DataInterface.cc
       EventDisplayManager.cc
       GUI.cc
-      GeomUtil.cc
       MCInterface.cc
       MainWindow.cc
       PrintInfo.cc

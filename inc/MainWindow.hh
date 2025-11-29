@@ -43,7 +43,6 @@
 #include "EventDisplay/inc/DataCollections.hh"
 #include "EventDisplay/inc/DataInterface.hh"
 #include "EventDisplay/inc/MCInterface.hh"
-#include "EventDisplay/inc/GeomUtil.hh"
 #include "Offline/StoppingTargetGeom/inc/StoppingTarget.hh"
 
 #include <utility>
