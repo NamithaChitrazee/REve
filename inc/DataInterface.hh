@@ -8,8 +8,10 @@
 #include <ROOT/REveBox.hxx>
 #include <ROOT/REveScene.hxx>
 #include <ROOT/REveCompound.hxx>
+
 #include <TGeoBBox.h>
 #include <TGeoMatrix.h>
+#include <TStyle.h>
 #include <ROOT/REveTrackPropagator.hxx>
 #include <ROOT/REveTrans.hxx>
 #include "Offline/RecoDataProducts/inc/CrvCoincidenceCluster.hh"
@@ -57,7 +59,8 @@ namespace mu2e{
           void AddTimeClusters(REX::REveManager *&eveMng, bool firstloop, std::tuple<std::vector<std::string>, std::vector<const TimeClusterCollection*>> timecluster_tuple, REX::REveElement* &scene);
           void AddTrkHits(REX::REveManager *&eveMng, bool firstLoop_,  std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple, std::tuple<std::vector<std::string>, std::vector<const KalSeedPtrCollection*>> track_tuple, REX::REveElement* &scene);
           void AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CaloDigiCollection*>> calodigi_tuple, REX::REveElement* &scene);
-          void AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CaloClusterCollection*>> calocluster_tuple, REX::REveElement* &scene, bool addCrystalDraw, double t1, double t2);
+          void AddCaloClusterLegend(REX::REveElement* scene, double t_ref);
+          void AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CaloClusterCollection*>> calocluster_tuple, REX::REveElement* &scene, bool addCrystalDraw);
           void AddCRVInfo(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CrvRecoPulseCollection*>> crvpulse_tuple, REX::REveElement* &scene, bool extracted, bool addCRVBars);
           void AddCRVClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CrvCoincidenceClusterCollection*>>  crvpulse_tuple, REX::REveElement* &scene, bool extracted, bool addCRVBars);
           void AddHelixSeedCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const HelixSeedCollection*>> helix_tuple, REX::REveElement* &scene);

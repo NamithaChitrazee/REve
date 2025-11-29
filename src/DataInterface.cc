@@ -16,376 +16,523 @@ std::string drawfilename("EventDisplay/config/drawutils.txt");
 SimpleConfig drawconfig(drawfilename);
 
 
-void DataInterface::AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CaloDigiCollection*>> calodigi_tuple, REX::REveElement* &scene){
+/**
+ * @brief Adds reconstructed CaloDigi data products to the REve visualization scene.
+ * * * Digis are visualized as points (crystal center) and 3D boxes.
+ * * Elements are colored based on the t0 time of the digitization pulse.
+ *
+ * @param eveMng The global REX::REveManager instance.
+ * @param firstLoop_ Boolean flag, true if this is the first event/drawing iteration.
+ * @param calodigi_tuple The tuple containing vector of labels and CaloDigiCollection pointers.
+ * @param scene The REX::REveElement representing the digi scene/container.
+ */
+void DataInterface::AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_, 
+                                 std::tuple<std::vector<std::string>, 
+                                 std::vector<const CaloDigiCollection*>> calodigi_tuple, 
+                                 REX::REveElement* &scene){
 
-  std::cout<<"[DataInterface] AddCaloDigi "<<std::endl;
-  std::vector<const CaloDigiCollection*> calodigi_list = std::get<1>(calodigi_tuple);
-  std::vector<std::string> names = std::get<0>(calodigi_tuple);
-  std::cout<<"calo digi size = "<<calodigi_list.size()<<std::endl;
-  for(unsigned int j = 0; j< calodigi_list.size(); j++){
+    std::cout << "[DataInterface] AddCaloDigi: Restoring Original Z-Position Logic" << std::endl;
+    std::vector<const CaloDigiCollection*> calodigi_list = std::get<1>(calodigi_tuple);
+    std::vector<std::string> names = std::get<0>(calodigi_tuple);
 
-    const CaloDigiCollection* calodigicol = calodigi_list[j];
-    if(calodigicol->size() != 0){
-      if(!firstLoop_){
-        scene->DestroyElements();;
-      }
-      mu2e::Calorimeter const &cal = *(mu2e::GeomHandle<mu2e::Calorimeter>());
-      std::cout<<"calodigi col size = "<<calodigicol->size()<<std::endl;
-      auto allcryhits = new REX::REveCompound("CrystalHits for Cluster "+std::to_string(j),"CrystalHits for Cluster "+std::to_string(j),1);
-      for(unsigned int i = 0; i < calodigicol->size(); i++){
-        mu2e::CaloDigi const  &digi= (*calodigicol)[i];
-        int sipmID = digi.SiPMID();
-        //bool isEven = sipmID % 2;
-        int cryID = sipmID/2;
-        std::cout<<"crystal ID "<<cryID<<" "<<digi.t0()<<std::endl;
-        Crystal const &crystal = cal.crystal(cryID);
-        double crystalXLen = pointmmTocm(crystal.size().x());
-        double crystalYLen = pointmmTocm(crystal.size().y());
-        double crystalZLen = pointmmTocm(crystal.size().z());
+    // --- 1. Find the Global Time Range (min/max t0) ---
+    double max_t0 = -1e6;
+    double min_t0 = 1e6;
+    bool found_digis = false;
 
-
-        GeomHandle<DetectorSystem> det;
-        double zpos = 0;
-        double diskID = 0;
-        if(cryID < 674) {
-          zpos = 186.53;
-          diskID = 0;
-        }
-        if(cryID >= 674) {
-          zpos = 256.53;
-          diskID = 1;
-        }
-        CLHEP::Hep3Vector crystalPos = cal.geomUtil().mu2eToDisk(diskID,crystal.position()) ;
-        //CLHEP::Hep3Vector pointInMu2e = det->toMu2e(crystalPos);
-
-        std::string crytitle =  "Crystal ID = " + std::to_string(cryID) +  '\n'
-          + " Time = " + std::to_string(digi.t0())+" ns ";
-        char const *crytitle_c = crytitle.c_str();
-
-        std::string name = "disk " + std::to_string(diskID);
-
-        std::string label =   " CaloDigi Instance = " + names[0] +  '\n'
-          + " SiPM. = "+std::to_string(sipmID)+   '\n'
-          + " t0 = "+std::to_string(digi.t0())+" ns " +  '\n'
-          + " peakPos = "+std::to_string(digi.peakpos());
-        auto ps1 = new REX::REvePointSet(label,label, 0);
-        auto ps2 = new REX::REvePointSet(label, label, 0);
-        
-        // Set positions of clusters
-        if(diskID == 0)
-          ps1->SetNextPoint(pointmmTocm(crystalPos.x()), pointmmTocm(crystalPos.y()) , zpos );
-        if(diskID == 1) 
-          ps2->SetNextPoint(pointmmTocm(crystalPos.x()), pointmmTocm(crystalPos.y()) , zpos );
-
-        Color_t color = kRed;
-
-        ps1->SetMarkerColor(color);
-        ps1->SetMarkerStyle(DataInterface::mstyle);
-        ps1->SetMarkerSize(DataInterface::msize);
-
-        ps2->SetMarkerColor(color);
-        ps2->SetMarkerStyle(DataInterface::mstyle);
-        ps2->SetMarkerSize(DataInterface::msize);
-
-        // Add to REve world
-        scene->AddElement(ps1);
-        scene->AddElement(ps2);
-
-        // plot the crystals which are present in this event:
-        auto b = new REX::REveBox(crytitle_c,crytitle_c);
-        b->SetMainColor(color);
-        double width = crystalXLen/2;
-        double height = crystalYLen/2;
-        double thickness = crystalZLen/2;
-        b->SetVertex(0, pointmmTocm(crystalPos.x()) - width, pointmmTocm(crystalPos.y())- height ,pointmmTocm(crystalPos.z())- thickness + 2*thickness + zpos);//---
-        b->SetVertex(1, pointmmTocm(crystalPos.x()) - width, pointmmTocm(crystalPos.y())+ height, pointmmTocm(crystalPos.z())- thickness + 2*thickness  +zpos);//-+-
-        b->SetVertex(2, pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())+ height ,pointmmTocm(crystalPos.z())- thickness + 2*thickness  + zpos);//++-
-        b->SetVertex(3, pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())- height, pointmmTocm(crystalPos.z())-thickness  + 2*thickness + zpos);//+--
-        b->SetVertex(4, pointmmTocm(crystalPos.x()) - width, pointmmTocm(crystalPos.y())- height ,pointmmTocm(crystalPos.z())+ thickness + 2*thickness + zpos);//--+
-        b->SetVertex(5, pointmmTocm(crystalPos.x()) - width, pointmmTocm(crystalPos.y())+ height , pointmmTocm(crystalPos.z())+ thickness  + 2*thickness + zpos);//-++
-        b->SetVertex(6, pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())+ height , pointmmTocm(crystalPos.z()) + thickness + 2*thickness+zpos); //+++
-        b->SetVertex(7, pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())- height, pointmmTocm(crystalPos.z())+ thickness + 2*thickness + zpos);//+-+
-        allcryhits->AddElement(b);
-        //scene->AddElement(b);
-      }
-      scene->AddElement(allcryhits);
-    }
-  }
-}
-void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CaloClusterCollection*>> calocluster_tuple, REX::REveElement* &scene, bool addCrystalDraw, double t1, double t2){
-
-  std::cout<<"[DataInterface] AddCaloClusters "<<std::endl;
-  std::vector<const CaloClusterCollection*> calocluster_list = std::get<1>(calocluster_tuple);
-  std::vector<std::string> names = std::get<0>(calocluster_tuple);
-  for(unsigned int j = 0; j< calocluster_list.size(); j++){
-
-    // Extract cluster list
-    const CaloClusterCollection* clustercol = calocluster_list[j];
-    if(clustercol->size() != 0){
-      if(!firstLoop_){
-        scene->DestroyElements();;
-      }
-      Color_t color = kWhite;
-      mu2e::Calorimeter const &cal = *(mu2e::GeomHandle<mu2e::Calorimeter>());
-      GeomHandle<DetectorSystem> det;
-      // Add crystals
-      double maxE = 1e-6;
-      double minE = 1000;
-      using CCCPtr = const CaloCluster*;
-      std::list<CCCPtr> cluList;
-      //std::array<Color_t, 10> colorList {kViolet, kBlue, kBlue, kGreen, kGreen, kYellow, kYellow, kOrange, kOrange, kRed};
-      //std::vector<Color_t> colors;
-
-      for(unsigned int i = 0; i < clustercol->size(); i++){
-        auto const& cluster= (*clustercol)[i];
-        cluList.push_back(&cluster);
-        if(cluster.energyDep() > maxE) maxE = cluster.energyDep();
-        if(cluster.energyDep() < minE) minE = cluster.energyDep();
-
-        // sort in energy
-        cluList.sort([] (const CaloCluster* lhs, const CaloCluster* rhs) {return lhs->energyDep() > rhs->energyDep();} );
-      }
-
-      /*if(cluList.size() <= 2){
-        Color_t color;
-        for(auto const& cluster : cluList){
-        if(cluster.energyDep() == minE){
-        color = kViolet;
-        colors.push_back(color);
-        }
-        if(cluster.energyDep() == maxE){
-        color = kRed;
-        colors.push_back(color);
-        }
-        }
-        }
-        unsigned int c = -1;
-        if(cluList.size() > 2){
-        for(auto const& cluster : cluList){
-        c+=1;
-        Color_t color;
-        if(cluster.energyDep() == minE){
-        color = kViolet;
-        colors.push_back(color);
-        }
-        if(cluster.energyDep() == maxE){
-        color = kRed;
-        colors.push_back(color);
-        }
-        if (c > 1 and c < colorList.size()-1){
-        color = colorList.at(c);
-        colors.push_back(color);
-        }
-        if (c > 1 and c >= colorList.size()-1){
-        color = kRed;
-        colors.push_back(color);
-        }
-        }
-        } */
-
-      unsigned int i = 0;
-      for(auto cptr : cluList){
-        auto const& cluster = *cptr;
-        //mu2e::CaloCluster const  &cluster= cluList.at(i);
-        i += 1;
-
-        // Info for label:
-        std::string cluster_energy = std::to_string(cluster.energyDep());
-        std::string cluster_time = std::to_string(cluster.time());
-        std::string cluster_x = std::to_string(cluster.cog3Vector().x());
-        std::string cluster_y = std::to_string(cluster.cog3Vector().y());
-        // Extract center of gravity, convert to coord sys
-        CLHEP::Hep3Vector COG(cluster.cog3Vector().x(),cluster.cog3Vector().y(), cluster.cog3Vector().z());
-        CLHEP::Hep3Vector crystalPos   = cal.geomUtil().mu2eToDisk(cluster.diskID(),COG);
-        CLHEP::Hep3Vector pointInMu2e = det->toMu2e(crystalPos);
-        // Info for label
-        std::string cluster_z = std::to_string(abs(pointInMu2e.z()));
-        // Make label and REve objects
-        std::string label =   " Instance = " + names[0] +  '\n'
-          + " Energy Dep. = "+cluster_energy+" MeV "+   '\n'
-          + " Time = "+cluster_time+" ns " +  '\n'
-          + " Pos =  ("+cluster_x+","+cluster_y+","+cluster_z+") mm";
-        std::string name = "disk" + std::to_string(cluster.diskID()) + label;
-        auto ps1 = new REX::REvePointSet(name, "CaloClusters Disk 1: "+label,0);
-        auto ps2 = new REX::REvePointSet(name, "CaloClusters Disk 2: "+label,0);
-
-
-        // Set positions of clusters
-        if(cluster.diskID() == 0) 
-          ps1->SetNextPoint(pointmmTocm(COG.x()), pointmmTocm(COG.y()) , abs(pointmmTocm(pointInMu2e.z())));
-        if(cluster.diskID() == 1)
-          ps2->SetNextPoint(pointmmTocm(COG.x()), pointmmTocm(COG.y()) , abs(pointmmTocm(pointInMu2e.z())));
-        
-        // Set draw options
-        /*TColor color1;
-          color1.SetPalette(1,0);
-          Color_t color = color1.GetNumber();// colors[i];*/
-
-        if(abs(cluster.time() - t2) < 20) color = kRed;
-        if(abs(cluster.time() - t2) >=  20 and abs(cluster.time() - t2) < 100) color = kOrange;
-        if(abs(cluster.time() - t2) >= 100 and abs(cluster.time() - t2) < 200) color = kYellow;
-        if(abs(cluster.time() - t2) >= 200 and abs(cluster.time() - t2) < 400) color = kGreen;
-        if(abs(cluster.time() - t2) >= 400 and abs(cluster.time() - t2) < 600) color = kBlue;
-        if(abs(cluster.time() - t2) >= 600 ) color = kViolet;
-
-        ps1->SetMarkerColor(color);
-        ps1->SetMarkerStyle(DataInterface::mstyle);
-        ps1->SetMarkerSize(DataInterface::msize);
-
-        ps2->SetMarkerColor(color);
-        ps2->SetMarkerStyle(DataInterface::mstyle);
-        ps2->SetMarkerSize(DataInterface::msize);
-
-        // Add to REve world
-        scene->AddElement(ps1);
-        scene->AddElement(ps2);
-
-        // Add crystals
-        if(addCrystalDraw){
-          auto allcryhits = new REX::REveCompound("CrystalHits for Cluster "+std::to_string(i),"CrystalHits for Cluster "+std::to_string(i),1);
-          for(unsigned h =0 ; h < cluster.caloHitsPtrVector().size();h++)     {
-            art::Ptr<CaloHit>  crystalhit = cluster.caloHitsPtrVector()[h];
-            int cryID = crystalhit->crystalID();
-
-            //int diskID = cal.crystal(crystalhit->crystalID()).diskID();
-            Crystal const &crystal = cal.crystal(cryID);
-            double crystalXLen = pointmmTocm(crystal.size().x());
-            double crystalYLen = pointmmTocm(crystal.size().y());
-            double crystalZLen = pointmmTocm(crystal.size().z());
-
-            GeomHandle<DetectorSystem> det;
-            CLHEP::Hep3Vector crystalPos = cal.geomUtil().mu2eToDisk(cluster.diskID(),crystal.position()) ;
-
-            //  make title
-            std::string crytitle =   "disk"+std::to_string(cal.crystal(crystalhit->crystalID()).diskID()) + " Crystal Hit = " + std::to_string(cryID) +  '\n'
-              + " Energy Dep. = "+std::to_string(crystalhit->energyDep())+" MeV "+   '\n'
-              + " Time = "+std::to_string(crystalhit->time())+" ns ";
-            char const *crytitle_c = crytitle.c_str();
-            auto b = new REX::REveBox(crytitle_c,crytitle_c);
-
-            // plot the crystals which are present in this event in lego:
-            b->SetMainColor(color);//s[i]);
-
-
-            double width = crystalXLen/2;
-            double height = crystalYLen/2;
-            double thickness = crystalhit->energyDep()/maxE * crystalZLen/2; //length proportional to energy
-
-            b->SetVertex(0, pointmmTocm(crystalPos.x()) - width, pointmmTocm(crystalPos.y())- height ,pointmmTocm(crystalPos.z())- thickness  + abs(pointmmTocm(pointInMu2e.z()))+crystalZLen/2);//---
-            b->SetVertex(1, pointmmTocm(crystalPos.x()) - width, pointmmTocm(crystalPos.y())+ height, pointmmTocm(crystalPos.z())- thickness   +abs(pointmmTocm(pointInMu2e.z()))+crystalZLen/2);//-+-
-            b->SetVertex(2, pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())+ height ,pointmmTocm(crystalPos.z())- thickness   + abs(pointmmTocm(pointInMu2e.z()))+crystalZLen/2);//++-
-            b->SetVertex(3, pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())- height, pointmmTocm(crystalPos.z())-thickness   + abs(pointmmTocm(pointInMu2e.z()))+crystalZLen/2);//+--
-            b->SetVertex(4, pointmmTocm(crystalPos.x()) - width, pointmmTocm(crystalPos.y())- height ,pointmmTocm(crystalPos.z())+ thickness  + abs(pointmmTocm(pointInMu2e.z()))+crystalZLen/2);//--+
-            b->SetVertex(5, pointmmTocm(crystalPos.x()) - width, pointmmTocm(crystalPos.y())+ height , pointmmTocm(crystalPos.z())+ thickness   + abs(pointmmTocm(pointInMu2e.z()))+crystalZLen/2);//-++
-            b->SetVertex(6, pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())+ height , pointmmTocm(crystalPos.z()) + thickness +abs(pointmmTocm(pointInMu2e.z()))+crystalZLen/2); //+++
-            b->SetVertex(7,pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())- height, pointmmTocm(crystalPos.z())+ thickness + abs(pointmmTocm(pointInMu2e.z()))+crystalZLen/2);//+-+
-            allcryhits->AddElement(b);
-          }
-          scene->AddElement(allcryhits);
-        }
-
-      }
-    }
-  }
-}
-
-void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple, REX::REveElement* &scene, bool strawdisplay, bool AddErrorBar_){
-
-  std::vector<const ComboHitCollection*> combohit_list = std::get<1>(combohit_tuple);
-  std::vector<std::string> names = std::get<0>(combohit_tuple);
-
-  // Loop over hit lists
-  for(unsigned int j = 0; j < combohit_list.size(); j++){
-    const ComboHitCollection* chcol = combohit_list[j];
-    int colour = (j+3);
-    if(chcol->size() !=0 ){
-      // Loop over hits
-      for(unsigned int i=0; i< chcol->size(); i++){
-        mu2e::ComboHit const  &hit= (*chcol)[i];
-        // Display hit straws if selected too in FCL file
-        if(strawdisplay){
-          mu2e::GeomHandle<mu2e::Tracker> tracker;
-          const auto& allStraws = tracker->getStraws();
-          int sid = hit._sid.asUint16();
-          CLHEP::Hep3Vector sposi(0.0,0.0,0.0), sposf(0.0,0.0,0.0);
-          const mu2e::Straw& s = allStraws[sid];
-          const CLHEP::Hep3Vector& p = s.getMidPoint();
-          const CLHEP::Hep3Vector& d = s.getDirection();
-          double x = p.x();
-          double y = p.y();
-          double z = p.z();
-          double l = s.halfLength();
-          double st=sin(d.theta());
-          double ct=cos(d.theta());
-          double sp=sin(d.phi()+TMath::Pi()/2.0);
-          double cp=cos(d.phi()+TMath::Pi()/2.0);
-          if(sid < drawconfig.getInt("maxSID")){
-            double x1=x+l*st*sp;
-            double y1=y-l*st*cp;
-            double z1=z+l*ct;
-            double x2=x-l*st*sp;
-            double y2=y+l*st*cp;
-            double z2=z-l*ct;
-            std::string strawtitle;
-            int idStraw =  s.id().getStraw();
-            int idPanel =  s.id().getPanel();
-            int idPlane =  s.id().getPlane();
-            int colorid = idPlane + idPanel;
-            strawtitle =Form("Straw %i Panel %i  Plane %i",idStraw,idPanel,idPlane);
-            sposi.set(x1, y1, z1);
-            sposf.set(x2, y2, z2);
-            if(sposi.x()!=0){
-              auto strawline = new REX::REveLine("StrawHit ",strawtitle,2);
-              strawline->SetPoint(0,pointmmTocm(sposi.x()),pointmmTocm(sposi.y()),pointmmTocm(sposi.z()));
-              strawline->SetNextPoint(pointmmTocm(sposf.x()),pointmmTocm(sposf.y()),pointmmTocm(sposf.z()));
-              strawline->SetLineWidth(1);
-              strawline->SetLineColor(colorid);
-              if(strawline->GetSize() !=0 ) scene->AddElement(strawline);
+    for(const auto* calodigicol : calodigi_list){
+        if(calodigicol && !calodigicol->empty()){
+            found_digis = true;
+            for(const auto& digi : *calodigicol){
+                double t0 = digi.t0();
+                if(t0 > max_t0) max_t0 = t0;
+                if(t0 < min_t0) min_t0 = t0;
             }
-          }
         }
-
-        if(AddErrorBar_){
-          //XY
-          auto const& p = hit.pos();
-          auto w = hit.uDir();
-          auto const& s = hit.wireRes();
-          double x1 = (p.x()+s*w.x());
-          double x2 = (p.x()-s*w.x());
-          double z1 = (p.z()+s*w.z());
-          double z2 = (p.z()-s*w.z());
-          double y1 = (p.y()+s*w.y());
-          double y2 = (p.y()-s*w.y());
-
-          std::string errorbar = Form("ErrorBar Length: %f, %f, %f, %f, %f, %f",x1,y1,z1,x2,y2,z2);
-          auto error = new REX::REveLine("errors",errorbar.c_str(),2);
-          error->SetPoint(0, pointmmTocm(x1),pointmmTocm(y1),pointmmTocm(z1));
-          error->SetNextPoint(pointmmTocm(x2),pointmmTocm(y2),pointmmTocm(z2));
-          //std::cout<<"points "<<p.x()<<" "<<p.y()<<" "<<p.z()<<std::endl;
-          //std::cout<<"errors "<<x1<<" "<<y1<<" "<<z1<<std::endl;
-          error->SetLineColor(kRed);
-          error->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
-          scene->AddElement(error);
-        }
-        CLHEP::Hep3Vector HitPos(pointmmTocm(hit.pos().x()), pointmmTocm(hit.pos().y()), pointmmTocm(hit.pos().z()));
-        std::string chtitle = "ComboHits tag = "
-          + (names[j])  +  '\n'
-          + " position : x "  + std::to_string(hit.pos().x())  +  '\n'
-          + " y " + std::to_string(hit.pos().y())  +  '\n'
-          + " z " + std::to_string(hit.pos().z())  +  '\n'
-          + " time :" + std::to_string(hit.time()) +  '\n'
-          + " energy dep : "
-          + std::to_string(hit.energyDep())  +
-          + "MeV";
-        auto ps1 = new REX::REvePointSet(chtitle, chtitle,0);
-        ps1->SetNextPoint(HitPos.x(), HitPos.y() , HitPos.z());
-        ps1->SetMarkerColor(colour);
-        ps1->SetMarkerStyle(DataInterface::mstyle);
-        ps1->SetMarkerSize(DataInterface::msize);
-        if(ps1->GetSize() !=0 ) scene->AddElement(ps1);
-      }
     }
-  }
+
+    if (!found_digis) {
+        std::cout << "[DataInterface] No valid CaloDigis found." << std::endl;
+        return;
+    }
+    
+    if (max_t0 == min_t0) {
+        max_t0 += 1.0; 
+    }
+
+    // --- 2. Define the Color Gradient (Palette) ---
+    const Int_t NRGBs = 5;
+    const Int_t NCont = 255; 
+    Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 }; 
+    Double_t red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 }; 
+    Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 }; 
+    Double_t blue[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 }; 
+    
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+    gStyle->SetNumberContours(NCont);
+
+    // --- 3. Visualization Loop ---
+    for(unsigned int j = 0; j < calodigi_list.size(); j++){
+
+        const CaloDigiCollection* calodigicol = calodigi_list[j];
+        
+        if(calodigicol->size() != 0){
+            if(!firstLoop_){
+                scene->DestroyElements();;
+            }
+            
+            mu2e::Calorimeter const &cal = *(mu2e::GeomHandle<mu2e::Calorimeter>());
+            GeomHandle<DetectorSystem> det;
+            
+            auto allcryhits = new REX::REveCompound(("CaloDigiCollection_" + names[j]).c_str(), 
+                                                   ("CaloDigi Collection: " + names[j]).c_str(), 1);
+
+            for(unsigned int i = 0; i < calodigicol->size(); i++){
+                mu2e::CaloDigi const &digi = (*calodigicol)[i];
+                int sipmID = digi.SiPMID();
+                int cryID = sipmID / 2;
+
+                Crystal const &crystal = cal.crystal(cryID);
+                
+                // --- Calculate Color based on t0 ---
+                Color_t color;
+                double normalized_t0 = (digi.t0() - min_t0) / (max_t0 - min_t0);
+                int colorIdx = static_cast<int>(normalized_t0 * (NCont - 1));
+                color = gStyle->GetColorPalette(colorIdx); 
+
+                // --- Geometry and Position (Matching Original Logic) ---
+                double crystalXLen = pointmmTocm(crystal.size().x());
+                double crystalYLen = pointmmTocm(crystal.size().y());
+                double crystalZLen = pointmmTocm(crystal.size().z());
+
+                double zpos = 0;
+                double diskID = 0;
+                if(cryID < 674) {
+                    zpos = 186.53;
+                    diskID = 0;
+                }
+                if(cryID >= 674) {
+                    zpos = 256.53;
+                    diskID = 1;
+                }
+                // Convert fixed zpos to cm for REve
+                double fixed_zpos_cm = zpos;//pointmmTocm(zpos); 
+
+                // Get crystal position in its local Mu2e disk frame (still in mm in Hep3Vector)
+                CLHEP::Hep3Vector crystalPos_local_mm = cal.geomUtil().mu2eToDisk(diskID, crystal.position());
+                
+                // --- Label ---
+                std::string label = " CaloDigi Instance = " + names[j] + '\n'
+                                  + " Crystal ID = " + std::to_string(cryID) + '\n'
+                                  + " SiPM. = "+std::to_string(sipmID)+ '\n'
+                                  + " t0 = "+std::to_string(digi.t0())+" ns " + '\n'
+                                  + " peakPos = "+std::to_string(digi.peakpos());
+                
+                // --- A. Draw Crystal Center (Point Set) ---
+                auto ps1 = new REX::REvePointSet(label.c_str(), label.c_str(), 0);
+                auto ps2 = new REX::REvePointSet(label.c_str(), label.c_str(), 0);
+                
+                // The point sets use the fixed global Z position.
+                if(diskID == 0)
+                    ps1->SetNextPoint(pointmmTocm(crystalPos_local_mm.x()), pointmmTocm(crystalPos_local_mm.y()), fixed_zpos_cm );
+                if(diskID == 1) 
+                    ps2->SetNextPoint(pointmmTocm(crystalPos_local_mm.x()), pointmmTocm(crystalPos_local_mm.y()), fixed_zpos_cm );
+
+                ps1->SetMarkerColor(color);
+                ps1->SetMarkerStyle(DataInterface::mstyle);
+                ps1->SetMarkerSize(DataInterface::msize);
+
+                ps2->SetMarkerColor(color);
+                ps2->SetMarkerStyle(DataInterface::mstyle);
+                ps2->SetMarkerSize(DataInterface::msize);
+
+                scene->AddElement(ps1);
+                scene->AddElement(ps2);
+
+                // --- B. Draw Crystal Volume (REveBox) ---
+                std::string crytitle = "Crystal ID = " + std::to_string(cryID) + '\n'
+                                     + " Time = " + std::to_string(digi.t0()) + " ns ";
+                
+                auto b = new REX::REveBox(crytitle.c_str(), crytitle.c_str());
+                b->SetMainColor(color);
+                
+                double width = crystalXLen / 2.0;
+                double height = crystalYLen / 2.0;
+                double thickness = crystalZLen / 2.0;
+                
+                // Z-Terms (All in cm):
+                double Z_local_cm = pointmmTocm(crystalPos_local_mm.z());
+                
+                // The full Z offset term from your original logic: 2*thickness + fixed_zpos_cm
+                double Z_offset = 2.0 * thickness + fixed_zpos_cm;
+
+                // Front Face
+                b->SetVertex(0, pointmmTocm(crystalPos_local_mm.x()) - width, pointmmTocm(crystalPos_local_mm.y()) - height, Z_local_cm - thickness + Z_offset);
+                b->SetVertex(1, pointmmTocm(crystalPos_local_mm.x()) - width, pointmmTocm(crystalPos_local_mm.y()) + height, Z_local_cm - thickness + Z_offset);
+                b->SetVertex(2, pointmmTocm(crystalPos_local_mm.x()) + width, pointmmTocm(crystalPos_local_mm.y()) + height, Z_local_cm - thickness + Z_offset);
+                b->SetVertex(3, pointmmTocm(crystalPos_local_mm.x()) + width, pointmmTocm(crystalPos_local_mm.y()) - height, Z_local_cm - thickness + Z_offset);
+                
+                // Back Face (Z_local_cm + thickness + Z_offset)
+                b->SetVertex(4, pointmmTocm(crystalPos_local_mm.x()) - width, pointmmTocm(crystalPos_local_mm.y()) - height, Z_local_cm + thickness + Z_offset);
+                b->SetVertex(5, pointmmTocm(crystalPos_local_mm.x()) - width, pointmmTocm(crystalPos_local_mm.y()) + height, Z_local_cm + thickness + Z_offset);
+                b->SetVertex(6, pointmmTocm(crystalPos_local_mm.x()) + width, pointmmTocm(crystalPos_local_mm.y()) + height, Z_local_cm + thickness + Z_offset);
+                b->SetVertex(7, pointmmTocm(crystalPos_local_mm.x()) + width, pointmmTocm(crystalPos_local_mm.y()) - height, Z_local_cm + thickness + Z_offset);
+
+                allcryhits->AddElement(b);
+            }
+            scene->AddElement(allcryhits);
+        }
+    }
+}
+
+void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_, 
+                                    std::tuple<std::vector<std::string>, 
+                                               std::vector<const CaloClusterCollection*>> calocluster_tuple, 
+                                    REX::REveElement* &scene, bool addCrystalDraw){ // t1 and t2 are now ignored
+
+    std::cout << "[DataInterface] AddCaloClusters: Coloring by Proximity to Max-Energy Cluster Time" << std::endl;
+    std::vector<const CaloClusterCollection*> calocluster_list = std::get<1>(calocluster_tuple);
+    std::vector<std::string> names = std::get<0>(calocluster_tuple);
+
+    // --- Time Difference Color Palette (Simplified Discrete Steps) ---
+    // This defines how clusters are colored based on their time separation from t_ref.
+    // Near: Red (Prompt) -> Mid: Orange/Yellow -> Far: Green/Blue/Violet (Late/Background)
+
+    // --- 1. Find the Global Reference Time (t_ref) ---
+    double maxE = 1e-6;
+    double t_ref = -1.0; 
+    const mu2e::CaloCluster* refCluster = nullptr; // Pointer to the cluster that sets t_ref
+    
+    // First, iterate over ALL clusters in all collections to find the single most energetic one.
+    for(const auto* clustercol : calocluster_list){
+        if(clustercol && !clustercol->empty()){
+            for(const auto& cluster : *clustercol){
+                if(cluster.energyDep() > maxE){
+                    maxE = cluster.energyDep();
+                    t_ref = cluster.time();
+                    refCluster = &cluster;
+                }
+            }
+        }
+    }
+
+    // Check if a reference time was found (i.e., at least one cluster exists)
+    if(t_ref < 0.0){
+        std::cout << "[DataInterface] No valid CaloClusters found to set a reference time." << std::endl;
+        return;
+    }
+    //AddCaloClusterLegend(scene, t_ref); TODO - issue with header file
+    // --- 2. Visualization Loop ---
+    for(unsigned int j = 0; j< calocluster_list.size(); j++){
+
+        const CaloClusterCollection* clustercol = calocluster_list[j];
+        
+        if(clustercol->size() != 0){
+            if(!firstLoop_){
+                scene->DestroyElements();;
+            }
+            
+            // Get Geometry Handles
+            mu2e::Calorimeter const &cal = *(mu2e::GeomHandle<mu2e::Calorimeter>());
+            GeomHandle<DetectorSystem> det;
+            
+            // maxE is used here to normalize the crystal box height for the optional Lego plot
+            int i = 0;
+            // Iterate over the clusters in the current collection
+            for(const auto& cluster : *clustercol){
+                i++;
+                Color_t color = kWhite; // Default
+                double markerSize = DataInterface::msize;
+
+                // Calculate time difference
+                double time_diff = abs(cluster.time() - t_ref); 
+
+                // --- Set Color based on Time Proximity to t_ref ---
+                if(&cluster == refCluster){
+                    // This is the cluster that set t_ref. Mark it clearly.
+                    color = kWhite; 
+                    markerSize = DataInterface::msize + 1.0; // Make it larger
+                }
+                // Clusters close in time to the reference (likely prompt)
+                else if(time_diff < 100.0) { // e.g., within +/- 15 ns
+                    color = kRed;
+                    markerSize = DataInterface::msize;
+                }
+                else if(time_diff < 250.0) { // e.g., 15-50 ns
+                    color = kOrange;
+                    markerSize = DataInterface::msize;
+                }
+                // Clusters far in time (likely background or secondary activity)
+                else if(time_diff < 500.0) { // e.g., 50-200 ns
+                    color = kYellow;
+                    markerSize = DataInterface::msize - 0.5;
+                }
+                else { // > 200 ns
+                    color = kGreen + 2;
+                    markerSize = DataInterface::msize - 1.0;
+                }
+
+                std::string cluster_energy = std::to_string(cluster.energyDep());
+                std::string cluster_time = std::to_string(cluster.time());
+                std::string cluster_x = std::to_string(cluster.cog3Vector().x());
+                std::string cluster_y = std::to_string(cluster.cog3Vector().y());
+                
+                CLHEP::Hep3Vector COG(cluster.cog3Vector().x(),cluster.cog3Vector().y(), cluster.cog3Vector().z());
+                
+                CLHEP::Hep3Vector crystalPos = cal.geomUtil().mu2eToDisk(cluster.diskID(),COG);
+                CLHEP::Hep3Vector pointInMu2e = det->toMu2e(crystalPos);
+                
+                std::string cluster_z = std::to_string(abs(pointInMu2e.z()));
+                
+                std::string label = " Instance = " + names[0] + '\n'
+                                  + " E = "+cluster_energy+" MeV " + '\n'
+                                  + " Time = "+cluster_time+" ns " + '\n'
+                                  + " |dt| from Emax = " + std::to_string(time_diff) + " ns " + '\n'
+                                  + " Pos = ("+cluster_x+","+cluster_y+","+cluster_z+") mm";
+                
+                std::string name = "disk" + std::to_string(cluster.diskID()) + label;
+                auto ps1 = new REX::REvePointSet(name, "CaloClusters Disk 1: "+label,0);
+                auto ps2 = new REX::REvePointSet(name, "CaloClusters Disk 2: "+label,0);
+
+
+                // --- Set Positions, Color, and Size ---
+                if(cluster.diskID() == 0)    
+                    ps1->SetNextPoint(pointmmTocm(COG.x()), pointmmTocm(COG.y()) , abs(pointmmTocm(pointInMu2e.z())));
+                if(cluster.diskID() == 1)
+                    ps2->SetNextPoint(pointmmTocm(COG.x()), pointmmTocm(COG.y()) , abs(pointmmTocm(pointInMu2e.z())));
+                
+                ps1->SetMarkerColor(color);
+                ps1->SetMarkerStyle(DataInterface::mstyle);
+                ps1->SetMarkerSize(markerSize);
+
+                ps2->SetMarkerColor(color);
+                ps2->SetMarkerStyle(DataInterface::mstyle);
+                ps2->SetMarkerSize(markerSize);
+
+                scene->AddElement(ps1);
+                scene->AddElement(ps2);
+
+                // --- 3. Optional: Draw Contributing Crystals (Lego Plot) ---
+                if(addCrystalDraw){
+                    auto allcryhits = new REX::REveCompound("CrystalHits for Cluster "+std::to_string(cluster.diskID())+"_"+std::to_string(i),"CrystalHits for Cluster "+std::to_string(cluster.diskID())+"_"+std::to_string(i),1);
+                    
+                    for(unsigned h =0 ; h < cluster.caloHitsPtrVector().size();h++)    {
+                        art::Ptr<CaloHit> crystalhit = cluster.caloHitsPtrVector()[h];
+                        int cryID = crystalhit->crystalID();
+
+                        Crystal const &crystal = cal.crystal(cryID);
+                        double crystalXLen = pointmmTocm(crystal.size().x());
+                        double crystalYLen = pointmmTocm(crystal.size().y());
+                        double crystalZLen = pointmmTocm(crystal.size().z());
+
+                        CLHEP::Hep3Vector crystalPos = cal.geomUtil().mu2eToDisk(cluster.diskID(),crystal.position()) ;
+
+                        std::string crytitle = "disk"+std::to_string(cal.crystal(crystalhit->crystalID()).diskID()) + " Crystal Hit = " + std::to_string(cryID) + '\n'
+                                             + " Energy Dep. = "+std::to_string(crystalhit->energyDep())+" MeV " + '\n'
+                                             + " Time = "+std::to_string(crystalhit->time())+" ns ";
+                        
+                        char const *crytitle_c = crytitle.c_str();
+                        auto b = new REX::REveBox(crytitle_c,crytitle_c); 
+
+                        b->SetMainColor(color); // Use the time-proximity color
+
+                        double width = crystalXLen/2;
+                        double height = crystalYLen/2;
+                        
+                        // Z proportional to energy (normalized by the global max E found earlier)
+                        double thickness = crystalhit->energyDep()/maxE * crystalZLen/2; 
+                        
+                        // Calculate Z offset
+                        double crystalZOffset = pointmmTocm(crystalPos.z()) + abs(pointmmTocm(pointInMu2e.z())) + crystalZLen/2;
+                        
+                        // Set the 8 vertices of the REveBox object
+                        b->SetVertex(0, pointmmTocm(crystalPos.x()) - width, pointmmTocm(crystalPos.y())- height , crystalZOffset - thickness); 
+                        b->SetVertex(1, pointmmTocm(crystalPos.x()) - width, pointmmTocm(crystalPos.y())+ height, crystalZOffset - thickness); 
+                        b->SetVertex(2, pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())+ height ,crystalZOffset - thickness); 
+                        b->SetVertex(3, pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())- height, crystalZOffset - thickness); 
+                        b->SetVertex(4, pointmmTocm(crystalPos.x()) - width, pointmmTocm(crystalPos.y())- height ,crystalZOffset + thickness); 
+                        b->SetVertex(5, pointmmTocm(crystalPos.x()) - width, pointmmTocm(crystalPos.y())+ height , crystalZOffset + thickness); 
+                        b->SetVertex(6, pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())+ height , crystalZOffset + thickness); 
+                        b->SetVertex(7,pointmmTocm(crystalPos.x()) + width, pointmmTocm(crystalPos.y())- height, crystalZOffset + thickness); 
+                        
+                        allcryhits->AddElement(b);
+                    }
+                    scene->AddElement(allcryhits);
+                }
+            }
+        }
+    }
+}
+
+//FIXME if firstloop never used remove it
+void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_, 
+                                 std::tuple<std::vector<std::string>, 
+                                 std::vector<const ComboHitCollection*>> combohit_tuple, 
+                                 REX::REveElement* &scene, 
+                                 bool strawdisplay, bool AddErrorBar_) {
+
+    std::vector<const ComboHitCollection*> combohit_list = std::get<1>(combohit_tuple);
+    std::vector<std::string> names = std::get<0>(combohit_tuple);
+
+    // --- 1. Find the Global Time Range (min/max time) ---
+    double max_time = -1e6;
+    double min_time = 1e6;
+    bool found_hits = false;
+
+    for(const auto* chcol : combohit_list){
+        if(chcol && !chcol->empty()){
+            found_hits = true;
+            for(const auto& hit : *chcol){
+                double time = hit.time();
+                if(time > max_time) max_time = time;
+                if(time < min_time) min_time = time;
+            }
+        }
+    }
+
+    if (!found_hits) {
+        std::cout << "[DataInterface] No valid ComboHits found." << std::endl;
+        return;
+    }
+    if (max_time == min_time) {
+        max_time += 1.0; 
+    }
+
+    // --- 2. Define the Color Gradient (Palette) ---
+    const Int_t NRGBs = 5;
+    const Int_t NCont = 255; 
+    Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 }; 
+    Double_t red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 }; 
+    Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 }; 
+    Double_t blue[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 }; 
+    
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+    gStyle->SetNumberContours(NCont);
+
+    // --- 3. Visualization Loop ---
+    for(unsigned int j = 0; j < combohit_list.size(); j++){
+        const ComboHitCollection* chcol = combohit_list[j];
+        
+        if(chcol->size() != 0){
+            
+            // --- MASTER COMPOUND for the entire collection ---
+            std::string master_name = "ComboHits_" + names[j];
+            auto master_compound = new REX::REveCompound(master_name.c_str(), master_name.c_str(), true);
+            master_compound->SetRnrSelf(false); // Only render children (hits/errors)
+            
+            mu2e::GeomHandle<mu2e::Tracker> tracker;
+            const auto& allStraws = tracker->getStraws();
+            
+            // Loop over hits
+            for(unsigned int i = 0; i < chcol->size(); i++){
+                mu2e::ComboHit const &hit = (*chcol)[i];
+                
+                // --- Calculate Time-Based Color ---
+                Color_t hit_color;
+                double normalized_time = (hit.time() - min_time) / (max_time - min_time);
+                int colorIdx = static_cast<int>(normalized_time * (NCont - 1));
+                hit_color = gStyle->GetColorPalette(colorIdx); 
+
+                // --- A. Display Hit Straws (Separate element, added directly to scene for broad context) ---
+                if(strawdisplay){
+                    int sid = hit._sid.asUint16();
+                    
+                    if(static_cast<std::size_t>(sid) < allStraws.size() && sid < drawconfig.getInt("maxSID")){
+                        CLHEP::Hep3Vector sposi(0.0,0.0,0.0), sposf(0.0,0.0,0.0);
+                        const mu2e::Straw& s = allStraws[sid];
+                        const CLHEP::Hep3Vector& p = s.getMidPoint();
+                        const CLHEP::Hep3Vector& d = s.getDirection();
+                        double x = p.x();
+                        double y = p.y();
+                        double z = p.z();
+                        double l = s.halfLength();
+                        
+                        double st = sin(d.theta());
+                        double ct = cos(d.theta());
+                        double sp = sin(d.phi()+TMath::Pi()/2.0);
+                        double cp = cos(d.phi()+TMath::Pi()/2.0);
+
+                        double x1=x+l*st*sp;
+                        double y1=y-l*st*cp;
+                        double z1=z+l*ct;
+                        double x2=x-l*st*sp;
+                        double y2=y+l*st*cp;
+                        double z2=z-l*ct;
+
+                        std::string strawtitle;
+                        int idPlane = s.id().getPlane();
+                        int colorid = s.id().getPanel() + idPlane + 1;
+                        strawtitle =Form("Straw %i Panel %i Plane %i",s.id().getStraw(), s.id().getPanel(), idPlane);
+                        
+                        sposi.set(x1, y1, z1);
+                        sposf.set(x2, y2, z2);
+                        
+                        if(sposi.x() != 0){
+                            auto strawline = new REX::REveLine("StrawHit", strawtitle, 2);
+                            strawline->SetPoint(0, pointmmTocm(sposi.x()), pointmmTocm(sposi.y()), pointmmTocm(sposi.z()));
+                            strawline->SetNextPoint(pointmmTocm(sposf.x()), pointmmTocm(sposf.y()), pointmmTocm(sposf.z()));
+                            strawline->SetLineWidth(1);
+                            strawline->SetLineColor(colorid); 
+                            if(strawline->GetSize() != 0) scene->AddElement(strawline);
+                        }
+                    }
+                }
+
+                // --- B. Add Error Bar (REveLine) Optional ---
+                if(AddErrorBar_){
+                    auto const& p = hit.pos();
+                    auto w = hit.uDir();
+                    auto const& s = hit.wireRes(); // Wire resolution (length of error bar half-segment)
+                    
+                    // Calculate endpoints of the error bar along the perpendicular direction (w = uDir)
+                    double x1 = (p.x()+s*w.x());
+                    double x2 = (p.x()-s*w.x());
+                    double z1 = (p.z()+s*w.z());
+                    double z2 = (p.z()-s*w.z());
+                    double y1 = (p.y()+s*w.y());
+                    double y2 = (p.y()-s*w.y());
+
+                    // Add a detailed error bar label
+                    std::string errorbar_label = std::string("ComboHit Error Bar") + '\n' 
+                                               + "Hit Time: " + std::to_string(hit.time()) + " ns" + '\n'
+                                               + "Wire Res (half-length): " + std::to_string(s) + " mm" + '\n'
+                                               + "Error Bar Endpoints (mm):" + '\n'
+                                               + " P1 (" + std::to_string(x1) + ", " + std::to_string(y1) + ", " + std::to_string(z1) + ")" + '\n'
+                                               + " P2 (" + std::to_string(x2) + ", " + std::to_string(y2) + ", " + std::to_string(z2) + ")";
+                    auto error = new REX::REveLine(errorbar_label.c_str(), errorbar_label.c_str(), 2);
+                    error->SetPoint(0, pointmmTocm(x1), pointmmTocm(y1), pointmmTocm(z1));
+                    error->SetNextPoint(pointmmTocm(x2), pointmmTocm(y2), pointmmTocm(z2));
+                    
+                    error->SetLineColor(hit_color); 
+                    error->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
+                    
+                    master_compound->AddElement(error);
+                }
+                
+                // --- C. Draw ComboHit Position (REvePointSet) ---
+                CLHEP::Hep3Vector HitPos(pointmmTocm(hit.pos().x()), pointmmTocm(hit.pos().y()), pointmmTocm(hit.pos().z()));
+                std::string chtitle = "ComboHits tag = "
+                    + (names[j]) + '\n'
+                    + " position : x " + std::to_string(hit.pos().x()) + '\n'
+                    + " y " + std::to_string(hit.pos().y()) + '\n'
+                    + " z " + std::to_string(hit.pos().z()) + '\n'
+                    + " time :" + std::to_string(hit.time()) + '\n'
+                    + " energy dep : " + std::to_string(hit.energyDep()) + "MeV";
+                    
+                auto ps1 = new REX::REvePointSet(chtitle.c_str(), chtitle.c_str(), 0);
+                ps1->SetNextPoint(HitPos.x(), HitPos.y() , HitPos.z());
+                
+                ps1->SetMarkerColor(hit_color); // Time-based color
+                ps1->SetMarkerStyle(DataInterface::mstyle);
+                ps1->SetMarkerSize(DataInterface::msize);
+                
+                master_compound->AddElement(ps1);
+            } 
+            
+            // Add the Master Compound to the Scene ---
+            scene->AddElement(master_compound);
+        }
+    }
 }
 
 /*------------Function to add CRV information to the display:-------------*/

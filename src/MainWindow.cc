@@ -777,7 +777,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
 
   if(drawOpts.addClusters){
     std::vector<const CaloClusterCollection*> calocluster_list = std::get<1>(data.calocluster_tuple);
-    if(calocluster_list.size() !=0 ) pass_data->AddCaloClusters(eveMng, firstLoopCalo, data.calocluster_tuple, eventScene, drawOpts.addCrystalDraw, t1, t2);
+    if(calocluster_list.size() !=0 ) pass_data->AddCaloClusters(eveMng, firstLoopCalo, data.calocluster_tuple, eventScene, drawOpts.addCrystalDraw);
   }
 
   std::vector<const HelixSeedCollection*> helix_list = std::get<1>(data.helix_tuple);
