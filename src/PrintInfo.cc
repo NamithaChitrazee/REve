@@ -4,189 +4,389 @@
 
 using namespace mu2e;
 
+
+/**
+ * @brief Prints summary information for Monte Carlo (MC) event data.
+ * * This function is typically invoked by the "PrintMCInfo" REve command button.
+ * It currently delegates to the PrintSimInfo method.
+ */
 void PrintInfo::PrintMCInfo(){
-  PrintSimInfo();
+    PrintMCTrajInfo();
+    PrintSimPartInfo();
 }
 
+/**
+ * @brief Prints summary information for all Reconstructed (Reco) event data.
+ * * This function is typically invoked by the "PrintRecoInfo" REve command button.
+ * It aggregates printing from tracking, calorimetry, and CRV components.
+ */
 void PrintInfo::PrintRecoInfo(){
-  PrintKalInfo();
-  PrintCaloInfo();
-  PrintCRVInfo();
+    PrintKalInfo();
+    PrintCaloInfo();
+    PrintCRVInfo();
 }
 
+void PrintInfo::PrintMCTrajInfo(){
 
-void PrintInfo::PrintSimInfo(){
-
-  std::vector<const MCTrajectoryCollection*> track_list = std::get<1>(fmctrack_tuple);
-  if(track_list.size() > 0){
-    for(unsigned int j=0; j< track_list.size(); j++){
-      const MCTrajectoryCollection* trajcol = track_list[j];
-      if(trajcol !=0){
-        std::map<art::Ptr<mu2e::SimParticle>,mu2e::MCTrajectory>::const_iterator trajectoryIter;
-        std::cout<<"MC TRAJ (Primary) SIM PARTICLE INFORMATION"<<std::endl;
-        std::cout<<"Number of SimParticles = "<<trajcol->size()<<std::endl;
-        std::cout<<"  "<<std::endl;
-        std::cout<<" ID  "<<"   PDGID   "<<" Energy    "<<"    p0x     "<<"     p0y      "<<"       p0z    "
-          <<"      posx    "<<"     posy      "<<"    posz    "<<"  t0      "<<"     p1x   "<<"    p1y   "<<"   p1z    "<<"    t1"<<std::endl;
-        for(trajectoryIter=trajcol->begin(); trajectoryIter!=trajcol->end(); trajectoryIter++){
-          std::string pdgID = std::to_string(trajectoryIter->first->pdgId());
-          std::string t0 = std::to_string(trajectoryIter->first->startGlobalTime());
-          std::string p0x = std::to_string(trajectoryIter->first->startMomentum().x());
-          std::string p0y = std::to_string(trajectoryIter->first->startMomentum().y());
-          std::string p0z = std::to_string(trajectoryIter->first->startMomentum().z());
-          std::string energy = std::to_string(trajectoryIter->first->startMomentum().e());
-          std::string posx = std::to_string(trajectoryIter->first->startPosition().x()); //FIXME - this is in Mu2e coords
-          std::string posy = std::to_string(trajectoryIter->first->startPosition().y());
-          std::string posz = std::to_string(trajectoryIter->first->startPosition().z());
-          std::string t1 = std::to_string(trajectoryIter->first->endGlobalTime());
-          std::string p1x = std::to_string(trajectoryIter->first->endMomentum().x());
-          std::string p1y = std::to_string(trajectoryIter->first->endMomentum().y());
-          std::string p1z = std::to_string(trajectoryIter->first->endMomentum().z());
-          std::string pos1x = std::to_string(trajectoryIter->first->endPosition().x());
-          std::string pos1y = std::to_string(trajectoryIter->first->endPosition().y());
-          std::string pos1z = std::to_string(trajectoryIter->first->endPosition().z());
-          std::string id = std::to_string(trajectoryIter->first->id().asInt());
-
-          std::cout<<" "<<id<<"      "<<pdgID<<"     "<<energy<<"    "<<p0x<<"     "<<p0y<<"     "<<p0z
-            <<"  "<<posx<<"  "<<posy<<"   "<<posz<<"  "<<t0<<"   "<<p1x<<"  "<<p1y<<"  "<<p1z<<"   "<<t1<<std::endl;
-        }
-      }
-    }
-  }
-
-  std::vector<const SimParticleCollection*> sim_list = std::get<1>(fsim_tuple);
+    std::vector<const MCTrajectoryCollection*> track_list = std::get<1>(fmctrack_tuple);
+    
     if(track_list.size() > 0){
-      for(unsigned int j=0; j< sim_list.size(); j++){
-        const SimParticleCollection* simcol = sim_list[j];
-        if(simcol !=0){
-          
-          std::cout<<"SIM PARTICLE INFORMATION"<<std::endl;
-          std::cout<<"Number of SimParticles = "<<simcol->size()<<std::endl;
-          std::cout<<"  "<<std::endl;
-          std::cout<<" ID  "<<"   PDGID   "<<" Energy    "<<"    p0x     "<<"     p0y      "<<"       p0z    "
-            <<"      posx    "<<"     posy      "<<"    posz    "<<"  t0      "<<"     p1x   "<<"    p1y   "<<"   p1z    "<<"    t1"<<std::endl;
-          const SimParticleCollection* simcol = sim_list[j];
+        
+        // Set up stream for consistent formatting across all printouts
+        std::cout << std::fixed << std::setprecision(3);
+        
+        // Loop over all available MCTrajectory collections (different Art module outputs).
+        for(unsigned int j=0; j< track_list.size(); j++){
+            const MCTrajectoryCollection* trajcol = track_list[j];
+            
+            if(trajcol !=0){
+                
+                std::map<art::Ptr<mu2e::SimParticle>,mu2e::MCTrajectory>::const_iterator trajectoryIter;
+                
+                std::cout << "\n======================================================================================================================================================" << std::endl;
+                std::cout << "MC TRAJ (Primary) SIM PARTICLE INFORMATION: Collection " << j + 1 << std::endl;
+                std::cout << "Number of SimParticles = " << trajcol->size() << std::endl;
+                std::cout << "======================================================================================================================================================" << std::endl;
 
-          if(simcol!=0){
-            for( auto const& simpair : *simcol) {
-              // Check user defined list of particles to plot
-              const mu2e::SimParticle& simpart = simpair.second;
-              std::string pdgID = std::to_string(simpart.pdgId());
-              std::string t0 = std::to_string(simpart.startGlobalTime() );
-              std::string p0x = std::to_string(simpart.startMomentum().x());
-              std::string p0y = std::to_string(simpart.startMomentum().y());
-              std::string p0z = std::to_string(simpart.startMomentum().z());
-              std::string energy = std::to_string(simpart.startMomentum().e());
-              std::string posx = std::to_string(simpart.startPosition().x()); //FIXME - this is in Mu2e coords
-              std::string posy = std::to_string(simpart.startPosition().y());
-              std::string posz = std::to_string(simpart.startPosition().z());
-              std::string t1 = std::to_string(simpart.endGlobalTime());
-              std::string p1x = std::to_string(simpart.endMomentum().x());
-              std::string p1y = std::to_string(simpart.endMomentum().y());
-              std::string p1z = std::to_string(simpart.endMomentum().z());
-              std::string pos1x = std::to_string(simpart.endPosition().x());
-              std::string pos1y = std::to_string(simpart.endPosition().y());
-              std::string pos1z = std::to_string(simpart.endPosition().z());
-              std::string id = std::to_string(simpart.id().asInt());
+                // --- Table Header ---
+                // Using setw() for fixed column width and right/left alignment
+                std::cout << std::left << std::setw(6) << "ID"
+                          << std::setw(10) << "PDGID"
+                          << std::setw(9) << "ENERGY"
+                          << std::setw(12) << "p0x" 
+                          << std::setw(12) << "p0y" 
+                          << std::setw(12) << "p0z" 
+                          << std::setw(12) << "posx"
+                          << std::setw(12) << "posy"
+                          << std::setw(12) << "posz"
+                          << std::setw(10) << "t0"
+                          << std::setw(12) << "p1x" 
+                          << std::setw(12) << "p1y" 
+                          << std::setw(12) << "p1z" 
+                          << std::setw(10) << "t1"
+                          << std::endl;
+                std::cout << "------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
 
-              std::cout<<" "<<id<<"      "<<pdgID<<"     "<<energy<<"    "<<p0x<<"     "<<p0y<<"     "<<p0z
-              <<"  "<<posx<<"  "<<posy<<"   "<<posz<<"  "<<t0<<"   "<<p1x<<"  "<<p1y<<"  "<<p1z<<"   "<<t1<<std::endl;
-          }
+
+                // 3. Iterate over the SimParticle Ptrs and their associated MCTrajectories.
+                for(trajectoryIter=trajcol->begin(); trajectoryIter!=trajcol->end(); trajectoryIter++){
+                    
+                    // Access the SimParticle object
+                    const mu2e::SimParticle* simPtr = trajectoryIter->first.get();
+                    
+                    // --- Initial (Start) Kinematics ---
+                    int pdgID = simPtr->pdgId();
+                    double energy = simPtr->startMomentum().e();
+                    double t0 = simPtr->startGlobalTime();
+                    
+                    CLHEP::Hep3Vector p0 = simPtr->startMomentum().vect();
+                    CLHEP::Hep3Vector pos0 = simPtr->startPosition();
+                    
+                    // --- Final (End) Kinematics ---
+                    double t1 = simPtr->endGlobalTime();
+                    CLHEP::Hep3Vector p1 = simPtr->endMomentum().vect();
+                    
+                    // Extract the unique SimParticle ID.
+                    int id = simPtr->id().asInt();
+
+                    // --- Print Data Row (using stream manipulators) ---
+                    std::cout << std::left << std::setw(6) << id
+                              << std::setw(10) << pdgID
+                              << std::right << std::setw(9) << energy
+                              << std::setw(12) << p0.x() 
+                              << std::setw(12) << p0.y() 
+                              << std::setw(12) << p0.z() 
+                              << std::setw(12) << pos0.x()
+                              << std::setw(12) << pos0.y()
+                              << std::setw(12) << pos0.z()
+                              << std::setw(10) << t0
+                              << std::setw(12) << p1.x() 
+                              << std::setw(12) << p1.y() 
+                              << std::setw(12) << p1.z() 
+                              << std::setw(10) << t1
+                              << std::endl;
+                }
+                std::cout << "======================================================================================================================================================" << std::endl;
+            }
         }
-      }
     }
-  }
+    // Restore default stream formatting (optional but good practice)
+    std::cout << std::scientific << std::setprecision(6);
 }
 
-void  PrintInfo::PrintKalInfo(){
-  auto const& ptable = GlobalConstantsHandle<ParticleDataList>();
-  std::vector<const KalSeedPtrCollection*> ktrack_list = std::get<1>(ftrack_tuple);
-  std::vector<std::string> names = std::get<0>(ftrack_tuple);
-  if(ktrack_list.size() > 0){
-    for(unsigned int j=0; j< ktrack_list.size(); j++){
-      const KalSeedPtrCollection* seedcol = ktrack_list[j];
-      std::cout<<" "<<std::endl;
-      if(seedcol->size() !=0){
-        std::cout<<"KALSEED INFORMATION"<<std::endl;
-        for(auto const& kseedptr : *seedcol) {
-          auto const& kseed = *kseedptr;
-          // taking the first segment is arbitrary; this should be configured by intersection type TODO
-          auto const& kseg = kseed.segments()[0];
-          auto const& momvec = kseg.momentum3();
-          std::string kaltitle;
-          double d0(0.0);
-          // hypo-specific parts
-          if(kseed.loopHelixFit()){
-            auto lh = kseg.loopHelix();
-            d0 = lh.minAxisDist();
-          } else if(kseed.centralHelixFit()){
-            auto ch = kseg.centralHelix();
-            d0 = ch.d0();
-          }else if(kseed.kinematicLineFit()){
-            auto kl = kseg.kinematicLine();
-            d0 = kl.d0();
-          }
-          kaltitle += " status " + kseed.status().stringRep() + '\n';
-          kaltitle += " Particle " +  ptable->particle(kseed.particle()).name() + " mom " + std::to_string(momvec.R()) + "MeV/c, cos(Theta) " + std::to_string(cos(momvec.Theta())) + '\n';
-          kaltitle += " t0 " + std::to_string(kseed.t0Val()) + " ns, d0 " + std::to_string(d0) + " mm " + '\n';
-          unsigned nactive =0;
-          for (auto const& hit : kseed.hits()){
-            if (hit.strawHitState() >= WireHitState::inactive) ++nactive;
-          }
-          kaltitle += " N active hits " + std::to_string(nactive) + " fit consistency " + std::to_string(kseed.fitConsistency()) + '\n';
-          if(kseed.hasCaloCluster()){
-            kaltitle += " calo cluster energy " + std::to_string(kseed.caloCluster()->energyDep()) + '\n';
-          }else {
-            kaltitle += std::string(" no calo cluster ") + '\n';
-          }
+void PrintInfo::PrintSimPartInfo(){
+    std::vector<const SimParticleCollection*> sim_list = std::get<1>(fsim_tuple);
+    std::vector<const MCTrajectoryCollection*> track_list = std::get<1>(fmctrack_tuple);
+    if(track_list.size() > 0){
+        
+        // Set up stream for consistent formatting across all printouts
+        std::cout << std::fixed << std::setprecision(3);
+        
+        // Loop over all available SimParticle collections.
+        for(unsigned int j=0; j< sim_list.size(); j++){
+            const SimParticleCollection* simcol = sim_list[j];
+            
+            // Safety check: ensure the pointer to the collection is valid.
+            if(simcol !=0){
+                
+                std::cout << "\n======================================================================================================================================================" << std::endl;
+                std::cout << "SIM PARTICLE INFORMATION (Collection " << j + 1 << ")" << std::endl;
+                std::cout << "Number of SimParticles = " << simcol->size() << std::endl;
+                std::cout << "======================================================================================================================================================" << std::endl;
 
-          std::cout<<kaltitle<<std::endl;
+                // --- Table Header ---
+                std::cout << std::left << std::setw(6) << "ID"
+                          << std::setw(10) << "PDGID"
+                          << std::setw(9) << "ENERGY"
+                          << std::setw(12) << "p0x" 
+                          << std::setw(12) << "p0y" 
+                          << std::setw(12) << "p0z" 
+                          << std::setw(12) << "posx"
+                          << std::setw(12) << "posy"
+                          << std::setw(12) << "posz"
+                          << std::setw(10) << "t0"
+                          << std::setw(12) << "p1x" 
+                          << std::setw(12) << "p1y" 
+                          << std::setw(12) << "p1z" 
+                          << std::setw(10) << "t1"
+                          << std::endl;
+                std::cout << "------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+
+
+                // Iterate over the SimParticleCollection (map<SimParticle::key_type, SimParticle>).
+                for( auto const& simpair : *simcol) {
+                    const mu2e::SimParticle& simpart = simpair.second;
+                    
+                    // --- Extract Initial (Start) Kinematics ---
+                    int pdgID = simpart.pdgId();
+                    double energy = simpart.startMomentum().e();
+                    double t0 = simpart.startGlobalTime();
+                    
+                    CLHEP::Hep3Vector p0 = simpart.startMomentum().vect();
+                    CLHEP::Hep3Vector pos0 = simpart.startPosition();
+                    
+                    // --- Extract Final (End) Kinematics ---
+                    double t1 = simpart.endGlobalTime();
+                    CLHEP::Hep3Vector p1 = simpart.endMomentum().vect();
+                    
+                    // Extract the unique SimParticle ID.
+                    int id = simpart.id().asInt();
+
+                    // --- Print Data Row (using stream manipulators) ---
+                    std::cout << std::left << std::setw(6) << id
+                              << std::setw(10) << pdgID
+                              << std::right << std::setw(9) << energy
+                              << std::setw(12) << p0.x() 
+                              << std::setw(12) << p0.y() 
+                              << std::setw(12) << p0.z() 
+                              << std::setw(12) << pos0.x()
+                              << std::setw(12) << pos0.y()
+                              << std::setw(12) << pos0.z()
+                              << std::setw(10) << t0
+                              << std::setw(12) << p1.x() 
+                              << std::setw(12) << p1.y() 
+                              << std::setw(12) << p1.z() 
+                              << std::setw(10) << t1
+                              << std::endl;
+                }
+                std::cout << "======================================================================================================================================================" << std::endl;
+            }
         }
-      }
     }
-  }
+    // Restore default stream formatting
+    std::cout << std::scientific << std::setprecision(6);
+}
+
+void PrintInfo::PrintKalInfo(){
+    // Access the particle data table for PDG IDs to names conversion
+    auto const& ptable = GlobalConstantsHandle<ParticleDataList>(); 
+    
+    // Extract the vector of collection pointers and labels from the ftrack_tuple
+    std::vector<const KalSeedPtrCollection*> ktrack_list = std::get<1>(ftrack_tuple);
+    std::vector<std::string> names = std::get<0>(ftrack_tuple);
+    
+    if(ktrack_list.size() > 0){
+        
+        // Set up stream for consistent formatting (e.g., 3 decimal places)
+        std::cout << std::fixed << std::setprecision(3);
+        
+        for(unsigned int j=0; j< ktrack_list.size(); j++){
+            const KalSeedPtrCollection* seedcol = ktrack_list[j];
+            
+            if(seedcol->size() !=0){
+                
+                std::cout << "\n==============================================================================================================================" << std::endl;
+                std::cout << "KALSEED INFORMATION | Collection: " << names[j] << " | Tracks: " << seedcol->size() << std::endl;
+                std::cout << "==============================================================================================================================" << std::endl;
+
+                // --- Table Header ---
+                std::cout << std::left << std::setw(10) << "Particle"
+                          << std::right << std::setw(10) << "Mom (MeV)"
+                          << std::setw(10) << "Cos(Th)"
+                          << std::setw(10) << "t0 (ns)"
+                          << std::setw(10) << "d0 (mm)"
+                          << std::setw(8) << "NActive"
+                          << std::setw(12) << "Fit Cons"
+                          << std::setw(10) << "E Calo"
+                          << std::left << std::setw(15) << "Fit Status"
+                          << std::endl;
+                std::cout << "------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+
+
+                for(auto const& kseedptr : *seedcol) {
+                    auto const& kseed = *kseedptr;
+                    
+                    // Taking the first segment is common for simple summary printing
+                    auto const& kseg = kseed.segments()[0]; 
+                    auto const& momvec = kseg.momentum3();
+                    
+                    double d0 = 0.0;
+                    
+                    // --- Extract d0 based on fit hypothesis ---
+                    if(kseed.loopHelixFit()){
+                        d0 = kseg.loopHelix().minAxisDist();
+                    } else if(kseed.centralHelixFit()){
+                        d0 = kseg.centralHelix().d0();
+                    }else if(kseed.kinematicLineFit()){
+                        d0 = kseg.kinematicLine().d0();
+                    }
+                    
+                    // --- Count active hits ---
+                    unsigned nactive = 0;
+                    for (auto const& hit : kseed.hits()){
+                        // Check if the hit state is active (>= inactive, assuming states are ordered)
+                        if (hit.strawHitState() >= WireHitState::inactive) { 
+                            ++nactive; 
+                        }
+                    }
+
+                    // --- Extract Calo Energy ---
+                    double caloE = kseed.hasCaloCluster() ? kseed.caloCluster()->energyDep() : 0.0;
+                    
+                    // --- Extract Particle Name ---
+                    std::string particleName = ptable->particle(kseed.particle()).name();
+                    
+                    // --- Print Data Row ---
+                    std::cout << std::left << std::setw(10) << particleName
+                              << std::right << std::setw(10) << momvec.R()           // Momentum Magnitude
+                              << std::setw(10) << cos(momvec.Theta())    // Cosine of Polar Angle
+                              << std::setw(10) << kseed.t0Val()          // Track t0
+                              << std::setw(10) << d0                     // d0 or minAxisDist
+                              << std::setw(8) << nactive                // Number of active hits
+                              << std::setw(12) << kseed.fitConsistency() // Fit Consistency
+                              << std::setw(10) << caloE                  // Calo Cluster Energy
+                              << std::left << std::setw(15) << kseed.status().stringRep() // Fit Status
+                              << std::endl;
+                }
+                std::cout << "==============================================================================================================================" << std::endl;
+            }
+        }
+    }
+    // Restore default stream formatting
+    std::cout << std::scientific << std::setprecision(6);
 }
 
 void PrintInfo::PrintCaloInfo(){
-  std::vector<const CaloClusterCollection*> calocluster_list = std::get<1>(fcalocluster_tuple);
-  if(calocluster_list.size()!=0){
-    for(unsigned int j = 0; j< calocluster_list.size(); j++){
-      const CaloClusterCollection* clustercol = calocluster_list[j];
-      std::cout<<" "<<std::endl;
-      std::cout<<"CALO CLUSTER INFORMATION"<<std::endl;
-      std::cout<<"  Energy  "<<"     Time  "<<"        X       "<<"      Y    "<<std::endl;
-      if(clustercol->size() != 0){
-        for(unsigned int i = 0; i < clustercol->size(); i++){
-          auto const& cluster= (*clustercol)[i];
-          // Info to print:
-          std::string cluster_energy = std::to_string(cluster.energyDep());
-          std::string cluster_time = std::to_string(cluster.time());
-          std::string cluster_x = std::to_string(cluster.cog3Vector().x());
-          std::string cluster_y = std::to_string(cluster.cog3Vector().y());
-          std::cout<<" "<<cluster_energy<<"   "<<cluster_time<<"   "<<cluster_x<<"    "<<cluster_y<<std::endl;
+    // Extract the vector of collection pointers from the fcalocluster_tuple.
+    std::vector<const mu2e::CaloClusterCollection*> calocluster_list = std::get<1>(fcalocluster_tuple);
+    std::vector<std::string> names = std::get<0>(fcalocluster_tuple);
+
+    if(!calocluster_list.empty()){
+        
+        // Set up stream for consistent formatting (e.g., 3 decimal places)
+        std::cout << std::fixed << std::setprecision(3);
+        
+        // Loop over all CaloCluster collections
+        for(unsigned int j = 0; j< calocluster_list.size(); j++){
+            const mu2e::CaloClusterCollection* clustercol = calocluster_list[j];
+            
+            if(clustercol && !clustercol->empty()){
+                
+                std::cout << "\n=============================================================================" << std::endl;
+                std::cout << "CALO CLUSTER INFORMATION | Collection: " << names[j] << " | Clusters: " << clustercol->size() << std::endl;
+                std::cout << "=============================================================================" << std::endl;
+
+                // --- Table Header ---
+                std::cout << std::right << std::setw(10) << "Energy"
+                          << std::setw(12) << "Time (ns)"
+                          << std::setw(12) << "X COG (mm)"
+                          << std::setw(12) << "Y COG (mm)"
+                          << std::setw(12) << "Z COG (mm)" // Added Z coordinate for completeness
+                          << std::endl;
+                std::cout << "-----------------------------------------------------------------------------" << std::endl;
+
+                // Iterate over the clusters in the current collection
+                for(unsigned int i = 0; i < clustercol->size(); i++){
+                    auto const& cluster= (*clustercol)[i];
+                    
+                    double energy = cluster.energyDep();
+                    double time = cluster.time();
+                    CLHEP::Hep3Vector cog = cluster.cog3Vector();
+                    
+                    // Print Data Row
+                    std::cout << std::right << std::setw(10) << energy
+                              << std::setw(12) << time
+                              << std::setw(12) << cog.x()
+                              << std::setw(12) << cog.y()
+                              << std::setw(12) << cog.z()
+                              << std::endl;
+                }
+                std::cout << "=============================================================================" << std::endl;
+            }
         }
-      }
     }
-  }
+    // Restore default stream formatting
+    std::cout << std::scientific << std::setprecision(6);
 }
 
+
 void PrintInfo::PrintCRVInfo(){
-  std::cout<<"CRV COINCIDENCE INFORMATION"<<std::endl;
-  std::vector<const CrvCoincidenceClusterCollection*> crvcoin_list = std::get<1>(fcrvcoin_tuple);
-  if(crvcoin_list.size()!=0){
-    for(unsigned int j = 0; j< crvcoin_list.size(); j++){
-      const CrvCoincidenceClusterCollection* crvcoincol = crvcoin_list[j];
-      std::cout<<"  avTime  "<<"        avX       "<<"      avY    "<<"      avZ       "<<std::endl;
-      if(crvcoincol->size() != 0){
-        for(unsigned int i = 0; i < crvcoincol->size(); i++){
-          mu2e::CrvCoincidenceCluster const  &cluster= (*crvcoincol)[i];
-          std::string coin_avtime = std::to_string(cluster.GetAvgHitTime());
-          std::string coin_avX = std::to_string(cluster.GetAvgHitPos().x());
-          std::string coin_avY = std::to_string(cluster.GetAvgHitPos().y());
-          std::string coin_avZ = std::to_string(cluster.GetAvgHitPos().z());
-          std::cout<<"    "<<coin_avtime<<"              "<<coin_avX<<"          "<<coin_avY<<"             "<<coin_avZ<<std::endl;
+    // Extract the vector of collection pointers and labels from the fcrvcoin_tuple.
+    std::vector<const mu2e::CrvCoincidenceClusterCollection*> crvcoin_list = std::get<1>(fcrvcoin_tuple);
+    std::vector<std::string> names = std::get<0>(fcrvcoin_tuple);
+
+    if(!crvcoin_list.empty()){
+        
+        // Set up stream for consistent formatting (e.g., 3 decimal places)
+        std::cout << std::fixed << std::setprecision(3);
+        
+        // Loop over all CrvCoincidenceCluster collections
+        for(unsigned int j = 0; j< crvcoin_list.size(); j++){
+            const mu2e::CrvCoincidenceClusterCollection* crvcoincol = crvcoin_list[j];
+            
+            if(crvcoincol && !crvcoincol->empty()){
+                
+                std::cout << "\n=============================================================================" << std::endl;
+                std::cout << "CRV COINCIDENCE INFORMATION | Collection: " << names[j] << " | Clusters: " << crvcoincol->size() << std::endl;
+                std::cout << "=============================================================================" << std::endl;
+
+                // --- Table Header ---
+                // Using right alignment for numerical data
+                std::cout << std::right << std::setw(12) << "Avg Time (ns)"
+                          << std::setw(12) << "Avg X (mm)"
+                          << std::setw(12) << "Avg Y (mm)"
+                          << std::setw(12) << "Avg Z (mm)"
+                          << std::endl;
+                std::cout << "-----------------------------------------------------------------------------" << std::endl;
+
+                // Iterate over the coincidence clusters in the current collection
+                for(unsigned int i = 0; i < crvcoincol->size(); i++){
+                    mu2e::CrvCoincidenceCluster const &cluster = (*crvcoincol)[i];
+                    
+                    double avTime = cluster.GetAvgHitTime();
+                    CLHEP::Hep3Vector avPos = cluster.GetAvgHitPos();
+
+                    // Print Data Row
+                    std::cout << std::right << std::setw(12) << avTime
+                              << std::setw(12) << avPos.x()
+                              << std::setw(12) << avPos.y()
+                              << std::setw(12) << avPos.z()
+                              << std::endl;
+                }
+                std::cout << "=============================================================================" << std::endl;
+            }
         }
-      }
     }
-  }
+    // Restore default stream formatting
+    std::cout << std::scientific << std::setprecision(6);
 }
