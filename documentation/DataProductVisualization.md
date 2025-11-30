@@ -20,6 +20,18 @@ This function processes collections of $\text{MCTrajectory}$ objects and renders
 | **Filtering** | Draws only particles whose PDG ID is included in the user-defined $\text{particleIds}$ list. |
 | **Title Info** | Includes **Particle Name**, **SimParticle ID**, **Parent ID**, **Kinetic Energy**, and **Creation/Stopping Codes** for traceability. |
 
+### $\text{MCInterface::AddSurfaceStepCollection}$
+
+This function visualizes points where a $\text{SimParticle}$ crosses a defined detector or virtual surface.
+
+| Feature | Description |
+| :--- | :--- |
+| **Input** | $\text{SurfaceStepCollection}$ |
+| **Visualization** | **$\text{REvePointSet}$** marker at the step's $\text{midPosition}$. |
+| **Color Coding** | Fixed to **kBlack** (in the current implementation) to distinguish them clearly from track lines. |
+| **Filtering** | Draws only steps made by particles whose PDG ID is in the user-defined $\text{particleIds}$ list. |
+| **Title Info** | Includes the **Surface ID name**, step **Position**, **Time**, **Momentum**, and **Energy Deposit** ($\text{edep}$). |
+
 ---
 
 ## Reconstructed (Reco) Data Visualization
@@ -87,7 +99,7 @@ Visually displays clusters of hits used to determine the initial time ($\text{t0
 | Feature | Description |
 | :--- | :--- |
 | **Input** | $\text{TimeClusterCollection}$ |
-| **Visualization** | **$\text{REvePointSet}$** marker at the cluster's central position ($\text{\_pos}$). |
+| **Visualization** | **$\text{REvePointSet}$** marker at the cluster's central position. |
 | **Title Info** | Cluster $\text{t0}$ and error. |
 
 ### $\text{DataInterface::AddCosmicTrackFit}$
