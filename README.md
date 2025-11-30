@@ -7,9 +7,9 @@ The EventDisplay is based on REve which is an updated version of the well-known 
 ## Documentation
 
 * [Getting Started](./documentation/GettingStarted.md)
-* [Examples] (./documentation/examples.md).
-* [Fcl Options] (./documentation/FclOptions.md).
-* [GUI Options] (./documentation/GUIOptions.md).
-* [EventNavigation] (./documentation/EventNavigation.md).
-* [Data Product Visualizaton] (./documentation/DataProductVisualization.md).
+* [Examples](./documentation/examples.md).
+* [Fcl Options](./documentation/FclOptions.md).
+* [GUI Options](./documentation/GUIOptions.md).
+* [EventNavigation](./documentation/EventNavigation.md).
+* [Data Product Visualizaton](./documentation/DataProductVisualization.md).
 
