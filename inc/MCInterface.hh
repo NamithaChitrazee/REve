@@ -14,6 +14,7 @@
 #include "Offline/MCDataProducts/inc/SurfaceStep.hh"
 #include "Offline/MCDataProducts/inc/SimParticle.hh"
 #include "Offline/MCDataProducts/inc/MCRelationship.hh"
+#include "Offline/MCDataProducts/inc/ProcessCode.hh"
 #include <TApplication.h>
 #include <TEvePad.h>
 #include <TObject.h>

@@ -108,7 +108,7 @@ sap.ui.define(['rootui5/eve7/controller/Main.controller',
       },
 
       showEventInfo : function() {
-         let tinfo = "Event : " + this.fw2gui.eventid + " Sub Run :" + this.fw2gui.subrunid + " Run :" + this.fw2gui.runid;
+         let tinfo =  " Run :" + this.fw2gui.runid + " Sub Run :" + this.fw2gui.subrunid + "Event : " + this.fw2gui.eventid;
          document.title = tinfo;
          //this.byId("runInput").setValue(this.fw2gui.runid);
          //this.byId("eventInput").setValue(this.fw2gui.eventid);

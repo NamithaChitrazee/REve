@@ -1421,7 +1421,7 @@ void DataInterface::AddKinKalTrajectory(std::unique_ptr<KTRAJ> &trajectory,
     // Create the REveLine with the pre-calculated title and required size
     auto line = new REX::REveLine(kaltitle.c_str(), kaltitle.c_str(), num_steps);
 
-    // Iterate Through Time and Plot Points ---
+    // Iterate Through Time and Plot Points 
     
     // Set the first point explicitly (t = t1)
     const auto &p_start = trajectory->position3(t1);
@@ -1456,32 +1456,32 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
 {
     std::cout << "[DataInterface::FillKinKalTrajectory()]" << std::endl;
     
-    // --- Critical Logic: Scene Cleanup ---
+    // Critical Logic: Scene Cleanup 
     if (!firstloop) {
         scene->DestroyElements();
     }
 
-    // --- Setup and Data Extraction ---
+    // Setup and Data Extraction 
     const auto& ptable = GlobalConstantsHandle<ParticleDataList>();
     const auto& track_list = std::get<1>(track_tuple);
     const auto& names = std::get<0>(track_tuple);
     
     if (track_list.empty()) return;
 
-    // --- Loop over KalSeed Collections ---
+    // Loop over KalSeed Collections 
     for(unsigned int j = 0; j < track_list.size(); j++){
         const mu2e::KalSeedPtrCollection* seedcol = track_list[j];
         
         if(seedcol == nullptr) continue;
         
-        // --- Loop over individual KalSeeds ---
+        // Loop over individual KalSeeds 
         for(const auto& kseedptr : *seedcol){
             if (!kseedptr) continue;
             
             const mu2e::KalSeed& kseed = *kseedptr;
             std::string particle_name = ptable->particle(kseed.particle()).name();
 
-            // --- Determine active hits for display info ---
+            // Determine active hits for display info 
             unsigned nactive = 0;
             for (auto const& hit : kseed.hits()){ 
                 if (hit.strawHitState() > mu2e::WireHitState::inactive) {
@@ -1489,7 +1489,7 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
                 }
             }
             
-            // --- Find t0 and Setup Output Container ---
+            // Find t0 and Setup Output Container
             double t0;
             kseed.t0Segment(t0);
 
@@ -1500,7 +1500,7 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
             std::stringstream ksstream;
             std::string tag = particle_name;
 
-            // --- 1. Loop Helix Fit ---
+            // Loop Helix Fit 
             if(kseed.loopHelixFit()) {
                 tag += " Loop Helix";
                 auto trajectory = kseed.loopHelixFitTrajectory();
@@ -1525,7 +1525,7 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
                 }
             }
             
-            // --- 2. Central Helix Fit ---
+            // Central Helix Fit 
             else if(kseed.centralHelixFit()) {
                 tag += " Central Helix";
                 auto trajectory = kseed.centralHelixFitTrajectory();
@@ -1550,7 +1550,7 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
                 }
             }
             
-            // --- 3. Kinematic Line Fit ---
+            // Kinematic Line Fit 
             else if(kseed.kinematicLineFit()) {
                 tag += " Kinematic Line";
                 auto trajectory = kseed.kinematicLineFitTrajectory();
@@ -1574,7 +1574,7 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
                 }
             }
             
-            // --- Final Additions for the Current KalSeed ---
+            // Final Additions for the Current KalSeed 
             if(plotKalIntersection) {
                 AddKalIntersection(kseed, scene, trackproducts, tag);
             }
@@ -1592,7 +1592,7 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
 /*
  * Adds reconstructed CosmicTrackSeed product, visualized as line
 */
-/*------------Function to visualize CosmicTrackSeed fits (straight lines)----------*/
+/*Function to visualize CosmicTrackSeed fits (straight lines)-*/
 void DataInterface::AddCosmicTrackFit(REX::REveManager *&eveMng, bool firstLoop_, 
                                       const mu2e::CosmicTrackSeedCollection *cosmiccol, 
                                       REX::REveElement* &scene)
@@ -1605,7 +1605,7 @@ void DataInterface::AddCosmicTrackFit(REX::REveManager *&eveMng, bool firstLoop_
     // Create a compound to hold all individual cosmic tracks for organization
     auto all_tracks_compound = new REX::REveCompound("Cosmic Tracks", "Cosmic Tracks", true);
     
-    // --- Loop over individual CosmicTrackSeeds ---
+    // Loop over individual CosmicTrackSeeds 
     for(size_t i = 0; i < cosmiccol->size(); i++){
         const mu2e::CosmicTrackSeed& sts = (*cosmiccol)[i];
         const mu2e::CosmicTrack& st = sts._track;
@@ -1613,7 +1613,7 @@ void DataInterface::AddCosmicTrackFit(REX::REveManager *&eveMng, bool firstLoop_
         // Ensure there are enough hits to define a track segment
         if (sts._straw_chits.size() < 2) continue;
 
-        // --- 1. Define Track Segment Endpoints ---
+        // Define Track Segment Endpoints 
         // The track is parameterized as: X(y) = A0 - A1*y, Z(y) = B0 - B1*y.
         // We plot the line segment between the Y-positions of the first and last hits.
         
@@ -1629,8 +1629,7 @@ void DataInterface::AddCosmicTrackFit(REX::REveManager *&eveMng, bool firstLoop_
         double tz1 = st.MinuitParams.B0 - st.MinuitParams.B1 * ty1;
         double tz2 = st.MinuitParams.B0 - st.MinuitParams.B1 * ty2;
         
-        // --- 2. Create and Populate REveLine for the Current Track ---
-        // FIX: Create a new REveLine for each track (size 2: start and end)
+        // Create and Populate REveLine for the Current Track 
         std::string track_title = "Cosmic Track " + std::to_string(i) 
                                 + " N_Hits: " + std::to_string(sts._straw_chits.size());
         auto line = new REX::REveLine(track_title.c_str(), track_title.c_str(), 2);
@@ -1641,7 +1640,7 @@ void DataInterface::AddCosmicTrackFit(REX::REveManager *&eveMng, bool firstLoop_
         // Set Point 2 (End)
         line->SetNextPoint(pointmmTocm(tx2), pointmmTocm(ty2), pointmmTocm(tz2));
 
-        // --- 3. Styling and Addition ---
+        // 3. Styling and Addition 
         line->SetLineColor(drawconfig.getInt("RecoTrackColor"));
         line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
         

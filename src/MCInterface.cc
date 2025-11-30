@@ -1,6 +1,7 @@
 #include "Offline/ConfigTools/inc/SimpleConfig.hh"
 #include "Offline/GeometryService/inc/GeomHandle.hh"
 #include "EventDisplay/inc/MCInterface.hh"
+
 using namespace mu2e;
 namespace REX = ROOT::Experimental;
 
@@ -9,152 +10,194 @@ int MCInterface::Contains(std::vector<int> v, int x)
   return std::count(v.begin(), v.end(), abs(x));
 }
 
-const char* MCInterface::GetParticleName(int PDGCode){
-  const char* pid = "pid";
-  switch(PDGCode) {
-    case PDGCode::e_minus:
-      pid = "electron -";
-      break;
-    case PDGCode::e_plus:
-      pid = "positron +";
-      break;
-    case PDGCode::mu_minus:
-      pid = "muon - ";
-      break;
-    case PDGCode::mu_plus:
-      pid = "muon + ";
-      break;
-    case PDGCode::pi_minus:
-      pid = "pion -";
-      break;
-    case PDGCode::pi_plus:
-      pid = "pion +";
-      break;
-    case PDGCode::pi0:
-      pid = "pion 0";
-      break;
-    case PDGCode::proton:
-      pid = "proton";
-      break;
-    case PDGCode::n0:
-      pid = "neutron";
-      break;
-    case PDGCode::gamma:
-      pid = "gamma";
-      break;
-    default:
-      pid = "other";
-      break;
-  }
-  return pid;
-}
-
-void MCInterface::SetLineColorPID(int PDGCode,REX::REveLine *line){
-  Color_t color;
-  switch(PDGCode) {
-    case PDGCode::e_minus:
-      color = kRed;
-      break;
-    case PDGCode::e_plus:
-      color = kGreen;
-      break;
-    case PDGCode::mu_minus:
-      color = kBlack;
-      break;
-    case PDGCode::mu_plus:
-      color = kViolet;
-      break;
-    case PDGCode::pi_minus:
-      color = kMagenta;
-      break;
-    case PDGCode::pi_plus:
-      color = kRed-7;
-      break;
-    case PDGCode::pi0:
-      color = kGreen-7;
-      break;
-    case PDGCode::proton:
-      color = kBlue;
-      break;
-    case PDGCode::n0:
-      color = kViolet-2;
-      break;
-    case PDGCode::gamma:
-      color = kOrange;
-      break;
-    default:
-      color = kCyan-4;
-      break;
-  }
-  line->SetLineColor(color);
-}
-
-
-void MCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const MCTrajectoryCollection *>> mctrack_tuple, REX::REveElement* &scene, std::vector<int> particleIds, bool extracted){
-  std::cout<<"[MCInterface::AddMCTrajectoryCollection() ]"<<std::endl;
-  std::string drawfilename("EventDisplay/config/drawutils.txt");
-  SimpleConfig drawconfig(drawfilename);
-
-  // eEtract the track and input tag:
-  std::vector<const MCTrajectoryCollection*> track_list = std::get<1>(mctrack_tuple);
-  std::vector<std::string> names = std::get<0>(mctrack_tuple);
-
-  // Loop over tracks:
-  for(unsigned int j=0; j< track_list.size(); j++){
-    // extract trajectory
-    const MCTrajectoryCollection* trajcol = track_list[j];
-
-    if(trajcol!=0){
-      std::map<art::Ptr<mu2e::SimParticle>,mu2e::MCTrajectory>::const_iterator trajectoryIter;
-      bool isSame = false;
-      //create vector of art Ptr to particles:
-      std::vector<art::Ptr<SimParticle> > allParts;
-      for(unsigned int k = 0; k < trajcol->size(); k++){
-        for(trajectoryIter=trajcol->begin(); trajectoryIter!=trajcol->end(); trajectoryIter++)
-        {
-          // Check user defined list of particles to plot
-          int x = Contains(particleIds,trajectoryIter->first->pdgId());
-          // get particle name
-          const char* particlename = GetParticleName(trajectoryIter->first->pdgId());
-          if(x == 1){
-            const std::vector<MCTrajectoryPoint> &points = trajectoryIter->second.points();
-
-            std::string energy = std::to_string(points[0].kineticEnergy());
-            // check for duplicates
-            for(unsigned int ipart = 0; ipart < allParts.size() ; ipart++){
-              MCRelationship checkrel(trajectoryIter->first,allParts.at(ipart));
-              if(checkrel==MCRelationship::same) {
-                  isSame = true;
-                }
-            }
-            if(!isSame) { allParts.push_back(trajectoryIter->first); }
-
-            std::string mctitle = " MCTrajectory tag : particle = " + std::string(particlename)  +  '\n'
-              + " energy = " + energy + "MeV" +  '\n'
-              + " creation code = " + std::to_string(trajectoryIter->first->creationCode()) +  '\n'
-              + " stopping code = " + std::to_string(trajectoryIter->first->stoppingCode())  +  '\n'
-              + " end global time = " + std::to_string(trajectoryIter->first->endGlobalTime())
-              + " ns";
-            // create line with the above label
-            auto line = new REX::REveLine(mctitle,mctitle,1);
-            // add points
-            for(unsigned int i=0; i < points.size();i++){
-              CLHEP::Hep3Vector Pos(points[i].x(), points[i].y(), points[i].z());
-              GeomHandle<DetectorSystem> det;
-              CLHEP::Hep3Vector HitPos = det->toDetector(Pos);
-              if(pointmmTocm(HitPos.y()) < 800){ // a reasonable height above the CRV
-                line->SetNextPoint(pointmmTocm((HitPos.x())),pointmmTocm((HitPos.y())),pointmmTocm(HitPos.z()));
-              }
-            }
-            // set line colour
-            SetLineColorPID(trajectoryIter->first->pdgId(),line);
-            line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
-            if(!isSame) scene->AddElement(line);
-          } else std::cout<<"Warning: No Particles of User-Specified Type In File "<<std::endl;
-        }
-      }
+/*------------Function to look up the particle name from its PDG Code----------*/
+const char* MCInterface::GetParticleName(int PDGCode)
+{
+    // Initialize the pointer to the default (fallback) name.
+    const char* pid = "other";
+    
+    // Check against common PDG codes and update the name.
+    switch(PDGCode) {
+        case PDGCode::e_minus:
+            pid = "electron-";
+            break;
+        case PDGCode::e_plus:
+            pid = "positron+";
+            break;
+        case PDGCode::mu_minus:
+            pid = "muon-";
+            break;
+        case PDGCode::mu_plus:
+            pid = "muon+";
+            break;
+        case PDGCode::pi_minus:
+            pid = "pion-";
+            break;
+        case PDGCode::pi_plus:
+            pid = "pion+";
+            break;
+        case PDGCode::pi0:
+            pid = "pion0";
+            break;
+        case PDGCode::proton:
+            pid = "proton";
+            break;
+        case PDGCode::n0:
+            pid = "neutron";
+            break;
+        case PDGCode::gamma:
+            pid = "gamma";
+            break;
+        // default is handled by the initial 'pid = "other";'
     }
-  }
+    
+    return pid;
+}
+
+/*------------Function to  set line color based on PDG ID ---------*/
+void MCInterface::SetLineColorPID(int PDGCode, REX::REveLine *line)
+{
+    // Initialize color to the default/catch-all case ("other")
+    Color_t color = kCyan - 4;
+
+    // Assign color based on PDG Code
+    switch(PDGCode) {
+        case PDGCode::e_minus:
+            color = kRed;
+            break;
+        case PDGCode::e_plus:
+            color = kGreen;
+            break;
+        case PDGCode::mu_minus:
+            color = kBlack;
+            break;
+        case PDGCode::mu_plus:
+            color = kViolet;
+            break;
+        case PDGCode::pi_minus:
+            color = kMagenta;
+            break;
+        case PDGCode::pi_plus:
+            color = kRed - 7;
+            break;
+        case PDGCode::pi0:
+            color = kGreen - 7;
+            break;
+        case PDGCode::proton:
+            color = kBlue;
+            break;
+        case PDGCode::n0:
+            color = kViolet - 2;
+            break;
+        case PDGCode::gamma:
+            color = kOrange;
+            break;
+        // default case is handled by the initial assignment: color = kCyan - 4;
+    }
+
+    // Apply the determined color to the line
+    line->SetLineColor(color);
+}
+
+
+void MCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, bool firstloop, 
+                                         std::tuple<std::vector<std::string>, 
+                                         std::vector<const MCTrajectoryCollection *>> mctrack_tuple, 
+                                         REX::REveElement* &scene, 
+                                         std::vector<int> particleIds, 
+                                         bool extracted)
+{
+    std::cout << "[MCInterface::AddMCTrajectoryCollection()]" << std::endl;
+
+    std::string drawfilename("EventDisplay/config/drawutils.txt");
+    SimpleConfig drawconfig(drawfilename);
+
+    const auto& track_list = std::get<1>(mctrack_tuple);
+
+    mu2e::GeomHandle<mu2e::DetectorSystem> det;
+    std::set<art::Ptr<mu2e::SimParticle>> drawn_particles;
+    bool particle_type_found = false;
+
+    // Loop over MCTrajectory Collections (J-loop)
+    for(unsigned int j = 0; j < track_list.size(); j++){
+        const mu2e::MCTrajectoryCollection* trajcol = track_list[j];
+
+        if(trajcol == nullptr) continue;
+        
+        // Loop over Trajectories in the Collection (Map Iteration) ---
+        // Iterate directly over the map elements (SimParticle Ptr -> MCTrajectory)
+        for(const auto& pair : *trajcol)
+        {
+            const art::Ptr<mu2e::SimParticle>& sim_particle = pair.first;
+            const mu2e::MCTrajectory& trajectory = pair.second;
+            
+            int pdg_id = sim_particle->pdgId();
+
+            // Check if the SimParticle is in the user-defined list to plot
+            if(Contains(particleIds, pdg_id) == 1){
+                particle_type_found = true;
+                
+                // Duplicate Check
+                if (drawn_particles.count(sim_particle)) {
+                    continue; 
+                }
+                drawn_particles.insert(sim_particle);
+                
+                const std::vector<mu2e::MCTrajectoryPoint>& points = trajectory.points();
+                if (points.empty()) continue;
+
+                // --- 5. Create Title String ---
+                const char* particlename = GetParticleName(pdg_id);
+                std::string energy = std::to_string(points[0].kineticEnergy());
+
+                // Extract and convert Process Codes
+                ProcessCode creationCode = sim_particle->creationCode();
+                ProcessCode stoppingCode = sim_particle->stoppingCode();
+
+                // Get the string names (assuming GetProcessCodeName utility exists)
+                std::string creationName = creationCode.name();
+                std::string stoppingName = stoppingCode.name();
+
+
+                std::string mctitle = "MCTrajectory: " + std::string(particlename) + '\n'
+                    + "Sim ID: " + std::to_string(sim_particle->id().asInt()) + '\n'
+                    + "Parent ID: " + std::to_string(sim_particle->parentId().asInt()) + '\n'
+                    + "Kinetic Energy: " + energy + " MeV" + '\n'
+                    + "Creation Process: " + creationName + " (" + std::to_string(creationCode) + ")" + '\n'
+                    + "Stopping Process: " + stoppingName + " (" + std::to_string(stoppingCode) + ")" + '\n'
+                    + "End Global Time: " + std::to_string(sim_particle->endGlobalTime()) + " ns";
+                // Create and Populate REveLine
+                auto line = new REX::REveLine(mctitle.c_str(), mctitle.c_str(), points.size()); 
+                
+                // Add points to the line
+                for(const auto& point : points){
+                    // Positions are typically in Mu2e coordinates (mm)
+                    CLHEP::Hep3Vector Pos(point.x(), point.y(), point.z());
+                    // Convert to detector coordinates (if needed)
+                    CLHEP::Hep3Vector HitPos = det->toDetector(Pos); 
+                    
+                    // Apply Z-range cut (CRV cut)
+                    if(pointmmTocm(HitPos.y()) < 800.0){ 
+                        line->SetNextPoint(pointmmTocm(HitPos.x()), 
+                                           pointmmTocm(HitPos.y()), 
+                                           pointmmTocm(HitPos.z()));
+                    }
+                }
+                
+                // --- 7. Styling and Scene Addition ---
+                if (line->GetSize() > 0) {
+                    SetLineColorPID(pdg_id, line);
+                    line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
+                    scene->AddElement(line);
+                }
+            } 
+        } // End of map iteration
+    } // End of collection loop
+    
+    // --- 8. Final Warning ---
+    if (!particle_type_found && !particleIds.empty()) {
+        std::cout << "Warning: No Particles of User-Specified Type In File." << std::endl;
+    }
 }
 
 void MCInterface::AddSurfaceStepCollection(REX::REveManager *&eveMng, bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const SurfaceStepCollection *>> surfstep_tuple, REX::REveElement* &scene, std::vector<int> particleIds, bool extracted){
