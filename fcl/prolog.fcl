@@ -35,7 +35,7 @@ Mu2eEventDisplay : {
       SurfaceStepCollection :  []
       SimParticleCollection :  ["compressSTMDet"]
       addHits : false
-      addCrvHits : false
+      addCRVRecoPulse : false
       addCrvClusters : false
       addTimeClusters : false
       addTrkHits : false

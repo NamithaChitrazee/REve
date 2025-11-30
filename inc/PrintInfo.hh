@@ -26,7 +26,7 @@ namespace mu2e {
 class PrintInfo : public ROOT::Experimental::REveElement
 {
   public:
-    PrintInfo() = default; // Required for the ROOT dictionary/serialization.
+    PrintInfo() : REveElement{"PrintInfo"} {} 
 
     // --- Data Storage for CaloClusterCollection ---
     const mu2e::CaloClusterCollection* clustercol = 0; // Single raw pointer (often for legacy use)

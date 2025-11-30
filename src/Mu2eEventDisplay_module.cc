@@ -284,7 +284,7 @@ namespace mu2e
     <<" User Options: "
     <<" addHits : "<< filler_.addHits_
     <<" addTimeClusters : "<<filler_.addTimeClusters_
-    <<" addCrvHits : "<<filler_.addCrvHits_
+    <<" addCRVRecoPulse : "<<filler_.addCRVRecoPulse_
     <<" addCrvClusters : "<<filler_.addCrvClusters_
     <<" addClusters : "<<filler_.addClusters_
     <<" addHelices : "<<filler_.addHelixSeeds_
@@ -452,7 +452,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
               else { FillAnyCollection<TimeClusterCollection, const TimeClusterCollection*>(event, _chits, data.timecluster_tuple );}
           }
 
-          if(filler_.addCrvHits_) {
+          if(filler_.addCRVRecoPulse_) {
               if(specifyTag_) { filler_.FillRecoCollections(event, data, CrvRecoPulses); }
               else { FillAnyCollection<CrvRecoPulseCollection, const CrvRecoPulseCollection*>(event, _chits, data.crvpulse_tuple );}
           }
@@ -672,7 +672,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] -- calls to data interface "<<std::endl;
 
       // Create a structure defining which data products should be drawn (based on module configuration).
-      DrawOptions drawOpts(filler_.addCosmicTrackSeeds_, filler_.addHelixSeeds_, filler_.addKalSeeds_, filler_.addCaloDigis_, filler_.addClusters_, filler_.addHits_, filler_.addCrvHits_, filler_.addCrvClusters_, filler_.addTimeClusters_, filler_.addTrkHits_, filler_.addMCTraj_, filler_.addSurfSteps_, filler_.addSimParts_, addErrBar_, addCrystalHits_, addCRVBars_);
+      DrawOptions drawOpts(filler_.addCosmicTrackSeeds_, filler_.addHelixSeeds_, filler_.addKalSeeds_, filler_.addCaloDigis_, filler_.addClusters_, filler_.addHits_, filler_.addCRVRecoPulse_, filler_.addCrvClusters_, filler_.addTimeClusters_, filler_.addTrkHits_, filler_.addMCTraj_, filler_.addSurfSteps_, filler_.addSimParts_, addErrBar_, addCrystalHits_, addCRVBars_);
 
       // Create a structure defining visualization options specific to Kinematic/Kalman fitting results.
       KinKalOptions KKOpts(addKalInter_, addTrkStrawHits_, addTrkCaloHits_);

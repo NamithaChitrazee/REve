@@ -40,6 +40,7 @@
 #include <vector>
 #include <tuple>
 #include <algorithm>
+#include <stdexcept>
 
 using namespace mu2e;
 namespace REX = ROOT::Experimental;

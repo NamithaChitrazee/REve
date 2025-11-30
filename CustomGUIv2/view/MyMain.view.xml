@@ -63,7 +63,7 @@
             <Input id="dateInput" width="100px" />   
               </OverflowToolbar>
         <OverflowToolbar id="otb3">
-            <Label text="test:">
+            <Label text="AutoPlay (plcaeholder):">
                <layoutData>
                   <OverflowToolbarLayoutData priority="Disappear" shrinkable="true" minWidth="40px" />
                </layoutData>

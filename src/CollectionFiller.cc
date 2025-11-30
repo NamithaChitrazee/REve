@@ -21,7 +21,7 @@ namespace mu2e{
     SurfStepsTag_(conf.SurfStepsTag()),
     SimTag_(conf.SimTag()),
     addHits_(conf.addHits()),
-    addCrvHits_(conf.addCrvHits()),
+    addCRVRecoPulse_(conf.addCRVRecoPulse()),
     addCrvClusters_(conf.addCrvClusters()),
     addTimeClusters_(conf.addTimeClusters()),
     addTrkHits_(conf.addTrkHits()),
@@ -85,7 +85,7 @@ void CollectionFiller::FillRecoCollections(const art::Event& evt, DataCollection
     }
     
     // --- 2. CrvRecoPulses (CRV Raw Reconstructed Hits) ---
-    if(FillAll_ or (addCrvHits_ and CollectionName==CrvRecoPulses)){
+    if(FillAll_ or (addCRVRecoPulse_ and CollectionName==CrvRecoPulses)){
         for(const auto &tag : crvrecoTag_){
             auto chH = evt.getValidHandle<mu2e::CrvRecoPulseCollection>(tag);
             data.crvrecocol = chH.product();

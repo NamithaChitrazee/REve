@@ -32,7 +32,7 @@ physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : true
 physics.analyzers.Mu2eEventDisplay.filler.addClusters : true
 physics.analyzers.Mu2eEventDisplay.filler.addHits : true #  adds ComboHits
 physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : false
-physics.analyzers.Mu2eEventDisplay.filler.addCrvHits : false
+physics.analyzers.Mu2eEventDisplay.filler.addCRVRecoPulse : false
 physics.analyzers.Mu2eEventDisplay.filler.addTimeClusters : false
 physics.analyzers.Mu2eEventDisplay.filler.addSimParts : false
 physics.analyzers.Mu2eEventDisplay.addTrkStrawHits : true

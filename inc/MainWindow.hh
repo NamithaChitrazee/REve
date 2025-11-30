@@ -121,7 +121,7 @@ namespace mu2e {
       bool addCaloDigis = false;
       bool addClusters = false;
       bool addComboHits = false;
-      bool addCRVInfo = false;
+      bool addCRVRecoPulse = false;
       bool addCRVClusters = false;
       bool addTimeClusters = false;
       bool addTrkHits = false; // legacy
@@ -133,7 +133,7 @@ namespace mu2e {
       bool addCRVBars = true;
       DrawOptions(){};
       DrawOptions(bool cosmictracks, bool helices, bool tracks, bool calodigis, bool clusters, bool combohits, bool crv, bool crvclu, bool timeclusters, bool trkhits, bool mctraj, bool surfsteps, bool simparts, bool errbar, bool crys, bool crvbars)
-      : addCosmicTracks(cosmictracks), addHelices(helices), addTracks(tracks), addCaloDigis(calodigis), addClusters(clusters), addComboHits(combohits), addCRVInfo(crv), addCRVClusters(crvclu), addTimeClusters(timeclusters), addTrkHits(trkhits), addMCTrajectories(mctraj), addSurfaceSteps(surfsteps), addSimParts(simparts), addTrkErrBar(errbar), addCrystalDraw(crys), addCRVBars(crvbars) {};
+      : addCosmicTracks(cosmictracks), addHelices(helices), addTracks(tracks), addCaloDigis(calodigis), addClusters(clusters), addComboHits(combohits), addCRVRecoPulse(crv), addCRVClusters(crvclu), addTimeClusters(timeclusters), addTrkHits(trkhits), addMCTrajectories(mctraj), addSurfaceSteps(surfsteps), addSimParts(simparts), addTrkErrBar(errbar), addCrystalDraw(crys), addCRVBars(crvbars) {};
      };
 
     class MainWindow  : public REX::REveElement {
