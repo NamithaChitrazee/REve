@@ -16,10 +16,12 @@ Mu2eEventDisplay : {
     showCaloCrystals : true
     addErrBar : true
     addCrystalHits : false
-    addCrvBars : false
+    addCrvBars : true
     addKalInter : false
     addTrkStrawHits : false //why are these at module level and not "filler" - presumably because the dont need to access any collections from the event
     addTrkCaloHits: false
+    seqMode : true
+    strawdisplay : false
     specifyTag : false // IMPORTANT: override to make the following selections!!!
     filler : {
       diagLevel : 0
@@ -33,21 +35,20 @@ Mu2eEventDisplay : {
       HelixSeedCollection : ["MHFinderDe"]
       CosmicTrackSeedCollection : "CosmicTrackFinderTimeFit"
       MCTrajectoryCollection :  ["compressRecoMCs"]
-#      SurfaceStepCollection :  ["compressRecoMCs"]
-      SurfaceStepCollection :  []
+      SurfaceStepCollection :  ["compressRecoMCs"]
       SimParticleCollection :  ["compressSTMDet"]
       addHits : false //Combo hits
       addCrvRecoPulse : false
-      addCrvClusters : false
+      addCrvClusters : true
       addTimeClusters : false
       addTrkHits : false //Combo hits?
       addCaloDigis : false
-      addClusters : false
-      addKalSeeds : false
+      addClusters : true
+      addKalSeeds : true
       addCosmicTrackSeeds : false
       addMCTraj : true
       addSurfSteps : true
-      addSimParts : true
+      addSimParts : false
       addHelixSeeds : false
       FillAll : false
     }

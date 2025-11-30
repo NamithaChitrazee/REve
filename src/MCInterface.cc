@@ -207,12 +207,6 @@ void MCInterface::AddSurfaceStepCollection(REX::REveManager *&eveMng, bool first
                                          bool extracted)
 {
     std::cout << "[MCInterface::AddSurfaceStepCollection() ]" << std::endl;
-
-    // --- Scene Setup and Cleanup ---
-    // If this is not the first loop (i.e., not the first event being displayed), clear the previous elements.
-    if (!firstloop) {
-        scene->DestroyElements();
-    }
     
     // Extract the list of SurfaceStep collections and their associated names/tags from the tuple.
     const std::vector<const mu2e::SurfaceStepCollection*>& ssteps_list = std::get<1>(surfstep_tuple);
