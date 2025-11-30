@@ -1,6 +1,15 @@
 # Mu2eEventDisplay Configuration Documentation
-NOTE: I did this using AI - I need to refine it
-This document describes the parameters for the `Mu2eEventDisplay` module, which is used for visualizing simulated and reconstructed events within the Mu2e experiment software framework.
+
+There are many parameters defined within the Mu2e/EventDisplay Framework. Here we list and define all of them.
+
+### 💡 Note on Parameter Placement (Module vs. Filler)
+
+ In this type of framework:
+
+1. **`filler` Block:** Is responsible for **data ingestion**. It specifies *which* collections (e.g., `ComboHitCollection`, `KalSeedPtrCollection`) should be read from the event record and *where* to find them (the module tags, like `makeSH` or `MergeKK`).
+
+2. **Module-Level Flags:** Control the **rendering/visualization logic** of the main module. Flags like `addTrkStrawHits` or `addErrBar` tell the `Mu2eEventDisplay` module *how* to draw the data that the `filler` has already prepared. They affect display features (error bars, drawing style, etc.) rather than the data source.
+
 
 ## General Module Parameters
 
@@ -14,6 +23,8 @@ These parameters control the core behavior of the module, including logging, geo
 | `extracted` | Boolean | `false` | Likely a flag to control if the display should use an *extracted* or simplified geometry subset, or the full GDML. | 
 | `particles` | Array (Int) | `[11,13,2212,2112,211,22,212]` | A list of particle IDs (PDG codes) to focus the display on or track. Common IDs include electron (`11`), muon (`13`), proton (`2212`), neutron (`2112`), pion (`211`), photon (`22`), and others. | 
 | `specifyTag` | Boolean | `false` | **IMPORTANT.** When set to `true`, it overrides default behavior and forces the module to use the collection tags specified explicitly within the `filler` block. | 
+| `seqMode` | Boolean | `true` | **IMPORTANT.** This will allow you to navigate from the first to the last using the NextEvent() button | 
+
 
 ## Detector Visibility Flags
 
@@ -47,15 +58,6 @@ These flags modify how data is rendered or what auxiliary information is include
 | `addTrkCaloHits` | Boolean | `false` | Add tracker hits extrapolated to the calorimeter face. | 
 | `strawdisplay` | Boolean | `false` | Specific flag to control the display of individual straw tubes (often only enabled for debug/close-up views). | 
 
-### 💡 Note on Parameter Placement (Module vs. Filler)
-
-The comment mentions: `//why are these at module level and not "filler" - presumably because the dont need to access any collections from the event` (referring to flags like `addTrkStrawHits`).
-
-This is generally correct. In this type of framework:
-
-1. **`filler` Block:** Is responsible for **data ingestion**. It specifies *which* collections (e.g., `ComboHitCollection`, `KalSeedPtrCollection`) should be read from the event record and *where* to find them (the module tags, like `makeSH` or `MergeKK`).
-
-2. **Module-Level Flags:** Control the **rendering/visualization logic** of the main module. Flags like `addTrkStrawHits` or `addErrBar` tell the `Mu2eEventDisplay` module *how* to draw the data that the `filler` has already prepared. They affect display features (error bars, drawing style, etc.) rather than the data source.
 
 ## `filler` Block Parameters
 

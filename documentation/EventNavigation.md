@@ -1,16 +1,29 @@
 # Event Navigation
 
-## Sequential Navigation from First Event
+During an analysis the user will want to navigate to a given event. There are a number of ways to do this.
+
+## Default
+
+The default mode has `seqMode == true` meaning the display starts at the first event and the user can sequentially navigate to the next using the GUI.
 
 ## Autoplay
 
+The "autoplay" checkbox will override the GUI navigation and simple stream all events until the file end.
+
 ## Go to an event: GUI
 
-## Got to an event : FCL
+Text entry boxes allow the user to select to go to any event using just the run and event number. The user must do the following to allow these to function:
+
+* Load in seqMode
+* Go to second event using NextEvent()
+* Enter chosen run/event and select `Go()` followed by `NextEvent()`
+
+This is not the recommended means to navigate and is currently a placeholder.
+
 
 ## Go to an event: Scripts
 
-There are a number of ways to go from your analysis to a visualized event. Utilities are provided in both rooutils [cite] and pyutils [https://github.com/Mu2e/pyutils/blob/main/pyutils/pydisplay.py]. There is also a custom script in this repo ```config/EventDisplay.sh``` the usage is as follows:
+The is a custom script in this repo ```config/EventDisplay.sh``` the usage is as follows:
 
 ```
 ./EventDisplay.sh --run 1201 --subrun 34 --event 15028 --dataset mcs.mu2e.ensembleMDS2cMix1BBTriggered.MDC2020ba_best_v1_3.art
