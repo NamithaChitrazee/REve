@@ -73,7 +73,7 @@ namespace mu2e{
             
             // Boolean flags to enable/disable loading of specific collection types
             fhicl::Atom<bool> addHits{Name("addHits"), Comment("set to add the hits"),false}; // Corresponds to ComboHits
-            fhicl::Atom<bool> addCRVRecoPulse{Name("addCRVRecoPulse"), Comment("set to add crv hits"),false}; // Corresponds to CrvRecoPulses
+            fhicl::Atom<bool> addCrvRecoPulse{Name("addCrvRecoPulse"), Comment("set to add crv hits"),false}; // Corresponds to CrvRecoPulses
             fhicl::Atom<bool> addCrvClusters{Name("addCrvClusters"), Comment("set to add crv clusters"),false}; // Corresponds to CrvCoincidenceCluster
             fhicl::Atom<bool> addTimeClusters{Name("addTimeClusters"), Comment("set to add the Crv hits"),false};
             fhicl::Atom<bool> addTrkHits{Name("addTrkHits"), Comment("set to add the Trk hits"),false}; // Alias for ComboHits/TrkHits
@@ -122,7 +122,7 @@ namespace mu2e{
         art::Run *_run;
         
         // --- Boolean Control Flags (Copied from FHiCL Config) ---
-        bool addHits_, addCRVRecoPulse_, addCrvClusters_, addTimeClusters_, addTrkHits_, addCaloDigis_, 
+        bool addHits_, addCrvRecoPulse_, addCrvClusters_, addTimeClusters_, addTrkHits_, addCaloDigis_, 
              addClusters_, addHelixSeeds_, addKalSeeds_, addCosmicTrackSeeds_, addMCTraj_,
              addSurfSteps_, addSimParts_, FillAll_;
              

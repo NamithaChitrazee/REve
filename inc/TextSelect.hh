@@ -21,11 +21,13 @@ class TextSelect : public ROOT::Experimental::REveElement
     // We now retrieve both run and event in one call for atomic safety
     std::pair<int, int> getRunEvent(); // <<< Modified getter signature
 
-    // setRun and get() from original code are now deprecated by getRunEvent
-     
+    // setAutoplay
+    void setAutoplay(int x);
+    int getAutoplay();
     private:
      int runN = 0;
      int eventN = 0;
+     int autoplay_=0;
      std::mutex _mutex; // <<< The synchronization tool
 };
 }

@@ -3,7 +3,7 @@ BEGIN_PROLOG
 Mu2eEventDisplay : {
     module_type : Mu2eEventDisplay
     diagLevel : 1
-    showCRV : true
+    showCrv : true
     showPS : false
     showTS : false
     showDS : false
@@ -16,8 +16,10 @@ Mu2eEventDisplay : {
     showCaloCrystals : true
     addErrBar : true
     addCrystalHits : false
-    addCRVBars : false
+    addCrvBars : false
     addKalInter : false
+    addTrkStrawHits : false //why are these at module level and not "filler" - presumably because the dont need to access any collections from the event
+    addTrkCaloHits: false
     specifyTag : false // IMPORTANT: override to make the following selections!!!
     filler : {
       diagLevel : 0
@@ -34,11 +36,11 @@ Mu2eEventDisplay : {
 #      SurfaceStepCollection :  ["compressRecoMCs"]
       SurfaceStepCollection :  []
       SimParticleCollection :  ["compressSTMDet"]
-      addHits : false
-      addCRVRecoPulse : false
+      addHits : false //Combo hits
+      addCrvRecoPulse : false
       addCrvClusters : false
       addTimeClusters : false
-      addTrkHits : false
+      addTrkHits : false //Combo hits?
       addCaloDigis : false
       addClusters : false
       addKalSeeds : false
@@ -46,6 +48,7 @@ Mu2eEventDisplay : {
       addMCTraj : true
       addSurfSteps : true
       addSimParts : true
+      addHelixSeeds : false
       FillAll : false
     }
     particles :   [11,13,2212,2112,211,22,212]

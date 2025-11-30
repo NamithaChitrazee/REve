@@ -107,7 +107,7 @@ namespace mu2e
           using Name=fhicl::Name;
           using Comment=fhicl::Comment;
           fhicl::Atom<int> diagLevel{Name("diagLevel"), Comment("for info"),0};
-          fhicl::Atom<bool> showCRV{Name("showCRV"), Comment("set false if you just want to see DS"),false};
+          fhicl::Atom<bool> showCrv{Name("showCrv"), Comment("set false if you just want to see DS"),false};
           fhicl::Atom<bool> showPS{Name("showPS"), Comment("set false if you just want to see inside DS"),false};
           fhicl::Atom<bool> showTS{Name("showTS"), Comment("set false if you just want to see inside DS"),false};
           fhicl::Atom<bool> showDS{Name("showDS"), Comment("set false if you just want to see inside DS"),false};
@@ -120,7 +120,7 @@ namespace mu2e
           fhicl::Atom<bool> showCaloCrystals{Name("showCaloCrystals"), Comment(""),true};
           fhicl::Atom<bool> addErrBar{Name("addErrBar"), Comment("show combo hit err bar"),true};
           fhicl::Atom<bool> addCrystalHits{Name("addCrystalHits"), Comment("show crystal hits if presrnt"),true};
-          fhicl::Atom<bool> addCRVBars{Name("addCRVBars"), Comment("show crv bars hit if presrnt"),true};
+          fhicl::Atom<bool> addCrvBars{Name("addCrvBars"), Comment("show crv bars hit if presrnt"),true};
           fhicl::Atom<bool> addKalInter{Name("addKalInter"), Comment("show Kal intersections"),true};
           fhicl::Atom<bool> addTrkStrawHits{Name("addTrkStrawHits"), Comment("show Kal trk straw hits"),true};
           fhicl::Atom<bool> addTrkCaloHits{Name("addTrkCaloHits"), Comment("show Kal trk cal ohits"),true};
@@ -166,7 +166,7 @@ namespace mu2e
         std::mutex m_{};
 
         int  diagLevel_;
-        bool showCRV_;
+        bool showCrv_;
         bool showPS_;
         bool showTS_;
         bool showDS_;
@@ -179,7 +179,7 @@ namespace mu2e
         bool showCaloCrystals_;
         bool addErrBar_;
         bool addCrystalHits_;
-        bool addCRVBars_;
+        bool addCrvBars_;
         bool addKalInter_;
         bool addTrkStrawHits_;
         bool addTrkCaloHits_;
@@ -211,7 +211,7 @@ namespace mu2e
         int eventn;
         int runn;
         int subrunn;
-
+        int autoplay = 0;
         std::vector<std::shared_ptr<DataProduct>> listoflists;
         GeomOptions geomOpts;
         ConfigFileLookupPolicy configFile;
@@ -221,7 +221,7 @@ namespace mu2e
   Mu2eEventDisplay::Mu2eEventDisplay(const Parameters& conf)  :
     art::EDAnalyzer(conf),
     diagLevel_(conf().diagLevel()),
-    showCRV_(conf().showCRV()),
+    showCrv_(conf().showCrv()),
     showPS_(conf().showPS()),
     showTS_(conf().showTS()),
     showDS_(conf().showDS()),
@@ -234,7 +234,7 @@ namespace mu2e
     showCaloCrystals_(conf().showCaloCrystals()),
     addErrBar_(conf().addErrBar()),
     addCrystalHits_(conf().addCrystalHits()),
-    addCRVBars_(conf().addCRVBars()),
+    addCrvBars_(conf().addCrvBars()),
     addKalInter_(conf().addKalInter()),
     addTrkStrawHits_(conf().addTrkStrawHits()),
     addTrkCaloHits_(conf().addTrkCaloHits()),
@@ -247,7 +247,7 @@ namespace mu2e
     showEM_(conf().showEM()),
     seqMode_(conf().seqMode())
     {
-      geomOpts.fill(showCRV_,showPS_, showTS_, showDS_, show2D_, caloVST_, showST_, extracted_, showSTM_, showCalo_, showTracker_, showCaloCrystals_, showEM_ );
+      geomOpts.fill(showCrv_,showPS_, showTS_, showDS_, show2D_, caloVST_, showST_, extracted_, showSTM_, showCalo_, showTracker_, showCaloCrystals_, showEM_ );
     }
 
   Mu2eEventDisplay::~Mu2eEventDisplay() {}
@@ -284,7 +284,7 @@ namespace mu2e
     <<" User Options: "
     <<" addHits : "<< filler_.addHits_
     <<" addTimeClusters : "<<filler_.addTimeClusters_
-    <<" addCRVRecoPulse : "<<filler_.addCRVRecoPulse_
+    <<" addCrvRecoPulse : "<<filler_.addCrvRecoPulse_
     <<" addCrvClusters : "<<filler_.addCrvClusters_
     <<" addClusters : "<<filler_.addClusters_
     <<" addHelices : "<<filler_.addHelixSeeds_
@@ -362,16 +362,18 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       // --- 1. User Input Handling (REve Command Interface) ---
       // The fText pointer (TextSelect object) holds the Run/Event numbers entered by the user
       // via the REve GUI command box.
+      
       if (fText) {
           // Retrieve the user-specified Run/Event numbers from the TextSelect object.
           std::pair<int, int> user_input = fText->getRunEvent();
           int user_run = user_input.first;
           int user_event = user_input.second;
-
+          autoplay = fText->getAutoplay();
           std::cout << "\n[Mu2eEventDisplay::analyze] -------------------------" << std::endl;
           std::cout << "[Mu2eEventDisplay::analyze] User Input Detected:" << std::endl;
           std::cout << "[Mu2eEventDisplay::analyze] Run Number:  " << user_run << std::endl;
           std::cout << "[Mu2eEventDisplay::analyze] Event Number: " << user_event << std::endl;
+          std::cout << "[Mu2eEventDisplay::analyze] Autoplay set " << autoplay << std::endl;
           std::cout << "[Mu2eEventDisplay::analyze] -------------------------\n" << std::endl;
           
           // Check if valid input was provided (Run and Event are non-zero).
@@ -452,7 +454,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
               else { FillAnyCollection<TimeClusterCollection, const TimeClusterCollection*>(event, _chits, data.timecluster_tuple );}
           }
 
-          if(filler_.addCRVRecoPulse_) {
+          if(filler_.addCrvRecoPulse_) {
               if(specifyTag_) { filler_.FillRecoCollections(event, data, CrvRecoPulses); }
               else { FillAnyCollection<CrvRecoPulseCollection, const CrvRecoPulseCollection*>(event, _chits, data.crvpulse_tuple );}
           }
@@ -474,19 +476,39 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
 
           if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] -- transferring to TApplication thread "<<std::endl;
           
-          // Block the current thread (Art analysis thread) and wait for the signal 
-          // from the REve thread (EventDisplayManager::NextEvent or user interaction) 
-          // to release the lock and continue.
-          // 
-          cv_.wait(lock); 
-
-          if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] -- TApplication thread returning control "<<std::endl;
-          if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] Ended Event "<<std::endl;
+          cv_.wait(lock);
+          // --- AUTOPLAY AND WAIT LOGIC ---
+          /*if (autoplay > 0) {
+              // Autoplay is ON (Autoplay value is the delay in seconds)
+              std::cout << "Auto play switched on.... waiting " << autoplay << " s for REve display." << std::endl;
+              
+              // Wait for the display signal OR the timeout (autoplay delay)
+              auto timeout = std::chrono::seconds(autoplay);
+              cv_.wait_for(lock, timeout); 
+              
+              // After the wait, *release the lock* and immediately trigger the next event command.
+              // This is the cleanest way to avoid explicit REve refresh calls.
+              lock.unlock(); // Release the lock before calling the advance command
+              eventMgr_.get()->NextEvent();
+              
+          } else {
+              // Autoplay is OFF (Normal interactive mode)
+              // Block the current thread and wait indefinitely for a signal (e.g., user clicks Next Event).
+              cv_.wait(lock);
+          }*/
+          
           
           // After the event is displayed and the user signals NextEvent, re-enable 
           // sequential mode for the next event loop iteration.
           seqMode_ = true;
+          
+          
+
+          if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] -- TApplication thread returning control "<<std::endl;
+          if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] Ended Event "<<std::endl;
+          
       }
+      
   }
 
     void Mu2eEventDisplay::endJob()
@@ -612,7 +634,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
     world->AddCommand("NextEvent", "sap-icon://step", eventMgr_.get(), "NextEvent()");
     world->AddCommand("PrintMCInfo", "sap-icon://step", fPrint.get(), "PrintMCInfo()");
     world->AddCommand("PrintRecoInfo", "sap-icon://step", fPrint.get(), "PrintRecoInfo()");
-
+    eventMgr_->setid(fText->GetElementId() );
     // --- Signal Art Thread to Proceed ---
 
     // Acquire a lock on the mutex.
@@ -657,9 +679,6 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       fPrint->fmctrack_tuple = data.mctrack_tuple;
       fPrint->ftrack_tuple = data.track_tuple;
 
-      // Display the run number currently held by the Event Manager (for debugging).
-      std::cout<<"[Mu2eEventDisplay::process_single_event] display has run number set to "<<eventMgr_->run<<std::endl;
-      
       // Update the custom properties displayed in the REve GUI (e.g., in a sidebar table).
       fGui->StampObjProps(); 
 
@@ -672,7 +691,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] -- calls to data interface "<<std::endl;
 
       // Create a structure defining which data products should be drawn (based on module configuration).
-      DrawOptions drawOpts(filler_.addCosmicTrackSeeds_, filler_.addHelixSeeds_, filler_.addKalSeeds_, filler_.addCaloDigis_, filler_.addClusters_, filler_.addHits_, filler_.addCRVRecoPulse_, filler_.addCrvClusters_, filler_.addTimeClusters_, filler_.addTrkHits_, filler_.addMCTraj_, filler_.addSurfSteps_, filler_.addSimParts_, addErrBar_, addCrystalHits_, addCRVBars_);
+      DrawOptions drawOpts(filler_.addCosmicTrackSeeds_, filler_.addHelixSeeds_, filler_.addKalSeeds_, filler_.addCaloDigis_, filler_.addClusters_, filler_.addHits_, filler_.addCrvRecoPulse_, filler_.addCrvClusters_, filler_.addTimeClusters_, filler_.addTrkHits_, filler_.addMCTraj_, filler_.addSurfSteps_, filler_.addSimParts_, addErrBar_, addCrystalHits_, addCrvBars_);
 
       // Create a structure defining visualization options specific to Kinematic/Kalman fitting results.
       KinKalOptions KKOpts(addKalInter_, addTrkStrawHits_, addTrkCaloHits_);

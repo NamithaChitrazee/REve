@@ -29,7 +29,7 @@ void MainWindow::makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX::REveEl
   b1s->SetShape(gss);
 
   int transpar = drawconfigf.getInt("BLtrans");
-  if(name.find("CRS") != string::npos) transpar = drawconfigf.getInt("CRVtrans");
+  if(name.find("CRS") != string::npos) transpar = drawconfigf.getInt("Crvtrans");
   if(name.find("Tracker") != string::npos) transpar = drawconfigf.getInt("TRKtrans") ;
   if(name.find("CaloDisk") != string::npos) transpar = drawconfigf.getInt("CALtrans") ;
   if(name.find("CaloWrapper") != string::npos ) transpar = drawconfigf.getInt("CRYtrans") ;
@@ -52,9 +52,9 @@ void MainWindow::makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX::REveEl
     mngTrackerXY->ImportElements(b1s, TrackerXYGeomScene); //shows only one plane for 2D view for simplicity
   }
 
-  bool isCRV = name.find("CRS") != string::npos;
-  // remove CRV from the YZ view as it blocks tracker/calo view (will have its own view)
-  if(!isCRV) { mngRhoZ->ImportElements(b1s, rhoZGeomScene); }
+  bool isCrv = name.find("CRS") != string::npos;
+  // remove Crv from the YZ view as it blocks tracker/calo view (will have its own view)
+  if(!isCrv) { mngRhoZ->ImportElements(b1s, rhoZGeomScene); }
 }
 
 int j = 0;
@@ -539,13 +539,13 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
         showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shift, false, true, drawconfigf.getInt("BLColor"));
       }
   }
-  if(geomOpt.showCRV and !geomOpt.extracted){
+  if(geomOpt.showCrv and !geomOpt.extracted){
     static std::vector <std::string> substrings_crv {"CRSmother_CRV"};
     shift.at(0) = x_crv;
     shift.at(1) = y_crv;
     shift.at(2) = z_crv - z_trk;
     for(auto& i: substrings_crv){
-      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, false, drawconfigf.getInt("CRVColor"));
+      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, false, drawconfigf.getInt("CrvColor"));
     }
   }
 }
@@ -646,7 +646,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
         }
       }
     }
-  if(geomOpt.showCRV and geomOpt.extracted){
+  if(geomOpt.showCrv and geomOpt.extracted){
 
     static std::vector <std::string> substrings_ex {"CRSmotherLayer_CRV_EX"};
     shift.at(0) = x_crvex - x_trk;
@@ -654,7 +654,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     shift.at(2) = z_crvex - z_trk;
 
     for(auto& i: substrings_ex){
-      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CRVColor"));
+      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));
     }
 
     static std::vector <std::string> substrings_t1  {"CRSmotherLayer_CRV_T1"};
@@ -663,7 +663,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     shift.at(2) = z_crvt1 - z_trk;
 
     for(auto& i: substrings_t1){
-      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CRVColor"));
+      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));
     }
 
     static std::vector <std::string> substrings_t2  {"CRSmotherLayer_CRV_T2"};
@@ -672,7 +672,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     shift.at(2) = z_crvt2 - z_trk;
 
     for(auto& i: substrings_t2){
-      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CRVColor"));
+      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));
     }
   }
 }
@@ -753,21 +753,21 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
   double t2 = 1696.;
   std::vector<const KalSeedPtrCollection*> track_list = std::get<1>(data.track_tuple);
   if(drawOpts.addTracks and track_list.size() !=0) {
-    pass_data->FillKinKalTrajectory(eveMng, firstLoop, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, t1, t2); 
+    pass_data->FillKinKalTrajectory(eveMng, firstLoop, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, KKOpts.addTrkCaloHits, t1, t2); 
   }
   if(drawOpts.addComboHits) {
     std::vector<const ComboHitCollection*> combohit_list = std::get<1>(data.combohit_tuple);
     if(combohit_list.size() !=0 ) pass_data->AddComboHits(eveMng, firstLoop, data.combohit_tuple, eventScene, strawdisplay, drawOpts.addTrkErrBar);
   }
 
-  if(drawOpts.addCRVRecoPulse){
+  if(drawOpts.addCrvRecoPulse){
     std::vector<const CrvRecoPulseCollection*> crvpulse_list = std::get<1>(data.crvpulse_tuple);
-    if(crvpulse_list.size() !=0) pass_data->AddCRVInfo(eveMng, firstLoop, data.crvpulse_tuple, eventScene, geomOpts.extracted, drawOpts.addCRVBars);
+    if(crvpulse_list.size() !=0) pass_data->AddCrvInfo(eveMng, firstLoop, data.crvpulse_tuple, eventScene, geomOpts.extracted, drawOpts.addCrvBars);
   }
 
-  if(drawOpts.addCRVClusters){
+  if(drawOpts.addCrvClusters){
     std::vector<const CrvCoincidenceClusterCollection*> crvcoin_list = std::get<1>(data.crvcoin_tuple);
-    if(crvcoin_list.size() !=0) pass_data->AddCRVClusters(eveMng, firstLoop, data.crvcoin_tuple, eventScene, geomOpts.extracted, drawOpts.addCRVBars);
+    if(crvcoin_list.size() !=0) pass_data->AddCrvClusters(eveMng, firstLoop, data.crvcoin_tuple, eventScene, geomOpts.extracted, drawOpts.addCrvBars);
   }
 
   if(drawOpts.addCaloDigis){
@@ -829,7 +829,7 @@ void MainWindow::makeGeometryScene(REX::REveManager *eveMng, GeomOptions geomOpt
     auto trackerholder = new REX::REveElement("Tracker");
     auto caloholder = new REX::REveElement("Calorimeter");
     auto crystalsholder = new REX::REveElement("CalorimeterCrystals");
-    auto crvholder = new REX::REveElement("CRV");
+    auto crvholder = new REX::REveElement("Crv");
     auto targetholder = new REX::REveElement("TargetElements");
     auto beamlineholder = new REX::REveElement("DSBeamlineElements");
     auto solenoidholder = new REX::REveElement("SolenoidElements");

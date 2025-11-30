@@ -21,7 +21,7 @@ namespace mu2e{
     SurfStepsTag_(conf.SurfStepsTag()),
     SimTag_(conf.SimTag()),
     addHits_(conf.addHits()),
-    addCRVRecoPulse_(conf.addCRVRecoPulse()),
+    addCrvRecoPulse_(conf.addCrvRecoPulse()),
     addCrvClusters_(conf.addCrvClusters()),
     addTimeClusters_(conf.addTimeClusters()),
     addTrkHits_(conf.addTrkHits()),
@@ -84,8 +84,8 @@ void CollectionFiller::FillRecoCollections(const art::Event& evt, DataCollection
         data.combohit_tuple = std::make_tuple(data.combohit_labels,data.combohit_list);
     }
     
-    // --- 2. CrvRecoPulses (CRV Raw Reconstructed Hits) ---
-    if(FillAll_ or (addCRVRecoPulse_ and CollectionName==CrvRecoPulses)){
+    // --- 2. CrvRecoPulses (Crv Raw Reconstructed Hits) ---
+    if(FillAll_ or (addCrvRecoPulse_ and CollectionName==CrvRecoPulses)){
         for(const auto &tag : crvrecoTag_){
             auto chH = evt.getValidHandle<mu2e::CrvRecoPulseCollection>(tag);
             data.crvrecocol = chH.product();
@@ -97,7 +97,7 @@ void CollectionFiller::FillRecoCollections(const art::Event& evt, DataCollection
         data.crvpulse_tuple = std::make_tuple(data.crvpulse_labels,data.crvpulse_list);
     }
     
-    // --- 3. CrvCoincidenceClusters (CRV Coincidence Clusters) ---
+    // --- 3. CrvCoincidenceClusters (Crv Coincidence Clusters) ---
     if(FillAll_ or (addCrvClusters_ and CollectionName==CrvCoincidenceCluster)){
         std::cout << "Fill CrvClusters " << std::endl;
         for(const auto &tag : crvcoinTag_){
@@ -149,7 +149,6 @@ void CollectionFiller::FillRecoCollections(const art::Event& evt, DataCollection
             std::cout<<"Plotting CaloDigi Instance: "<<name<<std::endl;
             data.calodigi_labels.push_back(name);
         }
-        // FIXME
         data.calocluster_tuple = std::make_tuple(data.calocluster_labels,data.calocluster_list);
     }
     

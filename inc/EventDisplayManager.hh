@@ -75,7 +75,8 @@ namespace mu2e {
          * @param textId The assigned REve Element ID.
          */
         void setTextSelectId(std::uint32_t textId);
-        
+        int id_;
+        void setid(int id){ id_ = id;}
     private:
 
         // Pointer to the global REve manager, controlling all visualization.
@@ -92,7 +93,8 @@ namespace mu2e {
         
         // Raw pointer to the TextSelect element. While fTextId_ is preferred for lookup, 
         // this is kept for direct access if necessary (but is less robust).
-        TextSelect *fText_{nullptr};                       
+        TextSelect *fText_{nullptr};
+        
     };
 }
 

@@ -53,7 +53,7 @@ namespace mu2e {
 
   struct GeomOptions{
       // geom options
-      bool showCRV = false;
+      bool showCrv = false;
       bool showPS = false;
       bool showTS = false;
       bool showDS = false;
@@ -68,9 +68,9 @@ namespace mu2e {
       bool showEM = false;
       GeomOptions(){};
       GeomOptions(bool crv, bool ps, bool ts, bool ds, bool twodim, bool cVST, bool st, bool ext, bool stm, bool calo, bool trk, bool crys, bool em)
-      : showCRV(crv), showPS(ps), showTS(ts), showDS(ds), show2D(twodim), caloVST(cVST), showST(st), extracted(ext), showSTM(stm), showCalo(calo), showTracker(trk), showCaloCrystals(crys), showEM(em) {};
+      : showCrv(crv), showPS(ps), showTS(ts), showDS(ds), show2D(twodim), caloVST(cVST), showST(st), extracted(ext), showSTM(stm), showCalo(calo), showTracker(trk), showCaloCrystals(crys), showEM(em) {};
       void fill(bool crv, bool ps, bool ts, bool ds, bool twodim, bool cVST, bool st, bool ext, bool stm, bool cal, bool trk, bool crys, bool em) {
-        showCRV = (crv);
+        showCrv = (crv);
         showPS = (ps);
         showTS = (ts);
         showDS = (ds);
@@ -86,7 +86,7 @@ namespace mu2e {
       }
       void print(){
         std::cout<<"***** Geom Options ****** "<<'\n'
-        <<" show CRV : "<<showCRV <<'\n'
+        <<" show Crv : "<<showCrv <<'\n'
         <<" show PS : "<<showPS <<'\n'
         <<" show TS : "<<showTS <<'\n'
         <<" show DS : "<<showDS <<'\n'
@@ -121,8 +121,8 @@ namespace mu2e {
       bool addCaloDigis = false;
       bool addClusters = false;
       bool addComboHits = false;
-      bool addCRVRecoPulse = false;
-      bool addCRVClusters = false;
+      bool addCrvRecoPulse = false;
+      bool addCrvClusters = false;
       bool addTimeClusters = false;
       bool addTrkHits = false; // legacy
       bool addMCTrajectories = false;
@@ -130,10 +130,10 @@ namespace mu2e {
       bool addSimParts = false;
       bool addTrkErrBar = true;
       bool addCrystalDraw = false;
-      bool addCRVBars = true;
+      bool addCrvBars = true;
       DrawOptions(){};
       DrawOptions(bool cosmictracks, bool helices, bool tracks, bool calodigis, bool clusters, bool combohits, bool crv, bool crvclu, bool timeclusters, bool trkhits, bool mctraj, bool surfsteps, bool simparts, bool errbar, bool crys, bool crvbars)
-      : addCosmicTracks(cosmictracks), addHelices(helices), addTracks(tracks), addCaloDigis(calodigis), addClusters(clusters), addComboHits(combohits), addCRVRecoPulse(crv), addCRVClusters(crvclu), addTimeClusters(timeclusters), addTrkHits(trkhits), addMCTrajectories(mctraj), addSurfaceSteps(surfsteps), addSimParts(simparts), addTrkErrBar(errbar), addCrystalDraw(crys), addCRVBars(crvbars) {};
+      : addCosmicTracks(cosmictracks), addHelices(helices), addTracks(tracks), addCaloDigis(calodigis), addClusters(clusters), addComboHits(combohits), addCrvRecoPulse(crv), addCrvClusters(crvclu), addTimeClusters(timeclusters), addTrkHits(trkhits), addMCTrajectories(mctraj), addSurfaceSteps(surfsteps), addSimParts(simparts), addTrkErrBar(errbar), addCrystalDraw(crys), addCrvBars(crvbars) {};
      };
 
     class MainWindow  : public REX::REveElement {

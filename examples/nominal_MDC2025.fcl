@@ -18,12 +18,12 @@ physics :
   filters : { @table::REveDis.filters }
 }
 # geometry options
-physics.analyzers.Mu2eEventDisplay.showCRV : true
+physics.analyzers.Mu2eEventDisplay.showCrv : true
 
 physics.analyzers.Mu2eEventDisplay.showPS : false
 physics.analyzers.Mu2eEventDisplay.showTS : false
 physics.analyzers.Mu2eEventDisplay.showDS : false
-physics.analyzers.Mu2eEventDisplay.addCRVBars : false
+physics.analyzers.Mu2eEventDisplay.addCrvBars : false
 
 physics.analyzers.Mu2eEventDisplay.addKalInter : true
 physics.analyzers.Mu2eEventDisplay.addCrystalHits : true
@@ -32,7 +32,7 @@ physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : true
 physics.analyzers.Mu2eEventDisplay.filler.addClusters : true
 physics.analyzers.Mu2eEventDisplay.filler.addHits : true #  adds ComboHits
 physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : false
-physics.analyzers.Mu2eEventDisplay.filler.addCRVRecoPulse : false
+physics.analyzers.Mu2eEventDisplay.filler.addCrvRecoPulse : false
 physics.analyzers.Mu2eEventDisplay.filler.addTimeClusters : false
 physics.analyzers.Mu2eEventDisplay.filler.addSimParts : false
 physics.analyzers.Mu2eEventDisplay.addTrkStrawHits : true
