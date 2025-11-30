@@ -58,7 +58,6 @@ namespace mu2e{
           inline constexpr double pointmmTocm(double mm){ return mm/10; };
           void AddComboHits(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple, REX::REveElement* &scene, bool strawdisplay, bool AddErrBar);
           void AddTimeClusters(REX::REveManager *&eveMng, bool firstloop, std::tuple<std::vector<std::string>, std::vector<const TimeClusterCollection*>> timecluster_tuple, REX::REveElement* &scene);
-          void AddTrkHits(REX::REveManager *&eveMng, bool firstLoop_,  std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple, std::tuple<std::vector<std::string>, std::vector<const KalSeedPtrCollection*>> track_tuple, REX::REveElement* &scene);
           void AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CaloDigiCollection*>> calodigi_tuple, REX::REveElement* &scene);
           void AddCaloClusterLegend(REX::REveElement* scene, double t_ref);
           void AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const CaloClusterCollection*>> calocluster_tuple, REX::REveElement* &scene, bool addCrystalDraw);
