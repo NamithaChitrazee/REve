@@ -1,40 +1,48 @@
-# Event Navigation
+## 🗺️ Event Navigation
 
-During an analysis the user will want to navigate to a given event. There are a number of ways to do this.
+During analysis, there are several methods available to navigate to a specific event within the Event Display.
 
-## Default
+---
 
-The default mode has `seqMode == true` meaning the display starts at the first event and the user can sequentially navigate to the next using the GUI.
+### 1. Default Sequential Mode
 
-## Autoplay
+The **default navigation mode** is sequential.
 
-The "autoplay" checkbox will override the GUI navigation and simple stream all events until the file end.
+* By default, the setting `seqMode` is set to `true`.
+* The display begins at the **first event**.
+* Users can navigate to the next event in the sequence using the **GUI's navigation controls**. 
 
-## Go to an event: GUI
+---
 
-Text entry boxes allow the user to select to go to any event using just the run and event number. The user must do the following to allow these to function:
+### 2. Autoplay
 
-* Load in seqMode
-* Go to second event using NextEvent()
-* Enter chosen run/event and select `Go()` followed by `NextEvent()`
+The **Autoplay** option overrides the standard GUI navigation.
 
-This is not the recommended means to navigate and is currently a placeholder.
+* When the "**autoplay**" checkbox is selected, the display will **stream all events sequentially** until it reaches the end of the file.
 
+---
 
-## Go to an event: Scripts
+### 3. Go to an Event: GUI
 
-The is a custom script in this repo ```config/EventDisplay.sh``` the usage is as follows:
+The Event Display GUI includes **text entry boxes** that allow a user to jump directly to an event by specifying its **run** and **event number**.
 
-```
+* **Steps to Use (Currently a Placeholder):**
+    1.  Ensure the display is loaded in `seqMode`.
+    2.  Navigate to the **second event** using the `NextEvent()` function.
+    3.  Enter the desired run and event number into the text boxes.
+    4.  Select the **`Go()`** button, followed immediately by **`NextEvent()`**.
+
+> **Note:** This is **not the recommended method** for navigation and is considered a placeholder feature.
+
+---
+
+### 4. Go to an Event: Scripts (Recommended Method)
+
+The most robust way to navigate to a specific event is by using the custom script located in this repository: `config/EventDisplay.sh`.
+
+#### A. Navigating with the Dataset Name
+
+If you know the name of the **dataset** containing the event, use the following syntax:
+
+```bash
 ./EventDisplay.sh --run 1201 --subrun 34 --event 15028 --dataset mcs.mu2e.ensembleMDS2cMix1BBTriggered.MDC2020ba_best_v1_3.art
-```
-
-if you know the name of the dataset.
-
-If you are working with an ntuple, you may not know all the commands to figure out its parent mcs. In this case run:
-
-```
-./EventDisplay.sh  --run 1201 --subrun 476 --event 1  --dataset nts.mu2e.ensembleMDS2cMix1BBTriggered.MDC2020ba_best_v1_3_v06_06_00.001201_00000476.root
-```
-
-where the run, subrun and event numbers are identified from your analysis to be an event of interest in that root file.

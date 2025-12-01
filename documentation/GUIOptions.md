@@ -1,4 +1,4 @@
-# Mu2e Event Display GUI
+# 💡 Mu2e Event Display GUI
 
 The Mu2e Event Display provides an interactive visualization environment based on the ROOT REve framework. The GUI allows users to control what data is displayed, how it is viewed, and how detailed information is retrieved.
 
