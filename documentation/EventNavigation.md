@@ -44,5 +44,14 @@ The most robust way to navigate to a specific event is by using the custom scrip
 
 If you know the name of the **dataset** containing the event, use the following syntax:
 
-```bash
-./EventDisplay.sh --run 1201 --subrun 34 --event 15028 --dataset mcs.mu2e.ensembleMDS2cMix1BBTriggered.MDC2020ba_best_v1_3.art
+```
+./EventDisplay.sh --run 1201 --subrun 34 --event 15028 --dataset mcs.mu2e.ensembleMDS2cMix1BBTriggered.MDC2020ba_best_v1_3.art```
+```
+
+If you are working with an ntuple, you may not know all the commands to figure out its parent mcs. In this case run:
+
+```
+./EventDisplay.sh  --run 1201 --subrun 476 --event 1  --dataset nts.mu2e.ensembleMDS2cMix1BBTriggered.MDC2020ba_best_v1_3_v06_06_00.001201_00000476.root
+```
+
+where the run, subrun and event numbers are identified from your analysis to be an event of interest in that root file.
