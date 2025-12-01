@@ -347,7 +347,6 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
 
       // Clear all previously stored event objects in the display data structure. 
       // This prepares the structure for the new event's data.
-      // 
       data.Reset();
 
       // Update the internal state variables based on the current event object ('event').
@@ -359,7 +358,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       // Temporary vector used during the collection filling process (often required by FillAnyCollection).
       std::vector<std::shared_ptr<DataProduct>> _chits;
 
-      // --- 1. User Input Handling (REve Command Interface) ---
+      // User Input Handling (REve Command Interface) ---
       // The fText pointer (TextSelect object) holds the Run/Event numbers entered by the user
       // via the REve GUI command box.
       
@@ -386,7 +385,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
           }
       }
 
-      // --- 2. Event Filtering Logic ---
+      // Event Filtering Logic ---
       // Process the event ONLY IF:
       // 1. We are in sequential mode (seqMode_ is true, meaning iterate through all events), OR
       // 2. The current event matches the user-requested event (runn, eventn).
@@ -399,10 +398,9 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
           
           if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] -- Fill collections "<<std::endl;
           
-          // --- 3. Filling Data Collections ---
+          // Filling Data Collections ---
           // The following blocks conditionally load various data collections (CaloClusters, ComboHits, MCTrajectories, etc.)
           // based on user configuration flags (filler_.add...).
-          
           // FillRecoCollections and FillAnyCollection are helper methods that retrieve data products
           // from the event record and store them in the internal data structure for display.
           
@@ -469,37 +467,30 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
 
           if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] -- Event processing started "<<std::endl;
 
-          // --- 4. Thread Synchronization ---
+          // Thread Synchronization
           // Start the single-event processing job (updating the REve display) in the REve/ROOT thread.
           // The XThreadTimer ensures the display update happens outside the current Art/analysis thread.
           XThreadTimer proc_timer([this]{ process_single_event(); }); 
 
           if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] -- transferring to TApplication thread "<<std::endl;
           
-          //cv_.wait(lock);
-          // --- AUTOPLAY AND WAIT LOGIC ---
           if (autoplay > 0) {
               // Autoplay is ON (Autoplay value is the delay in seconds)
-              std::cout << "Auto play switched on.... waiting " << autoplay << " s for REve display." << std::endl;
+              std::cout << "Auto play switched on.... waiting 10 s for REve display." << std::endl;
               
-              // Wait for the display signal OR the timeout (autoplay delay)
               auto timeout = std::chrono::seconds(10);
               cv_.wait_for(lock, timeout); 
 
               lock.unlock();
-              //eventMgr_.get()->NextEvent();
               
           } else {
-              // Autoplay is OFF (Normal interactive mode)
-              // Block the current thread and wait indefinitely for a signal (e.g., user clicks Next Event).
               cv_.wait(lock);
           }
           
-          
-          // After the event is displayed and the user signals NextEvent, re-enable 
-          // sequential mode for the next event loop iteration.
+          // Reset these to return to sequential navigation
           seqMode_ = true;
-          
+          runn = 0;
+          eventn = 0;
           
 
           if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] -- TApplication thread returning control "<<std::endl;
