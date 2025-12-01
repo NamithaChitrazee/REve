@@ -15,11 +15,11 @@ Mu2eEventDisplay : {
     showTracker : true
     showCaloCrystals : true
     addErrBar : true
-    addCrystalHits : false
+    addCrystalHits : true
     addCrvBars : true
-    addKalInter : false
-    addTrkStrawHits : false //why are these at module level and not "filler" - presumably because the dont need to access any collections from the event
-    addTrkCaloHits: false
+    addKalInter : true
+    addTrkStrawHits : true //why are these at module level and not "filler" - presumably because the dont need to access any collections from the event
+    addTrkCaloHits: true
     seqMode : true
     strawdisplay : false
     specifyTag : false // IMPORTANT: override to make the following selections!!!
@@ -52,6 +52,7 @@ Mu2eEventDisplay : {
       addHelixSeeds : false
       FillAll : false
     }
+
     particles :   [11,13,2212,2112,211,22,212]
     strawdisplay : false
     extracted : false

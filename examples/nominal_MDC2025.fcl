@@ -34,5 +34,5 @@ source.inputCommands: ["keep *",
 
 # useless file name
 services.TFileService.fileName: "/dev/null"
-physics.analyzers.Mu2eEventDisplay.gdmlname :"Offline/gen/gdml/mu2e.gdml"
+physics.analyzers.Mu2eEventDisplay.gdmlname :"Offline/gen/gdml/mu2e_common.gdml"
 services.GeometryService.inputFile: "Offline/Mu2eG4/geom/geom_common.txt"

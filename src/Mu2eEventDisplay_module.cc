@@ -476,26 +476,24 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
 
           if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] -- transferring to TApplication thread "<<std::endl;
           
-          cv_.wait(lock);
+          //cv_.wait(lock);
           // --- AUTOPLAY AND WAIT LOGIC ---
-          /*if (autoplay > 0) {
+          if (autoplay > 0) {
               // Autoplay is ON (Autoplay value is the delay in seconds)
               std::cout << "Auto play switched on.... waiting " << autoplay << " s for REve display." << std::endl;
               
               // Wait for the display signal OR the timeout (autoplay delay)
-              auto timeout = std::chrono::seconds(autoplay);
+              auto timeout = std::chrono::seconds(10);
               cv_.wait_for(lock, timeout); 
-              
-              // After the wait, *release the lock* and immediately trigger the next event command.
-              // This is the cleanest way to avoid explicit REve refresh calls.
-              lock.unlock(); // Release the lock before calling the advance command
-              eventMgr_.get()->NextEvent();
+
+              lock.unlock();
+              //eventMgr_.get()->NextEvent();
               
           } else {
               // Autoplay is OFF (Normal interactive mode)
               // Block the current thread and wait indefinitely for a signal (e.g., user clicks Next Event).
               cv_.wait(lock);
-          }*/
+          }
           
           
           // After the event is displayed and the user signals NextEvent, re-enable 
