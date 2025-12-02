@@ -20,7 +20,7 @@ These parameters control the core behavior of the module, including logging, geo
 | `module_type` | String | `Mu2eEventDisplay` | **Mandatory.** Specifies the class name of the module to load. | 
 | `diagLevel` | Integer | `1` | Controls the verbosity of the internal module logging. `0` is typically minimal, higher values (`1`, `2`, etc.) increase diagnostic output. | 
 | `gdmlname` | String | `"Offline/gen/gdml/mu2e.gdml"` | Specifies the path to the GDML (Geometry Description Markup Language) file used to load the detector geometry for visualization. | 
-| `extracted` | Boolean | `false` | Likely a flag to control if the display should use an *extracted* or simplified geometry subset, or the full GDML. | 
+| `extracted` | Boolean | `false` | flag to control if the display should use an *extracted* geometry | 
 | `particles` | Array (Int) | `[11,13,2212,2112,211,22,212]` | A list of particle IDs (PDG codes) to focus the display on or track. Common IDs include electron (`11`), muon (`13`), proton (`2212`), neutron (`2112`), pion (`211`), photon (`22`), and others. | 
 | `specifyTag` | Boolean | `false` | **IMPORTANT.** When set to `true`, it overrides default behavior and forces the module to use the collection tags specified explicitly within the `filler` block. | 
 | `seqMode` | Boolean | `true` | **IMPORTANT.** This will allow you to navigate from the first to the last using the NextEvent() button | 
@@ -49,7 +49,7 @@ These flags modify how data is rendered or what auxiliary information is include
 | Parameter | Type | Default (from config) | Description | 
 | :--- | :--- | :--- | :--- | 
 | `show2D` | Boolean | `true` | Enables or disables a two-dimensional projection display mode. | 
-| `caloVST` | Boolean | `false` | A visualization mode likely intended to view the Calorimeter relative to the Stopping Target. | 
+| `caloVST` | Boolean | `false` | A visualization mode intended to view the Calorimeter alone. | 
 | `addErrBar` | Boolean | `true` | Add error bars to visualized hit/cluster points. | 
 | `addCrystalHits` | Boolean | `false` | Display individual hits within the calorimeter crystals. | 
 | `addCrvBars` | Boolean | `false` | Display the physical CRV bars/scintillators. | 
