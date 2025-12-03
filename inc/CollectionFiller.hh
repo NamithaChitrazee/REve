@@ -23,7 +23,7 @@ namespace mu2e{
      * Used as a code in FillRecoCollections to retrieve a specific product type.
      */
     enum RecoDataProductName {
-        ComboHits, CrvRecoPulses, TimeClusters, CaloClusters, HelixSeeds, 
+        ComboHits, BkgClusters, CrvRecoPulses, TimeClusters, CaloClusters, HelixSeeds, 
         KalSeeds, CosmicTrackSeeds, TrkHits, CrvCoincidenceCluster, CaloDigis
     };
     
