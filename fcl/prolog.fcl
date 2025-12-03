@@ -3,7 +3,7 @@ BEGIN_PROLOG
 Mu2eEventDisplay : {
     module_type : Mu2eEventDisplay
     diagLevel : 1
-    showCRV : false
+    showCrv : true
     showPS : false
     showTS : false
     showDS : false
@@ -15,9 +15,13 @@ Mu2eEventDisplay : {
     showTracker : true
     showCaloCrystals : true
     addErrBar : true
-    addCrystalHits : false
-    addCRVBars : false
-    addKalInter : false
+    addCrystalHits : true
+    addCrvBars : true
+    addKalInter : true
+    addTrkStrawHits : true //why are these at module level and not "filler" - presumably because the dont need to access any collections from the event
+    addTrkCaloHits: true
+    seqMode : true
+    strawdisplay : false
     specifyTag : false // IMPORTANT: override to make the following selections!!!
     filler : {
       diagLevel : 0
@@ -32,24 +36,25 @@ Mu2eEventDisplay : {
       HelixSeedCollection : ["MHFinderDe"]
       CosmicTrackSeedCollection : "CosmicTrackFinderTimeFit"
       MCTrajectoryCollection :  ["compressRecoMCs"]
-#      SurfaceStepCollection :  ["compressRecoMCs"]
-      SurfaceStepCollection :  []
+      SurfaceStepCollection :  ["compressRecoMCs"]
       SimParticleCollection :  ["compressSTMDet"]
       addHits : false
       addBkgClusters : false
       addCrvHits : false
       addCrvClusters : false
       addTimeClusters : false
-      addTrkHits : false
+      addTrkHits : false //Combo hits?
       addCaloDigis : false
-      addClusters : false
-      addKalSeeds : false
+      addClusters : true
+      addKalSeeds : true
       addCosmicTrackSeeds : false
       addMCTraj : true
       addSurfSteps : true
-      addSimParts : true
+      addSimParts : false
+      addHelixSeeds : false
       FillAll : false
     }
+
     particles :   [11,13,2212,2112,211,22,212]
     strawdisplay : false
     extracted : false

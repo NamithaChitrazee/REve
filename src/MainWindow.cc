@@ -29,7 +29,7 @@ void MainWindow::makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX::REveEl
   b1s->SetShape(gss);
 
   int transpar = drawconfigf.getInt("BLtrans");
-  if(name.find("CRS") != string::npos) transpar = drawconfigf.getInt("CRVtrans");
+  if(name.find("CRS") != string::npos) transpar = drawconfigf.getInt("Crvtrans");
   if(name.find("Tracker") != string::npos) transpar = drawconfigf.getInt("TRKtrans") ;
   if(name.find("CaloDisk") != string::npos) transpar = drawconfigf.getInt("CALtrans") ;
   if(name.find("CaloWrapper") != string::npos ) transpar = drawconfigf.getInt("CRYtrans") ;
@@ -52,9 +52,9 @@ void MainWindow::makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX::REveEl
     mngTrackerXY->ImportElements(b1s, TrackerXYGeomScene); //shows only one plane for 2D view for simplicity
   }
 
-  bool isCRV = name.find("CRS") != string::npos;
-  // remove CRV from the YZ view as it blocks tracker/calo view (will have its own view)
-  if(!isCRV) { mngRhoZ->ImportElements(b1s, rhoZGeomScene); }
+  bool isCrv = name.find("CRS") != string::npos;
+  // remove Crv from the YZ view as it blocks tracker/calo view (will have its own view)
+  if(!isCrv) { mngRhoZ->ImportElements(b1s, rhoZGeomScene); }
 }
 
 int j = 0;
@@ -67,6 +67,7 @@ void MainWindow::showNodesByName(TGeoNode* n, const std::string& str, bool onOff
   }
   std::string name(n->GetName());
   j++;
+  //std::cout<<j<<" "<<name<<std::endl;
   //if(print) std::cout<<j<<" "<<name<<std::endl;
   bool cry1 = false; // these help us know which disk and to draw crystals
   bool cry2 = false;
@@ -103,7 +104,7 @@ void MainWindow::showNodesByName(TGeoNode* n, const std::string& str, bool onOff
         t(2,1) = rm[3]; t(2,2) = rm[4]; t(2,3) = rm[5];
         t(3,1) = rm[6]; t(3,2) = rm[7]; t(3,3) = rm[8];
         t(1,4) = tv[0] + shift[0]; t(2,4) = tv[1]  + shift[1]; t(3,4) = tv[2] + shift[2];
-       // std::cout<<name<<"  "<<tv[0] + shift[0]<<" "<<tv[1]  + shift[1] << " "<< tv[2] + shift[2]<<std::endl;
+        //std::cout<<name<<"  "<<tv[0] + shift[0]<<" "<<tv[1]  + shift[1] << " "<< tv[2] + shift[2]<<std::endl;
 
         if(name.find("TrackerPlaneEnvelope_00") != string::npos) {
           FrontTracker_gdmltag = j;
@@ -147,7 +148,7 @@ void MainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REveTrans& 
   t(1,4) = tv[0]  ; t(2,4) = tv[1]  ; t(3,4) = tv[2] ;
 
   ctrans *= t;
- // std::cout<<j<<" "<<name<<" located at "<<tv[0]<<" "<< tv[1]<<" "<<tv[2]<<std::endl;
+  //std::cout<<j<<" "<<name<<" located at "<<tv[0]<<" "<< tv[1]<<" "<<tv[2]<<std::endl;
   std::vector<float> pos;
   std::pair<std::string, std::vector<float>> offset;
   pos.push_back(tv[0]);
@@ -399,8 +400,10 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
     double z_hall = 0;double z_world = 0;
     double x_crv = 0 ; double y_crv = 0 ; double z_crv = 0; // double z_crv_u = 0;  double z_crv_d = 0;
     x_trk = 0;y_trk = 0;z_trk = 0;
-
+    double x_fp0 = 0; double y_fp0 = 0; double z_fp0 = 0;
+    double x_fp1 = 0; double y_fp1 = 0; double z_fp1 = 0;
     for(unsigned int i = 0; i < offsets.size(); i++){
+      
       if(offsets[i].first.find("World") != string::npos){
         x_world = offsets[i].second[0];
         y_world = offsets[i].second[1];
@@ -455,6 +458,16 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
         y_ipa = y_st + offsets[i].second[1];
         z_ipa = z_st + offsets[i].second[2];
       }
+       if(offsets[i].first.find("CaloFP") != string::npos){
+        x_fp0 = x_d0+ offsets[i].second[0];
+        y_fp0 = y_d0 + offsets[i].second[1];
+        z_fp0 = z_d0 + offsets[i].second[2];
+      }
+      if(offsets[i].first.find("CaloFP") != string::npos){
+        x_fp1 = x_d1 + offsets[i].second[0];
+        y_fp1 = y_d1 + offsets[i].second[1];
+        z_fp1 = z_d1 + offsets[i].second[2];
+      }
     }
     std::vector<double> shift;
 
@@ -471,7 +484,7 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
         showNodesByName(node,i,kFALSE, 0, trans, trackerholder, maxlevel, level, false, false, shift, false, true, drawconfigf.getInt("TRKColor"));
       }
     }
-    // everything else needs to be shifted such that its relative to the tracker center at 0,0,0
+    
     if(geomOpt.showST and !geomOpt.extracted){
       static std::vector <std::string> substrings_stoppingtarget  {"TargetFoil"};
       shift.at(0) = x_st - x_trk;
@@ -498,6 +511,24 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
           showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, true, false, drawconfigf.getInt("CALColor"));
         }
       }
+      bool showPipes = false;
+      if(showPipes){
+        static std::vector <std::string> substrings_pipes1  {"CaloFP_pipe","CaloFP_pipe1","CaloFP_pipe2","CaloFP_pipe3","CaloFP_pipe4","CaloFP_pipe5"};
+          for(auto& i: substrings_pipes1){
+            shift.at(0) = x_fp1 - x_trk;
+            shift.at(1) = y_fp1 - y_trk;
+            shift.at(2) = z_fp1 - z_trk;
+            showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, false,false, shift, true, false, drawconfigf.getInt("CALColor"));
+            
+          }
+          static std::vector <std::string> substrings_pipes0  {"CaloFP_pipe","CaloFP_pipe1","CaloFP_pipe2","CaloFP_pipe3","CaloFP_pipe4","CaloFP_pipe5"};
+          for(auto& i: substrings_pipes0){
+            shift.at(0) = x_fp0 - x_trk; 
+            shift.at(1) = y_fp0 - y_trk;
+            shift.at(2) = z_fp0 - z_trk - 20/2; //crystal len/2
+            showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, false, true, drawconfigf.getInt("CALColor"));
+          }
+      }
     }
     if(geomOpt.showST and !geomOpt.extracted){
       static std::vector <std::string> substrings_pa  {"protonabs1","protonabs3","protonabs4"};
@@ -508,13 +539,13 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
         showNodesByName(node,i,kFALSE, 0, trans, beamlineholder, maxlevel, level, false, false, shift, false, true, drawconfigf.getInt("BLColor"));
       }
   }
-  if(geomOpt.showCRV and !geomOpt.extracted){
+  if(geomOpt.showCrv and !geomOpt.extracted){
     static std::vector <std::string> substrings_crv {"CRSmother_CRV"};
     shift.at(0) = x_crv;
     shift.at(1) = y_crv;
     shift.at(2) = z_crv - z_trk;
     for(auto& i: substrings_crv){
-      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, false, drawconfigf.getInt("CRVColor"));
+      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, false, drawconfigf.getInt("CrvColor"));
     }
   }
 }
@@ -615,7 +646,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
         }
       }
     }
-  if(geomOpt.showCRV and geomOpt.extracted){
+  if(geomOpt.showCrv and geomOpt.extracted){
 
     static std::vector <std::string> substrings_ex {"CRSmotherLayer_CRV_EX"};
     shift.at(0) = x_crvex - x_trk;
@@ -623,7 +654,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     shift.at(2) = z_crvex - z_trk;
 
     for(auto& i: substrings_ex){
-      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CRVColor"));
+      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));
     }
 
     static std::vector <std::string> substrings_t1  {"CRSmotherLayer_CRV_T1"};
@@ -632,7 +663,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     shift.at(2) = z_crvt1 - z_trk;
 
     for(auto& i: substrings_t1){
-      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CRVColor"));
+      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));
     }
 
     static std::vector <std::string> substrings_t2  {"CRSmotherLayer_CRV_T2"};
@@ -641,7 +672,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     shift.at(2) = z_crvt2 - z_trk;
 
     for(auto& i: substrings_t2){
-      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CRVColor"));
+      showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));
     }
   }
 }
@@ -722,26 +753,24 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
   double t2 = 1696.;
   std::vector<const KalSeedPtrCollection*> track_list = std::get<1>(data.track_tuple);
   if(drawOpts.addTracks and track_list.size() !=0) {
-    pass_data->FillKinKalTrajectory(eveMng, firstLoop, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, t1, t2); 
+    pass_data->FillKinKalTrajectory(eveMng, firstLoop, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, KKOpts.addTrkCaloHits, t1, t2); 
   }
   if(drawOpts.addComboHits) {
     std::vector<const ComboHitCollection*> combohit_list = std::get<1>(data.combohit_tuple);
     if(combohit_list.size() !=0 ) pass_data->AddComboHits(eveMng, firstLoop, data.combohit_tuple, eventScene, strawdisplay, drawOpts.addTrkErrBar);
   }
-
   if(drawOpts.addBkgClusters) {
     std::vector<const BkgClusterCollection*> bkgcluster_list = std::get<1>(data.bkgcluster_tuple);
     if(bkgcluster_list.size() !=0 ) pass_data->AddBkgClusters(eveMng, firstLoop, data.bkgcluster_tuple, eventScene);
   }
-
-  if(drawOpts.addCRVInfo){
+  if(drawOpts.addCrvRecoPulse){
     std::vector<const CrvRecoPulseCollection*> crvpulse_list = std::get<1>(data.crvpulse_tuple);
-    if(crvpulse_list.size() !=0) pass_data->AddCRVInfo(eveMng, firstLoop, data.crvpulse_tuple, eventScene, geomOpts.extracted, drawOpts.addCRVBars);
+    if(crvpulse_list.size() !=0) pass_data->AddCrvInfo(eveMng, firstLoop, data.crvpulse_tuple, eventScene, geomOpts.extracted, drawOpts.addCrvBars);
   }
 
-  if(drawOpts.addCRVClusters){
+  if(drawOpts.addCrvClusters){
     std::vector<const CrvCoincidenceClusterCollection*> crvcoin_list = std::get<1>(data.crvcoin_tuple);
-    if(crvcoin_list.size() !=0) pass_data->AddCRVClusters(eveMng, firstLoop, data.crvcoin_tuple, eventScene, geomOpts.extracted, drawOpts.addCRVBars);
+    if(crvcoin_list.size() !=0) pass_data->AddCrvClusters(eveMng, firstLoop, data.crvcoin_tuple, eventScene, geomOpts.extracted, drawOpts.addCrvBars);
   }
 
   if(drawOpts.addCaloDigis){
@@ -751,7 +780,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
 
   if(drawOpts.addClusters){
     std::vector<const CaloClusterCollection*> calocluster_list = std::get<1>(data.calocluster_tuple);
-    if(calocluster_list.size() !=0 ) pass_data->AddCaloClusters(eveMng, firstLoopCalo, data.calocluster_tuple, eventScene, drawOpts.addCrystalDraw, t1, t2);
+    if(calocluster_list.size() !=0 ) pass_data->AddCaloClusters(eveMng, firstLoopCalo, data.calocluster_tuple, eventScene, drawOpts.addCrystalDraw);
   }
 
   std::vector<const HelixSeedCollection*> helix_list = std::get<1>(data.helix_tuple);
@@ -803,7 +832,7 @@ void MainWindow::makeGeometryScene(REX::REveManager *eveMng, GeomOptions geomOpt
     auto trackerholder = new REX::REveElement("Tracker");
     auto caloholder = new REX::REveElement("Calorimeter");
     auto crystalsholder = new REX::REveElement("CalorimeterCrystals");
-    auto crvholder = new REX::REveElement("CRV");
+    auto crvholder = new REX::REveElement("Crv");
     auto targetholder = new REX::REveElement("TargetElements");
     auto beamlineholder = new REX::REveElement("DSBeamlineElements");
     auto solenoidholder = new REX::REveElement("SolenoidElements");

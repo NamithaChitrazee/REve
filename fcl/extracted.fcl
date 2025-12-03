@@ -1,0 +1,29 @@
+#include "EventDisplay/fcl/prolog.fcl"
+
+services : @local::Services.Reco
+process_name : Extracted
+source : { module_type : RootInput }
+physics :
+{
+ analyzers : { @table::REveDis.analyzers}
+  producers : { @table::REveDis.producers }
+  filters : { @table::REveDis.filters }
+}
+
+physics.analyzers.Mu2eEventDisplay.showCrv : true
+physics.analyzers.Mu2eEventDisplay.showST: false
+physics.analyzers.Mu2eEventDisplay.addCrvBars : true
+physics.analyzers.Mu2eEventDisplay.filler.addCrvRecoPulse: true
+physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : false
+physics.analyzers.Mu2eEventDisplay.filler.addCosmicTrackSeeds : false
+physics.analyzers.Mu2eEventDisplay.addCrystalHits : true
+physics.analyzers.Mu2eEventDisplay.addKalInter : true
+physics.analyzers.Mu2eEventDisplay.addTrkStrawHits : true
+physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : true
+physics.analyzers.Mu2eEventDisplay.filler.addTrkHits : false
+physics.analyzers.Mu2eEventDisplay.filler.addClusters : false //CaloClusters
+physics.analyzers.Mu2eEventDisplay.filler.addHits : false //ComboHits
+physics.analyzers.Mu2eEventDisplay.filler.addSimParts : true
+
+physics.analyzers.Mu2eEventDisplay.extracted : true
+physics.analyzers.Mu2eEventDisplay.seqMode : true
