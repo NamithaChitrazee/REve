@@ -28,19 +28,19 @@ physics.analyzers.Mu2eEventDisplay.addCRVBars : false
 
 physics.analyzers.Mu2eEventDisplay.addKalInter : true
 physics.analyzers.Mu2eEventDisplay.addCrystalHits : false
-physics.analyzers.Mu2eEventDisplay.filler.addHelixSeeds : false
-physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : false
+physics.analyzers.Mu2eEventDisplay.filler.addHelixSeeds : true
+physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : true
 physics.analyzers.Mu2eEventDisplay.filler.addClusters : false
 physics.analyzers.Mu2eEventDisplay.filler.addHits : true #  adds ComboHits
-physics.analyzers.Mu2eEventDisplay.filler.addBkgClusters : true 
+physics.analyzers.Mu2eEventDisplay.filler.addBkgClusters : false 
 physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : false
 physics.analyzers.Mu2eEventDisplay.filler.addCrvHits : false
 physics.analyzers.Mu2eEventDisplay.filler.addTimeClusters : false
 physics.analyzers.Mu2eEventDisplay.filler.addSimParts : false
 physics.analyzers.Mu2eEventDisplay.addTrkStrawHits : false
 physics.analyzers.Mu2eEventDisplay.filler.addCosmicTrackSeeds : false
-physics.analyzers.Mu2eEventDisplay.filler.addMCTraj : false
-physics.analyzers.Mu2eEventDisplay.specifyTag : false
+physics.analyzers.Mu2eEventDisplay.filler.addMCTraj : true
+physics.analyzers.Mu2eEventDisplay.specifyTag : true
 
 # allows movement through events in sequential order
 physics.analyzers.Mu2eEventDisplay.seqMode : true
