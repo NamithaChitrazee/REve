@@ -2,7 +2,6 @@
   <class name="mu2e::MainWindow"/>
   <class name="mu2e::DataInterface"/>
   <class name="mu2e::EventDisplayManager"/>
-  <class name="mu2e::GeomUtil"/>
   <class name="mu2e::GUI"/>
   <class name="mu2e::DataProduct"/>
   <class name="mu2e::TextSelect"/>

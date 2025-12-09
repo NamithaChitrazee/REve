@@ -2,7 +2,6 @@
 #include "EventDisplay/inc/DataInterface.hh"
 #include "EventDisplay/inc/EventDisplayManager.hh"
 #include "EventDisplay/inc/DataCollections.hh"
-#include "EventDisplay/inc/GeomUtil.hh"
 #include "EventDisplay/inc/GUI.hh"
 #include "EventDisplay/inc/DataProduct.hh"
 #include "EventDisplay/inc/TextSelect.hh"
