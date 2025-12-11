@@ -372,34 +372,44 @@ void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_,
 }
 
 /*
-Enables the visualization of cluster of hits flagged as background by the FlagBkgHits module. This is work in progress. More features coming soon.
+Enables the visualization of cluster of hits flagged as background by the FlagBkgHits module.
 */
 void DataInterface::AddBkgClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const BkgClusterCollection*>> bkgcluster_tuple, REX::REveElement* &scene){
   std::cout<<"BkgClusterCollection "<<std::endl;
   std::vector<const BkgClusterCollection*> bkgcluster_list = std::get<1>(bkgcluster_tuple);
   // std::vector<std::string> names = std::get<0>(bkgcluster_tuple);
   std::cout<<"BkgClusterCollection size = "<<bkgcluster_list.size()<<std::endl;
+  std::string bctitle = "BkgCluster";
+  auto ps1 = new REX::REvePointSet(bctitle, bctitle,0);
+  int colour = 6; //Magenta
   for(unsigned int j = 0; j < bkgcluster_list.size(); j++){
     const BkgClusterCollection* bccol = bkgcluster_list[j];
     if(bccol->size() !=0 ){
       // Loop over hits
       for(unsigned int i=0; i< bccol->size(); i++){
         mu2e::BkgCluster const  &bkgcluster= (*bccol)[i];
-        int colour = (i+3);
-        std::cout<<"BkgCluster ="<<bkgcluster.hits().size()<<std::endl;
+        std::string bchtitle = "BkgClusterHits";
+        auto ps2 = new REX::REvePointSet(bchtitle, bchtitle,0);
+        for (size_t j = 0; j < bkgcluster.hitposition().size(); ++j) {
+          auto const& p = bkgcluster.hitposition()[j];
+          ps2->SetNextPoint(pointmmTocm(p.x()), pointmmTocm(p.y()) , pointmmTocm(p.z()));
+        }
+        ps2->SetMarkerColor(i);
+        ps2->SetMarkerStyle(DataInterface::mstyle);
+        ps2->SetMarkerSize(DataInterface::msize);
+        if(ps2->GetSize() !=0 ) scene->AddElement(ps2);
+        //int colour = (i+3);
+        //std::cout<<"BkgCluster ="<<bkgcluster.hits().size()<<std::endl;
         CLHEP::Hep3Vector ClusterPos(pointmmTocm(bkgcluster.pos().x()), pointmmTocm(bkgcluster.pos().y()), pointmmTocm(bkgcluster.pos().z()));
-        std::string bctitle = "BkgCluster";
-        auto ps1 = new REX::REvePointSet(bctitle, bctitle,0);
         ps1->SetNextPoint(ClusterPos.x(), ClusterPos.y() , ClusterPos.z());
-        ps1->SetMarkerColor(colour);
-        ps1->SetMarkerStyle(DataInterface::mstyle);
-        ps1->SetMarkerSize(DataInterface::msize);
-        if(ps1->GetSize() !=0 ) scene->AddElement(ps1);
       }
     }
   }
+  ps1->SetMarkerColor(colour);
+  ps1->SetMarkerStyle(DataInterface::mstyle);
+  ps1->SetMarkerSize(DataInterface::msize);
+  if(ps1->GetSize() !=0 ) scene->AddElement(ps1);
 }
-
 /*
  * Adds reconstructed ComboHits data products to the REve visualization scene.
  * Hits are visualized as points with optional error bars
@@ -463,6 +473,10 @@ void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_,
             std::string master_name = "ComboHits_" + names[j];
             auto master_compound = new REX::REveCompound(master_name.c_str(), master_name.c_str(), true);
             master_compound->SetRnrSelf(false); // Only render children (hits/errors)
+
+            std::string bkghit  = "FlgBkgHit";
+            auto ps2 = new REX::REvePointSet(bkghit, bkghit,0);
+            ps2->SetMarkerColor(2);
             
             mu2e::GeomHandle<mu2e::Tracker> tracker;
             const auto& allStraws = tracker->getStraws();
@@ -564,15 +578,20 @@ void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_,
                     + " energy dep : " + std::to_string(hit.energyDep()) + "MeV";
                     
                 auto ps1 = new REX::REvePointSet(chtitle.c_str(), chtitle.c_str(), 0);
-                ps1->SetNextPoint(HitPos.x(), HitPos.y() , HitPos.z());
-                
-                ps1->SetMarkerColor(hit_color); // Time-based color
-                ps1->SetMarkerStyle(DataInterface::mstyle);
-                ps1->SetMarkerSize(DataInterface::msize);
-                
-                master_compound->AddElement(ps1);
+                if (!hit.flag().hasAnyProperty(StrawHitFlagDetail::bkg)){
+                  ps1->SetNextPoint(HitPos.x(), HitPos.y() , HitPos.z());
+                  ps1->SetMarkerColor(hit_color); // Time-based color
+                  ps1->SetMarkerStyle(DataInterface::mstyle);
+                  ps1->SetMarkerSize(DataInterface::msize);
+                  master_compound->AddElement(ps1);
+                } 
+                else{
+                  ps2->SetNextPoint(HitPos.x(), HitPos.y() , HitPos.z());
+                }
             } 
-            
+            ps2->SetMarkerStyle(DataInterface::mstyle);
+            ps2->SetMarkerSize(DataInterface::msize);
+            if(ps2->GetSize() !=0) scene->AddElement(ps2);
             // Add the Master Compound to the Scene
             scene->AddElement(master_compound);
         }
@@ -1055,76 +1074,41 @@ void DataInterface::AddCrvClusters(REX::REveManager *&eveMng, bool firstLoop_,
     }
 }
 
-/*
- * Adds reconstructed TimeClusers data products to the REve visualization scene.
- * visualized as points
-*/
-// FIXME - do we ever use this? What is the purpose?
-void DataInterface::AddTimeClusters(REX::REveManager *&eveMng, bool firstLoop_, 
-                                 std::tuple<std::vector<std::string>, 
-                                 std::vector<const TimeClusterCollection*>> timecluster_tuple, 
-                                 REX::REveElement* &scene){
+/*------------Function to add TimeCluster Collection in 3D and 2D displays:-------------*/
+void DataInterface::AddTimeClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const TimeClusterCollection*>>  timecluster_tuple, std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple, REX::REveElement* &scene){
 
-    
-    std::vector<const TimeClusterCollection*> timecluster_list = std::get<1>(timecluster_tuple);
-    std::vector<std::string> names = std::get<0>(timecluster_tuple);
-
-    if(timecluster_list.empty()){
-        return; 
-    } else {
-      std::cout << "[DataInterface::AddTimeClusters()]" << std::endl;
-    }
-    
-    // Loop over TimeCluster Collections (i-loop)
+  std::vector<const TimeClusterCollection*> timecluster_list = std::get<1>(timecluster_tuple);
+  std::vector<const ComboHitCollection*> combohit_list = std::get<1>(combohit_tuple);
+  const ComboHitCollection* chcol = combohit_list[0];
+  std::vector<std::string> names = std::get<0>(timecluster_tuple);
+  std::cout<<"time cluster collection size = "<<timecluster_list.size()<<std::endl;
+  if(timecluster_list.size() !=0){
     for(unsigned int i = 0; i < timecluster_list.size(); i++){
-        const TimeClusterCollection* tccol = timecluster_list[i];
-        
-        if(tccol && tccol->size() != 0){
-            
-            // Create a compound for this entire collection for better organization in the REve tree
-            std::string collection_title = "Time Cluster Collection: " + names[i];
-            auto collection_compound = new REX::REveCompound(collection_title.c_str(), collection_title.c_str(), true);
-            
-            // Loop over individual TimeClusters (j-loop)
-            for(size_t j=0; j<tccol->size();j++){
-                mu2e::TimeCluster const &tclust= (*tccol)[j];
-                
-                // Detailed title for mouseover
-                std::string tctitle = "Time Cluster tag: " + names[i] + '\n'
-                + "t0: " + std::to_string(tclust.t0().t0()) + " +/- " + std::to_string(tclust.t0().t0Err()) + " ns " + '\n' 
-                + "Hits: " + std::to_string(tclust.hits().size()) + '\n'
-                + "Position (X, Y, Z): (" + std::to_string(tclust._pos.x()) + ", " + std::to_string(tclust._pos.y()) + ", " + std::to_string(tclust._pos.z()) + ") mm";
-                
-                // Create a point set for the single cluster. Naming convention improved.
-                std::string ps_name = "Cluster_" + std::to_string(j) + "_" + names[i];
-                auto ps1 = new REX::REvePointSet(ps_name.c_str(), tctitle.c_str(), 1); 
-                
-                // Get position and convert to cm
-                CLHEP::Hep3Vector clusterPos(tclust._pos.x(), tclust._pos.y(), tclust._pos.z());
-                ps1->SetNextPoint(pointmmTocm(clusterPos.x()), pointmmTocm(clusterPos.y()) , pointmmTocm(clusterPos.z()));
-                
-                // Marker style configuration
-                ps1->SetMarkerColor(i + 6); // Use a color based on collection index (i)
-                ps1->SetMarkerStyle(kOpenCircle);
-                ps1->SetMarkerSize(DataInterface::msize * 1.5); // Slightly larger marker for clarity
-
-                if(ps1->GetSize() !=0 ) {
-                    // Add the individual cluster point set to the collection compound
-                    collection_compound->AddElement(ps1);
-                }
-            } // End of j-loop (clusters)
-            
-            // Add the entire collection compound to the main scene
-            scene->AddElement(collection_compound);
+      const TimeClusterCollection* tccol = timecluster_list[i];
+        for(size_t j=0; j<tccol->size();j++){
+          mu2e::TimeCluster const  &tclust= (*tccol)[j];
+          std::string tctitle = "Time Cluster tag: " + names[i] + '\n'
+            + "t0 " + std::to_string(tclust.t0().t0()) + " +/- " + std::to_string(tclust.t0().t0Err()) + " ns " + '\n' ;
+          auto ps1 = new REX::REvePointSet("TimeClusters", tctitle, 0);
+          int tchitsize = tclust.hits().size();
+          for (int ih=0; ih < tchitsize; ih++) {
+            StrawHitIndex hit_index   = tclust.hits().at(ih);
+            const mu2e::ComboHit* hit = &chcol->at(hit_index);
+            CLHEP::Hep3Vector HitPos(pointmmTocm(hit->pos().x()), pointmmTocm(hit->pos().y()), pointmmTocm(hit->pos().z()));
+            ps1->SetNextPoint(HitPos.x(), HitPos.y(), HitPos.z());
+          }
+          ps1->SetMarkerColor(j);
+          ps1->SetMarkerStyle(DataInterface::mstyle);
+          ps1->SetMarkerSize(DataInterface::msize);
+          if(ps1->GetSize() !=0) scene->AddElement(ps1);
         }
-    } // End of i-loop (collections)
+      }
+  }
 }
-
 /*
  * Adds reconstructed HelixSeed data products to the REve visualization scene.
  * Visualized as series of lines
 */
-//FIXME - establish a use case, if none, remove!
 void DataInterface::AddHelixSeedCollection(REX::REveManager *&eveMng, bool firstloop, 
                                          std::tuple<std::vector<std::string>, 
                                          std::vector<const HelixSeedCollection*>> helix_tuple, 
@@ -1679,4 +1663,3 @@ void DataInterface::AddCosmicTrackFit(REX::REveManager *&eveMng, bool firstLoop_
     // Add the compound of all tracks to the scene
     scene->AddElement(all_tracks_compound);
 }
-

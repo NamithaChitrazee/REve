@@ -794,7 +794,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
   }
   if(drawOpts.addTimeClusters){
     std::vector<const TimeClusterCollection*> timecluster_list = std::get<1>(data.timecluster_tuple);
-    if(timecluster_list.size() !=0) pass_data->AddTimeClusters(eveMng, firstLoop, data.timecluster_tuple, eventScene);
+    if(timecluster_list.size() !=0) pass_data->AddTimeClusters(eveMng, firstLoop, data.timecluster_tuple, data.combohit_tuple, eventScene);
   }
 
   //... add MC:
