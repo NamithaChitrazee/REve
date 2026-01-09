@@ -466,9 +466,7 @@ void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_,
     // Visualization Loop
     for(unsigned int j = 0; j < combohit_list.size(); j++){
         const ComboHitCollection* chcol = combohit_list[j];
-        
         if(chcol->size() != 0){
-            
             // MASTER COMPOUND for the entire collection
             std::string master_name = "ComboHits_" + names[j];
             auto master_compound = new REX::REveCompound(master_name.c_str(), master_name.c_str(), true);
@@ -476,72 +474,54 @@ void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_,
 
             std::string bkghit  = "FlgBkgHit";
             auto ps2 = new REX::REvePointSet(bkghit, bkghit,0);
-            ps2->SetMarkerColor(2);
-            
             mu2e::GeomHandle<mu2e::Tracker> tracker;
-            const auto& allStraws = tracker->getStraws();
-            
             // Loop over hits
             for(unsigned int i = 0; i < chcol->size(); i++){
                 mu2e::ComboHit const &hit = (*chcol)[i];
-                
                 // Calculate Time-Based Color
                 Color_t hit_color;
                 double normalized_time = (hit.time() - min_time) / (max_time - min_time);
                 int colorIdx = static_cast<int>(normalized_time * (NCont - 1));
                 hit_color = gStyle->GetColorPalette(colorIdx); 
-
                 // A. Display Hit Straws (Separate element, added directly to scene for broad context)
                 if(strawdisplay){
-                    int sid = hit._sid.asUint16();
-                    
-                    if(static_cast<std::size_t>(sid) < allStraws.size() && sid < drawconfig.getInt("maxSID")){
-                        CLHEP::Hep3Vector sposi(0.0,0.0,0.0), sposf(0.0,0.0,0.0);
-                        const mu2e::Straw& s = allStraws[sid];
-                        const CLHEP::Hep3Vector& p = s.getMidPoint();
-                        const CLHEP::Hep3Vector& d = s.getDirection();
-                        double x = p.x();
-                        double y = p.y();
-                        double z = p.z();
-                        double l = s.halfLength();
-                        
-                        double st = sin(d.theta());
-                        double ct = cos(d.theta());
-                        double sp = sin(d.phi()+TMath::Pi()/2.0);
-                        double cp = cos(d.phi()+TMath::Pi()/2.0);
-
-                        double x1=x+l*st*sp;
-                        double y1=y-l*st*cp;
-                        double z1=z+l*ct;
-                        double x2=x-l*st*sp;
-                        double y2=y+l*st*cp;
-                        double z2=z-l*ct;
-
-                        std::string strawtitle;
-                        int idPlane = s.id().getPlane();
-                        int colorid = s.id().getPanel() + idPlane + 1;
-                        strawtitle =Form("Straw %i Panel %i Plane %i",s.id().getStraw(), s.id().getPanel(), idPlane);
-                        
-                        sposi.set(x1, y1, z1);
-                        sposf.set(x2, y2, z2);
-                        
-                        if(sposi.x() != 0){
-                            auto strawline = new REX::REveLine("StrawHit", strawtitle, 2);
-                            strawline->SetPoint(0, pointmmTocm(sposi.x()), pointmmTocm(sposi.y()), pointmmTocm(sposi.z()));
-                            strawline->SetNextPoint(pointmmTocm(sposf.x()), pointmmTocm(sposf.y()), pointmmTocm(sposf.z()));
-                            strawline->SetLineWidth(1);
-                            strawline->SetLineColor(colorid); 
-                            if(strawline->GetSize() != 0) scene->AddElement(strawline);
-                        }
+                    StrawId sid = hit._sid;
+                    CLHEP::Hep3Vector sposi(0.0,0.0,0.0), sposf(0.0,0.0,0.0);
+                    const mu2e::Straw& s = tracker->getStraw(sid);
+                    const CLHEP::Hep3Vector& p = s.getMidPoint();
+                    const CLHEP::Hep3Vector& d = s.getDirection();
+                    double x = p.x();
+                    double y = p.y();
+                    double z = p.z();
+                    double l = s.halfLength();
+                    double st = sin(d.theta());
+                    double ct = cos(d.theta());
+                    double sp = sin(d.phi()+TMath::Pi()/2.0);
+                    double cp = cos(d.phi()+TMath::Pi()/2.0);
+                    double x1=x+l*st*sp;
+                    double y1=y-l*st*cp;
+                    double z1=z+l*ct;
+                    double x2=x-l*st*sp;
+                    double y2=y+l*st*cp;
+                    double z2=z-l*ct;
+                    std::string strawtitle;
+                    strawtitle =Form("Straw %i Panel %i Plane %i",s.id().getStraw(), s.id().getPanel(), s.id().getPlane());
+                    sposi.set(x1, y1, z1);
+                    sposf.set(x2, y2, z2);
+                    if(sposi.x() != 0){
+                      auto strawline = new REX::REveLine(strawtitle, strawtitle, 2);
+                      strawline->SetPoint(0, pointmmTocm(sposi.x()), pointmmTocm(sposi.y()), pointmmTocm(sposi.z()));
+                      strawline->SetNextPoint(pointmmTocm(sposf.x()), pointmmTocm(sposf.y()), pointmmTocm(sposf.z()));
+                      strawline->SetLineWidth(1);
+                      strawline->SetLineColor(1); 
+                      if(strawline->GetSize() != 0) scene->AddElement(strawline);
                     }
                 }
-
                 // B. Add Error Bar (REveLine) Optional
                 if(AddErrorBar_){
                     auto const& p = hit.pos();
                     auto w = hit.uDir();
-                    auto const& s = hit.wireRes(); // Wire resolution (length of error bar half-segment)
-                    
+                    auto const& s = hit.wireRes(); // Wire resolution (length of error bar half-segment) 
                     // Calculate endpoints of the error bar along the perpendicular direction (w = uDir)
                     double x1 = (p.x()+s*w.x());
                     double x2 = (p.x()-s*w.x());
@@ -549,7 +529,6 @@ void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_,
                     double z2 = (p.z()-s*w.z());
                     double y1 = (p.y()+s*w.y());
                     double y2 = (p.y()-s*w.y());
-
                     // Add a detailed error bar label
                     std::string errorbar_label = std::string("ComboHit Error Bar") + '\n' 
                                                + "Hit Time: " + std::to_string(hit.time()) + " ns" + '\n'
@@ -559,14 +538,11 @@ void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_,
                                                + " P2 (" + std::to_string(x2) + ", " + std::to_string(y2) + ", " + std::to_string(z2) + ")";
                     auto error = new REX::REveLine(errorbar_label.c_str(), errorbar_label.c_str(), 2);
                     error->SetPoint(0, pointmmTocm(x1), pointmmTocm(y1), pointmmTocm(z1));
-                    error->SetNextPoint(pointmmTocm(x2), pointmmTocm(y2), pointmmTocm(z2));
-                    
+                    error->SetNextPoint(pointmmTocm(x2), pointmmTocm(y2), pointmmTocm(z2)); 
                     error->SetLineColor(hit_color); 
-                    error->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
-                    
+                    error->SetLineWidth(drawconfig.getInt("TrackLineWidth")); 
                     master_compound->AddElement(error);
-                }
-                
+                } 
                 // C. Draw ComboHit Position (REvePointSet)
                 CLHEP::Hep3Vector HitPos(pointmmTocm(hit.pos().x()), pointmmTocm(hit.pos().y()), pointmmTocm(hit.pos().z()));
                 std::string chtitle = "ComboHits tag = "
@@ -587,6 +563,7 @@ void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_,
                 } 
                 else{
                   ps2->SetNextPoint(HitPos.x(), HitPos.y() , HitPos.z());
+                  ps2->SetMarkerColor(kRed);
                 }
             } 
             ps2->SetMarkerStyle(DataInterface::mstyle);
