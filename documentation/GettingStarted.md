@@ -8,7 +8,17 @@ This guide covers the essential setup and troubleshooting steps required before 
 
 Before running the Event Display, complete the following steps to prevent common errors and system hangs.
 
-#### 1. Building GDML Geometry
+#### 1a. Use a Musing 
+
+The easiest way to use the EventDisplay is by using our Analysis Musing. For example:
+
+```
+mu2einit
+muse setup AnalysisMDC2025
+```
+
+
+#### 1b. Building GDML Geometry (generally not needed if working from a Musing)
 
 The Event Display requires the detector geometry to be compiled into a **GDML** (Geometry Description Markup Language) file. Skipping this step will result in a fatal ROOT error, as the application cannot initialize its environment without the geometry data. 
 
