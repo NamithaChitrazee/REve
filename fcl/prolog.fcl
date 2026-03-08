@@ -40,7 +40,7 @@ Mu2eEventDisplay : {
       SimParticleCollection :  ["compressSTMDet"]
       addHits : false
       addBkgClusters : false
-      addCrvHits : false
+      addCrvRecoPulse : false
       addCrvClusters : false
       addTimeClusters : false
       addTrkHits : false //Combo hits?
