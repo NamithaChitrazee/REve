@@ -55,3 +55,19 @@ If you are working with an ntuple, you may not know all the commands to figure o
 ```
 
 where the run, subrun and event numbers are identified from your analysis to be an event of interest in that root file.
+
+#### B. Working with a list of interesting events
+
+Using pyutils or rooutils you may have identified several events of interest (those passing some selection cuts for example). You can loop the display over those events assuming the events are listed as:
+
+```
+run,subrun,event
+```
+
+and placed in a file called `events.txt`
+
+```
+./EventDisplay_multi.sh --eventfile events.txt --dataset mcs.mu2e.ensembleMDS3aMix1BBTriggered.MDC2025af_best_v1_1.art --geom 2025
+```
+
+You can then sequentially navigate through the events as usual.

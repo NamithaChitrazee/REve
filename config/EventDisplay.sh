@@ -11,8 +11,9 @@ usage() {
   [ --RUN ]
   [ --SUBRUN  ]
   [ --EVENT ]
-  ./EventDisplay.sh --run 1201 --subrun 34 --event 15028 --dataset mcs.mu2e.ensembleMDS2cMix1BBTriggered.MDC2020ba_best_v1_3.art
-  or ./EventDisplay.sh  --run 1201 --subrun 476 --event 1  --dataset nts.mu2e.ensembleMDS2cMix1BBTriggered.MDC2020ba_best_v1_3_v06_06_00.001201_00000476.root
+  [ --GEOM ]
+  ./EventDisplay.sh --run 1201 --subrun 34 --event 15028 --geom 2025 --dataset mcs.mu2e.ensembleMDS2cMix1BBTriggered.MDC2020ba_best_v1_3.art
+  or ./EventDisplay.sh  --run 1201 --subrun 476 --geom 2025 --event 1  --dataset nts.mu2e.ensembleMDS2cMix1BBTriggered.MDC2020ba_best_v1_3_v06_06_00.001201_00000476.root
   " 1>&2
 }
 
@@ -23,6 +24,7 @@ run=0
 subrun=0
 event=0
 datset=""
+geom=2025
 
 # Function: Exit with error.
 exit_abnormal() {
@@ -47,6 +49,9 @@ while getopts ":-:" options; do
           ;;
         run)
           RUN=${!OPTIND} OPTIND=$(( $OPTIND + 1 ))
+          ;;
+        geom)
+          GEOM=${!OPTIND} OPTIND=$(( $OPTIND + 1 ))
           ;;
       esac;;
     :)                                    # If expected argument omitted:
@@ -97,7 +102,7 @@ art_file_name="${DATASET}_${RUN}_${SUBRUN}_${EVENT}.art"
 
 # Execute the mu2e command
 # If the command fails, the script will terminate with an error message
-mu2e -c EventDisplay/examples/nominal_example.fcl ${art_file_name}
+mu2e -c EventDisplay/examples/nominal_MDC${GEOM}.fcl ${art_file_name}
 if [ $? -ne 0 ]; then
     echo "Error: mu2e command failed."
     exit 1
