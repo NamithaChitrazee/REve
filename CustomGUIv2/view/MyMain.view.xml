@@ -49,21 +49,22 @@
             </MenuButton>
          </contentLeft>
          <contentMiddle>
-               <Image src="mydir/mu2e_logo_oval.png"
-                  class="sapUiSmallMarginEnd" height="100%"/>                
+                <Label id="infoLabel"
+                      text="Run: 0 | Subrun: 0 | Event: 0"
+		      design="Bold" />
          </contentMiddle>
          <contentRight>
-                <Label id="infoLabel" text="insert event number here"/>
+	   <Image src="mydir/mu2e_logo_oval.png"
+                  class="sapUiSmallMarginEnd" height="100%"/>
          </contentRight>
         </Bar>
      </customHeader>
+
      <subHeader>
         <OverflowToolbar id="otb2">
-            <Label id="dateLabel" text="date" />
-            <Input id="dateInput" width="100px" />   
-              </OverflowToolbar>
-        <OverflowToolbar id="otb3">
-            <Label text="AutoPlay (plcaeholder):">
+            <Input id="dateInput" width="100px"  editable="false" />
+	    
+            <ToolbarSeparator /> <Label text="Autoplay">
                <layoutData>
                   <OverflowToolbarLayoutData priority="Disappear" shrinkable="true" minWidth="40px" />
                </layoutData>
@@ -73,17 +74,19 @@
                   <OverflowToolbarLayoutData priority="Low" shrinkable="true" minWidth="40px" />
                </layoutData>
             </CheckBox>
-            
+            <!--
             <ToolbarSpacer />
             <Label id="runLabel" text="Run "  class="sapUiTinyMargin"/>
             <Input id="runInput" width="7em" submit="goToEvent" value="0" class="sapUiTinyMargin"/>
             <Label id="event" text="Event "/>
             <Input id="eventInput" width="7em" submit="goToEvent" value="0" class="sapUiTinyMargin"/>
            <Button text="Go" press="goToEvent"/>
-            <ToolbarSpacer />
+           <ToolbarSpacer />
+	   -->
             
-           </OverflowToolbar>
-        </subHeader>
+           <ToolbarSpacer /> </OverflowToolbar> 
+         </subHeader>
+
 				<FlexBox
 					class="sapUiSizeCompact"
 					alignItems="Center"
