@@ -1221,13 +1221,9 @@ void DataInterface::AddKalIntersection(mu2e::KalSeed const& kalseed, REX::REveEl
  * Visualized as points
 */
 template<class KTRAJc> 
-void DataInterface::AddTrkStrawHit(mu2e::KalSeed const& kalseed, 
-                                 REX::REveElement* &scene,  
-                                 std::unique_ptr<KTRAJc> &lhptr, 
-                                 REX::REveCompound *trackproducts)
+void DataInterface::AddTrkStrawHit(mu2e::KalSeed const& kalseed, REX::REveElement* &scene,  std::unique_ptr<KTRAJc> &lhptr, REX::REveCompound *trackproducts)
 {
     std::cout << "[DataInterface::AddTrkStrawHit]" << std::endl;
-    
     // Setup and Data Extraction
     mu2e::GeomHandle<mu2e::Tracker> tracker;
     std::vector<mu2e::TrkStrawHitSeed> const& hits = kalseed.hits();
@@ -1235,35 +1231,63 @@ void DataInterface::AddTrkStrawHit(mu2e::KalSeed const& kalseed,
     // Configuration Constants
     const double N_SIGMA = 2.0; // Length of the error line in sigma
     const std::string SIGMA_TITLE = "+/-" + std::to_string(N_SIGMA) + " sigma";
-    
     // Loop Over Track-Straw Hits
     for(mu2e::TrkStrawHitSeed const& tshs : hits){
-        
         // Get Geometry and State
         const mu2e::Straw& straw = tracker->straw(tshs.strawId());
-        
+        /*const CLHEP::Hep3Vector& p = straw.getMidPoint();
+        const CLHEP::Hep3Vector& d = straw.getDirection();
+        double l = straw.halfLength();
+        double st = sin(d.theta());
+        double ct = cos(d.theta());
+        double sp = sin(d.phi()+TMath::Pi()/2.0);
+        double cp = cos(d.phi()+TMath::Pi()/2.0);
+        double x1=p.x()+l*st*sp;
+        double y1=p.y()-l*st*cp;
+        double z1=p.z()+l*ct;
+        double x2=p.x()-l*st*sp;
+        double y2=p.y()+l*st*cp;
+        double z2=p.z()-l*ct;
+        std::cout<<"Hit Straw = "<<x1<<" "<<y1<<" "<<z1<<" end = "<<x2<<" "<<y2<<" "<<z2<<std::endl;
+        std::string strawtitle;
+        strawtitle =Form("Straw %i Panel %i Plane %i",straw.id().getStraw(), straw.id().getPanel(), straw.id().getPlane());
+        CLHEP::Hep3Vector sposi(0.0,0.0,0.0), sposf(0.0,0.0,0.0);
+        sposi.set(x1, y1, z1);
+        sposf.set(x2, y2, z2);
+        if(sposi.x() != 0){
+          auto strawline = new REX::REveLine(strawtitle, strawtitle, 2);
+          strawline->SetPoint(0, pointmmTocm(sposi.x()), pointmmTocm(sposi.y()), pointmmTocm(sposi.z()));
+          strawline->SetNextPoint(pointmmTocm(sposf.x()), pointmmTocm(sposf.y()), pointmmTocm(sposf.z()));
+          strawline->SetLineWidth(1);
+          strawline->SetLineColor(kGray); 
+          if(strawline->GetSize() != 0) scene->AddElement(strawline);
+        }*/
         // Setup the hit state based on parameters in the seed
-        mu2e::WireHitState whs(mu2e::WireHitState::State(tshs._ambig),
-                               mu2e::StrawHitUpdaters::algorithm(tshs._algo),
-                               tshs._kkshflag);
-        
+        mu2e::WireHitState whs(mu2e::WireHitState::State(tshs._ambig), mu2e::StrawHitUpdaters::algorithm(tshs._algo), tshs._kkshflag);
         bool active = whs.active();
         bool usedrift = whs.driftConstraint();
-
         // Calculate Position and Error Vectors
-        if(active){ 
-            
+        if(active){
             // Start position: position on the wire at the reference POCA (RUpOS)
             auto tshspos = XYZVectorF(straw.wirePosition(tshs._rupos));
             double hit_error(0.0);
-            
             // Find direction perpendicular to the wire and the track direction (drift direction)
             // track direction at POCA
-            auto tdir = lhptr->direction(tshs._ptoca); 
+            auto tdir = lhptr->direction(tshs._ptoca);
             // wire direction
-            auto wdir = XYZVectorF(straw.wireDirection(tshs._rupos)); 
+            auto wdir = XYZVectorF(straw.wireDirection(tshs._rupos));
             // drift direction is perpendicular to the plane formed by wire and track
-            auto ddir = wdir.Cross(tdir).Unit() * whs.lrSign(); 
+            auto ddir = wdir.Cross(tdir).Unit() * whs.lrSign();
+
+            // 1. LONGITUDINAL ERROR BAR
+            float long_error = tshs._werr;
+            auto long_end1 = tshspos + long_error*wdir;
+            auto long_end2 = tshspos - long_error*wdir;
+            auto long_line = new REX::REveLine("Longitudinal Error", "Longitudinal", 2);
+            long_line->SetNextPoint(pointmmTocm(long_end1.x()), pointmmTocm(long_end1.y()), pointmmTocm(long_end1.z()));
+            long_line->SetNextPoint(pointmmTocm(long_end2.x()), pointmmTocm(long_end2.y()), pointmmTocm(long_end2.z()));
+            long_line->SetLineWidth(3);
+            long_line->SetLineColor(kBlue); // Distinct color for wire-direction error
 
             if(usedrift){
                 // Move position out by the drift distance along the signed drift direction
@@ -1272,11 +1296,10 @@ void DataInterface::AddTrkStrawHit(mu2e::KalSeed const& kalseed,
             } else {
                 hit_error = tshs._uderr; // Use unsigned drift error
             }
-            
             // Calculate the endpoints for the error line segment
             auto end1 = tshspos + N_SIGMA * hit_error * ddir;
             auto end2 = tshspos - N_SIGMA * hit_error * ddir;
-            
+            std::cout<<"Hit Error = "<<hit_error<<" ddir = "<<ddir<<std::endl;
             // Create Title and Compound
             std::string title = std::string("TrkStrawHitSeed:") + '\n'
                 + " Position (x,y,z): (" 
@@ -1289,40 +1312,36 @@ void DataInterface::AddTrkStrawHit(mu2e::KalSeed const& kalseed,
 
             // Compound holds the point and the error line together
             auto point_with_error = new REX::REveCompound(title.c_str(), "TrkStrawHitSeed", 1);
-            
             // Create Point Marker
             auto trkstrawpoint = new REX::REvePointSet(title.c_str(), title.c_str(), 1);
-            
             // Marker configuration
             trkstrawpoint->SetMarkerStyle(DataInterface::mstyle);
-            trkstrawpoint->SetMarkerSize(DataInterface::msize);
-            
+            trkstrawpoint->SetMarkerSize(DataInterface::msize); 
             // Color logic: Redraw color if drift constraint wasn't used
             Color_t base_color = drawconfig.getInt("TrkHitColor");
             if (!usedrift) {
-                base_color = drawconfig.getInt("TrkNoHitColor");
+              base_color = drawconfig.getInt("TrkNoHitColor"); //Red color hit
             }
             trkstrawpoint->SetMarkerColor(base_color);
-            
             // Set the position of the hit marker
-            trkstrawpoint->SetNextPoint(pointmmTocm(tshspos.x()), 
-                                       pointmmTocm(tshspos.y()), 
-                                       pointmmTocm(tshspos.z()));
-                                       
+            trkstrawpoint->SetNextPoint(pointmmTocm(tshspos.x()), pointmmTocm(tshspos.y()), pointmmTocm(tshspos.z()));
             //  Error Line
             auto line = new REX::REveLine(("TrkStrawHit Error " + SIGMA_TITLE).c_str(), SIGMA_TITLE.c_str(), 2);
-            
             // Set line endpoints (converted to cm)
-            line->SetNextPoint(pointmmTocm(end1.x()), pointmmTocm(end1.y()), pointmmTocm(end1.z()));
-            line->SetNextPoint(pointmmTocm(end2.x()), pointmmTocm(end2.y()), pointmmTocm(end2.z()));
+            std::cout<<"Error bars = "<<end1.x()<<" "<<end1.y()<<" "<<end1.z()<<" "<<end2.x()<<" "<<end2.y()<<" "<<end2.z()<<std::endl;
+            //line->SetNextPoint(pointmmTocm(end1.x()), pointmmTocm(end1.y()), pointmmTocm(end1.z()));
+            //line->SetNextPoint(pointmmTocm(end2.x()), pointmmTocm(end2.y()), pointmmTocm(end2.z()));
+            line->SetNextPoint(end1.x(), end1.y(), end1.z());
+            line->SetNextPoint(end2.x(), end2.y(), end2.z());
             
             // Line color is the same as the base hit color
-            line->SetLineColor(base_color); 
+            line->SetLineColor(kBlack); 
 
             // Add Elements to Compound and Compound to Products
             point_with_error->AddElement(trkstrawpoint);
             point_with_error->AddElement(line);
-            
+            point_with_error->AddElement(long_line);
+           
             trackproducts->AddElement(point_with_error);
         }
     }
@@ -1431,7 +1450,8 @@ void DataInterface::AddKinKalTrajectory(std::unique_ptr<KTRAJ> &trajectory,
 
     // Styling and Scene Addition
     line->SetLineColor(j + 6); // Use a color based on the collection index (j)
-    line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
+    //line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
+    line->SetLineWidth(5);
     scene->AddElement(line);
 }
 
@@ -1547,7 +1567,7 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
                 const auto& kl = trajectory->nearestPiece(t0);
                 auto momvec = kl.momentum3(t0);
                 
-                ksstream << particle_name << " KinematicLine "
+                ksstream << particle_name << " Momentum "
                     << std::setw(6) << std::setprecision(3) << momvec.R() << " MeV/c, cos(Theta) " << cos(momvec.Theta()) << '\n'
                     << "t0 " << kl.t0() << " ns, "
                     << "d0 " << kl.d0() << " mm, "
