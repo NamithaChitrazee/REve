@@ -278,16 +278,6 @@ namespace mu2e
           guiid = 4285;
       }
       
-      // Write GUIID to config file
-      std::ofstream configFile("EventDisplay/config/guiutils_current.txt");
-      if (configFile.is_open()) {
-          configFile << "// Automatically generated GUI configuration\n";
-          configFile << "int GUIID = " << guiid << ";\n";
-          configFile.close();
-          std::cout << "[Mu2eEventDisplay::beginJob()] Wrote GUIID to EventDisplay/config/guiutils_current.txt: " << guiid << std::endl;
-      } else {
-          std::cerr << "[Mu2eEventDisplay::beginJob()] WARNING: Could not open EventDisplay/config/guiutils_current.txt for writing" << std::endl;
-      }
         std::unique_lock lock{m_};
         appThread_ = std::thread{[this] { run_application(); }};
         // Wait for app init to finish ... this will process pending timer events.
@@ -613,12 +603,10 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
         eveMng_, 
         cv_, 
         m_, 
-        fGui.get(),
-        "2025"  // Not used; geometry loaded from config file in constructor
+        fGui.get()
     );
     std::cout << "[Mu2eEventDisplay::setup_eve()] EventDisplayManager created and geometry loaded" << std::endl;
 
-    //#eventMgr_->setGeometry("2025"); 
     // --- Scene Setup ---
 
     // Get the top-level scene, the "World," which is the container for all elements.

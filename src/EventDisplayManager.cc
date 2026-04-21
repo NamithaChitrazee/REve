@@ -20,8 +20,7 @@ EventDisplayManager::EventDisplayManager(
     ROOT::Experimental::REveManager* eveMgr,
     std::condition_variable& cv,
     std::mutex& m,
-    GUI *fGui,
-    const std::string& geometry)
+    GUI *fGui)
     : 
     REveElement{"EventManager"}, 
     eveMng_{eveMgr}, 
