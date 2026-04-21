@@ -15,6 +15,17 @@ namespace REX = ROOT::Experimental;
 std::string drawfilename("EventDisplay/config/drawutils.txt");
 SimpleConfig drawconfig(drawfilename);
 
+// Load tracker geometry for CRV Z-shift calculation
+std::string trackerfilename("Offline/Mu2eG4/geom/tracker_v7.txt");
+SimpleConfig trackerconfig(trackerfilename);
+
+// Get CRV Z-shift for extracted geometry alignment
+double GetCrvExtractedZShift() {
+    // Tracker envelope half-length in mm, converted to cm
+    double tracker_half_length_cm = trackerconfig.getDouble("tracker.mother.halfLength")/10.0;
+    return tracker_half_length_cm;
+}
+
 
 /*
  * Adds reconstructed CaloDigi data products to the REve visualization scene.
@@ -717,6 +728,10 @@ void DataInterface::AddCrvInfo(REX::REveManager *&eveMng, bool firstLoop_,
                     double X_cm = pointmmTocm(pointInMu2e.x());
                     double Y_cm = pointmmTocm(pointInMu2e.y());
                     double Z_cm = pointmmTocm(pointInMu2e.z());
+                    // For extracted geometry, apply Z-shift to align bars with display coordinate frame
+                    if(extracted) {
+                        Z_cm += GetCrvExtractedZShift();
+                    }
                     
                     // Handle geometry errors that cause Seg Faults
                     try {
@@ -816,7 +831,12 @@ void DataInterface::AddCrvInfo(REX::REveManager *&eveMng, bool firstLoop_,
                 
                 // B. Add individual Reco Pulse Point with its own label
                 auto ps1 = new REX::REvePointSet(pulsetitle_c, pulsetitle_c, 1);
-                ps1->SetNextPoint(pointmmTocm(pointInMu2e.x()), pointmmTocm(pointInMu2e.y()), pointmmTocm(pointInMu2e.z()));
+                // For extracted geometry, apply Z-shift to align CRV data with geometry display
+                double hit_z = pointmmTocm(pointInMu2e.z());
+                if(extracted) {
+                    hit_z += GetCrvExtractedZShift();
+                }
+                ps1->SetNextPoint(pointmmTocm(pointInMu2e.x()), pointmmTocm(pointInMu2e.y()), hit_z);
                 ps1->SetMarkerColor(hit_color); 
                 ps1->SetMarkerStyle(DataInterface::mstyle);
                 ps1->SetMarkerSize(DataInterface::msize);
@@ -913,7 +933,12 @@ void DataInterface::AddCrvClusters(REX::REveManager *&eveMng, bool firstLoop_,
             auto ps1 = new REX::REvePointSet(crvtitle.c_str(), crvtitle.c_str(), 0);
             
             CLHEP::Hep3Vector pointInMu2e = det->toDetector(crvclu.GetAvgHitPos());
-            ps1->SetNextPoint(pointmmTocm(pointInMu2e.x()), pointmmTocm(pointInMu2e.y()) , pointmmTocm(pointInMu2e.z()));
+            // For extracted geometry, apply Z-shift to align CRV cluster points with geometry display
+            double cluster_z = pointmmTocm(pointInMu2e.z());
+            if(extracted) {
+                cluster_z += GetCrvExtractedZShift();
+            }
+            ps1->SetNextPoint(pointmmTocm(pointInMu2e.x()), pointmmTocm(pointInMu2e.y()) , cluster_z);
             
             std::set<mu2e::CRSScintillatorBarIndex> drawn_bars; 
 
@@ -949,11 +974,15 @@ void DataInterface::AddCrvClusters(REX::REveManager *&eveMng, bool firstLoop_,
                     double X_cm = pointmmTocm(bar_center_mu2e.x());
                     double Y_cm = pointmmTocm(bar_center_mu2e.y());
                     double Z_cm = pointmmTocm(bar_center_mu2e.z());
+                    // For extracted geometry, apply Z-shift to align bars with display coordinate frame
+                    if(extracted) {
+                        Z_cm += GetCrvExtractedZShift();
+                    }
 
                     double length = pointmmTocm(crvCounter.getHalfLength());
                     double width = pointmmTocm(crvCounter.getHalfWidth());
                     double height = pointmmTocm(crvCounter.getHalfThickness());
-
+  
                     std::string pulsetitle = " Crv Bar Hit for tag : "
                                             + names[i] +  '\n'
                                             + "Bar ID: " + std::to_string(crvBarIndex.asInt()) +  '\n'
