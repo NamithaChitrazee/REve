@@ -1,5 +1,8 @@
 #include "Offline/ConfigTools/inc/SimpleConfig.hh"
 #include "EventDisplay/inc/MainWindow.hh"
+#include "Offline/GeometryService/inc/GeomHandle.hh"
+#include "Offline/GeometryService/inc/DetectorSystem.hh"
+#include "Offline/CosmicRayShieldGeom/inc/CosmicRayShield.hh"
 
 namespace REX = ROOT::Experimental;
 using namespace std;
@@ -17,6 +20,8 @@ double FrontTracker_gdmltag;
 // Get geom information from Event Display configs:
 std::string drawoptfilename("EventDisplay/config/drawutils.txt");
 SimpleConfig drawconfigf(drawoptfilename);
+
+
 
 void MainWindow::makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX::REveElement* holder, int val, bool crystal1, bool crystal2, std::string name, int color)
 {
@@ -189,6 +194,9 @@ void MainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REveTrans& 
 }
 
 void MainWindow::GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets) {
+  // Note: Solenoid component positions (PS, TS1, TS5, DS3, DS2) still obtained from offsets
+  // as they require hierarchical transformations from the geometry tree.
+  // CRV coordinates could use GeometryService if needed for display alignment.
   double x_ps = 0; double y_ps=0; double z_ps=0;
   double x_ts1 = 0; double y_ts1=0; double z_ts1=0;
   double x_ts5 = 0; double y_ts5=0; double z_ts5=0;
@@ -398,7 +406,7 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
     double x_hall = 0;double x_world = 0;
     double y_hall = 0;double y_world = 0;
     double z_hall = 0;double z_world = 0;
-    double x_crv = 0 ; double y_crv = 0 ; double z_crv = 0; // double z_crv_u = 0;  double z_crv_d = 0;
+    double x_crv = 0 ; double y_crv = 0 ; double z_crv = 0;
     x_trk = 0;y_trk = 0;z_trk = 0;
     double x_fp0 = 0; double y_fp0 = 0; double z_fp0 = 0;
     double x_fp1 = 0; double y_fp1 = 0; double z_fp1 = 0;
@@ -551,13 +559,22 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
 }
 
 void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, REX::REveElement* trackerholder, REX::REveElement* caloholder, REX::REveElement* crystalsholder, REX::REveElement* crvholder, REX::REveElement* targetholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets){
-    
-    //positions of components for DS component offsets
-    double x_hall = 0;double x_world = 0;
-    double y_hall = 0;double y_world = 0;
-    double z_hall = 0;double z_world = 0;
-    double x_crvex = 0; double y_crvex = 0;  double z_crvex = 0; double x_crvt1 = 0; double y_crvt1 = 0;  double z_crvt1 = 0;     
+    // Load tracker geometry for CRV Z-shift calculation in extracted mode
+    std::string trackerfilename("Offline/Mu2eG4/geom/tracker_v7.txt");
+    SimpleConfig trackerconfig(trackerfilename);
+
+    // Get CRV Z-shift for extracted geometry alignment
+    double tracker_half_length_cm = trackerconfig.getDouble("tracker.mother.halfLength")/10.0;
+    double x_world = 0;
+    double y_world = 0;
+    double z_world = 0;
+    double x_hall = 0;
+    double y_hall = 0;
+    double z_hall = 0;
+    double x_crvex = 0; double y_crvex = 0;  double z_crvex = 0; 
+    double x_crvt1 = 0; double y_crvt1 = 0;  double z_crvt1 = 0;     
     double x_crvt2 = 0; double y_crvt2 = 0;  double z_crvt2 = 0;
+    // Note: cannot use GeomService due to positionining of this in separate thread and initialization order of geometry. Instead, get positions from offsets and apply appropriate shifts to align for display.
     for(unsigned int i = 0; i < offsets.size(); i++){
       if(offsets[i].first.find("World") != string::npos){
         x_world = offsets[i].second[0];
@@ -570,6 +587,26 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
         y_hall = y_world + offsets[i].second[1];
         z_hall = z_world + offsets[i].second[2];
       }
+      if(offsets[i].first.find("CRSmother_CRV_EX") != string::npos)       {
+          x_crvex = x_hall + offsets[i].second[0];
+          y_crvex = y_hall + offsets[i].second[1];
+          z_crvex = z_hall + offsets[i].second[2];
+      }
+      if(offsets[i].first.find("CRSmother_CRV_T1") != string::npos)       {
+          x_crvt1 = x_hall + offsets[i].second[0];
+          y_crvt1 = y_hall + offsets[i].second[1];
+          z_crvt1 = z_hall + offsets[i].second[2];
+      }
+      if(offsets[i].first.find("CRSmother_CRV_T2") != string::npos)       {
+          x_crvt2 = x_hall + offsets[i].second[0];
+          y_crvt2 = y_hall + offsets[i].second[1];
+          z_crvt2 = z_hall + offsets[i].second[2];
+      }
+    }
+    
+    // Get detector positions from offsets
+    double x_ds3 = 0;
+    for(unsigned int i = 0; i < offsets.size(); i++){
       if(offsets[i].first.find("garageFakeDS3Vacuum") != string::npos)      {
         x_ds3 = x_hall + offsets[i].second[0];
         y_ds3 = y_hall + offsets[i].second[1];
@@ -595,21 +632,6 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
         y_d1 = y_cal + offsets[i].second[1];
         z_d1 = z_cal + offsets[i].second[2];
       }
-      if(offsets[i].first.find("CRSmother_CRV_EX") != string::npos)       {
-          x_crvex = offsets[i].second[0]  + x_hall ;
-          y_crvex =  offsets[i].second[1] + y_hall;
-          z_crvex = offsets[i].second[2]  + z_hall ;
-      }
-      if(offsets[i].first.find("CRSmother_CRV_T1") != string::npos)       {
-          x_crvt1 = offsets[i].second[0] + x_hall ;
-          y_crvt1 = offsets[i].second[1] + y_hall ;
-          z_crvt1 = offsets[i].second[2] + z_hall ;
-      }
-      if(offsets[i].first.find("CRSmother_CRV_T2") != string::npos)       {
-          x_crvt2 = offsets[i].second[0] + x_hall ;
-          y_crvt2 = offsets[i].second[1] + y_hall ;
-          z_crvt2 = offsets[i].second[2] + z_hall ;
-        }
     }
     std::vector<double> shift;
 
@@ -633,7 +655,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
         for(auto& i: substrings_disk){
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
-          shift.at(2) = z_cal - z_trk;
+          shift.at(2) = z_cal - z_trk ;
           showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, false, false, drawconfigf.getInt("CALColor") );
         }
       if(geomOpt.showCaloCrystals){
@@ -641,7 +663,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
         for(auto& i: substrings_crystals){
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
-          shift.at(2) = z_cal - z_trk;
+          shift.at(2) = z_cal - z_trk  ;
           showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, false, false, drawconfigf.getInt("CALColor"));
         }
       }
@@ -649,9 +671,9 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
   if(geomOpt.showCrv and geomOpt.extracted){
 
     static std::vector <std::string> substrings_ex {"CRSmotherLayer_CRV_EX"};
-    shift.at(0) = x_crvex - x_trk;
+    shift.at(0) = x_crvex - x_trk  ;
     shift.at(1) = y_crvex - y_trk;
-    shift.at(2) = z_crvex - z_trk;
+    shift.at(2) = z_crvex - z_trk + tracker_half_length_cm;
 
     for(auto& i: substrings_ex){
       showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));
@@ -660,7 +682,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     static std::vector <std::string> substrings_t1  {"CRSmotherLayer_CRV_T1"};
     shift.at(0) = x_crvt1 - x_trk;
     shift.at(1) = y_crvt1 - y_trk;
-    shift.at(2) = z_crvt1 - z_trk;
+    shift.at(2) = z_crvt1 - z_trk + tracker_half_length_cm;
 
     for(auto& i: substrings_t1){
       showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));
@@ -669,7 +691,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     static std::vector <std::string> substrings_t2  {"CRSmotherLayer_CRV_T2"};
     shift.at(0) = x_crvt2 - x_trk;
     shift.at(1) = y_crvt2 - y_trk;
-    shift.at(2) = z_crvt2 - z_trk;
+    shift.at(2) = z_crvt2 - z_trk + tracker_half_length_cm;
 
     for(auto& i: substrings_t2){
       showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));

@@ -38,12 +38,14 @@ source.inputCommands: ["keep *",
 services.TFileService.fileName: "/dev/null"
 
 physics.analyzers.Mu2eEventDisplay.gdmlname :"Offline/gen/gdml/mu2e_extracted.gdml"
-physics.analyzers.Mu2eEventDisplay.geometry : "extracted_2025"
-physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : false
-physics.analyzers.Mu2eEventDisplay.filler.addCrvRecoPulse : true
-physics.analyzers.Mu2eEventDisplay.filler.addCaloDigis : true
-physics.analyzers.Mu2eEventDisplay.filler.addClusters : false
-physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : false
-physics.analyzers.Mu2eEventDisplay.extracted : true
 services.TFileService.fileName: "/dev/null"
-services.GeometryService.inputFile: "Offline/Mu2eG4/geom/geom_common_extracted.txt"
+services.GeometryService.inputFile: "Offline/Mu2eG4/geom/geom_common_extracted_v02.txt"
+physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : true
+physics.analyzers.Mu2eEventDisplay.filler.addCrvRecoPulse : false
+physics.analyzers.Mu2eEventDisplay.filler.addCaloDigis : false
+physics.analyzers.Mu2eEventDisplay.filler.addClusters : false
+physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : true
+physics.analyzers.Mu2eEventDisplay.extracted : true
+physics.analyzers.Mu2eEventDisplay.specifyTag : false
+
+
