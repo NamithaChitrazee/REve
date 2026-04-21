@@ -44,8 +44,7 @@ namespace mu2e {
         explicit EventDisplayManager(ROOT::Experimental::REveManager* eveMgr,
                                     std::condition_variable& cv,
                                     std::mutex& m,
-                                    GUI *fGui,
-                                    const std::string& geometry = "2025");
+                                    GUI *fGui);
 
         // --- REve Command Methods (Invoked by browser buttons) ---
 
