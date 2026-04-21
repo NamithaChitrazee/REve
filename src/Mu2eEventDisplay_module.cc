@@ -430,8 +430,14 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
           }
           
           if(filler_.addCaloDigis_) {
-              if(specifyTag_) filler_.FillRecoCollections(event, data, CaloDigis);
-              else { FillAnyCollection<CaloDigiCollection, const CaloDigiCollection*>(event, _chits, data.calodigi_tuple);}
+            if(specifyTag_) {
+              std::cout<<"Mu2eEventDisplay::addCaloDigis"<<std::endl;
+              filler_.FillRecoCollections(event, data, CaloDigis);
+            }
+              else {
+                std::cout<<"Mu2eEventDisplay::addCaloDigis Tuple"<<std::endl;
+                FillAnyCollection<CaloDigiCollection, const CaloDigiCollection*>(event, _chits, data.calodigi_tuple);
+              }
           }
 
           if(filler_.addHits_) {
