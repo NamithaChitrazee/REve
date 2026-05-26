@@ -1,6 +1,4 @@
-### 🛠️ Initial Setup and Troubleshooting
-
-Before running the Event Display, complete the following steps to prevent common errors and system hangs.
+Before running the Event Display, complete steps 1 and 2 to prevent common errors and system hangs.
 
 #### 1a. Use a Musing 
 
