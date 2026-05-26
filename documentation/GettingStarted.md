@@ -11,14 +11,14 @@ muse setup AnalysisMDC2025
 
 ##### 1.2 Build GDML Geometry (generally not needed if working from a Musing)
 
-The Event Display requires the detector geometry in **GDML** (Geometry Description Markup Language) format. Skipping this step can cause a fatal ROOT error as shown below.
+But if you have your own local muse setup and want to incorporate the Event Display as well, do not forget the following step after cloning and building the Event Display repository. 
 
 * **Command to Build GDML:**
     ```
     muse build GDML
     ```
+Skipping this step can cause a fatal ROOT error as shown below.
 
-* **Common Error if Skipped:**
     ```
      what(): ---- FatalRootError BEGIN
      Fatal Root Error: TFile::Write
@@ -31,14 +31,13 @@ The Event Display requires the detector geometry in **GDML** (Geometry Descripti
 
 #### 2. Set up the $\text{.rootrc}$ file
 
-The **$\text{.rootrc}$ configuration file** is crucial for the correct functioning of the **ROOT environment** and the Event Display, especially for graphical and startup behavior.
+The **$\text{.rootrc}$** file configures the ROOT environment and is required for proper Event Display startup and graphics behavior.
 
 * **Command to Create $\text{.rootrc}$:**
     This script generates a properly configured $\text{.rootrc}$ file in your current working directory.
     ```
     EventDisplay/config/makerootrc.sh
     ```
-
 ---
 #### 3. Launch the event display 
 
