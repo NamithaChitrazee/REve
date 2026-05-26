@@ -1,4 +1,4 @@
-#### Set up the environment
+#### 1. Set up the environment
 ##### 1.1 Use a Musing 
 
 The easiest way to use the EventDisplay is by using our Analysis Musing. For example:
