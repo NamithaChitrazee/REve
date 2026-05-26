@@ -1,9 +1,3 @@
-## 🚀 Getting Started with the Event Display
-
-This guide covers the essential setup and troubleshooting steps required before launching the Event Display to ensure a smooth and error-free operation.
-
----
-
 ### 🛠️ Initial Setup and Troubleshooting
 
 Before running the Event Display, complete the following steps to prevent common errors and system hangs.
