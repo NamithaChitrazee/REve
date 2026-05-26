@@ -44,24 +44,21 @@ The **$\text{.rootrc}$ configuration file** is crucial for the correct functioni
     ```
 
 ---
+#### 3. Viewing events 
 
-#### 3. Launching the Remote Browser
+Use one of the example files provided in EventDisplay/examples/ to view the events in your art file like you would do with any other mu2e process
 
-* **Accessing the Remote Display:**
-    Use the provided script on your remote machine to set up the connection.
+```
+    mu2e -c EventDisplay/examples/<example>.fcl -c <art file> 
+```
 
-    ```
-    start_RemoteDisplay.sh --port <WXYZ> --user <your_name> --machine <mu2e gpvm number e.g. 04>
-    ```
-
-    > **Note:** **Google Chrome** is the recommended browser.
-
-* **Manual Setup for Other Browsers:**
-    If you prefer another browser, you can manually set up an **SSH tunnel**:
+* **Launch the remote browser**
+   set up an **SSH tunnel** in your local machine or on the remote machine:
     ```
     ssh -KXY -L 0<port>:localhost:0<port> <user>@mu2egpvm0<machine>.fnal.gov
     ```
-    Then, copy the displayed URL (e.g., `http://localhost:<port>/win1/`) into your chosen browser.
+    Then, copy the URL (e.g., `http://localhost:<port>/win1/`) into your chosen browser.
+  > **Note:** **Google Chrome** is the recommended browser.
   
 * **Sign that the Display is Accessible:**
     The local (mu2e) machine will print a log that includes the **EVE URL** and streaming details, indicating that the geometry and event scenes have loaded successfully.
@@ -83,7 +80,7 @@ The **$\text{.rootrc}$ configuration file** is crucial for the correct functioni
 
 ---
 
-#### 4. Correcting Stale Browser Sessions (Correcting hangs)
+#### 5. Correcting Stale Browser Sessions (Correcting hangs)
 
 If the event display **hangs** or fails to start correctly, it is often caused by leftover processes or stale browser calls from a previous session.
 
