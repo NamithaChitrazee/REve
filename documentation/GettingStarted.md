@@ -13,11 +13,13 @@ muse setup AnalysisMDC2025
 If you are using your own local **muse** setup and want to incorporate the display, make sure to build the GDML after cloning and building the Event Display repository. 
 
 ```
+
 muse build GDML
 ```
 Skipping this step can cause a fatal ROOT error as shown below.
 
 ```
+
 what(): ---- FatalRootError BEGIN
 Fatal Root Error: TFile::Write
 file /dev/null not opened in write mode
