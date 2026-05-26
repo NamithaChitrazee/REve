@@ -11,7 +11,7 @@ muse setup AnalysisMDC2025
 
 ##### 1.2 Build the GDML (generally not needed if working from a Musing)
 
-If you are using your own local **muse** setup and want to incorporate the display, make sure to build the GDML geometry after cloning and building the Event Display repository. 
+If you are using your own local **muse** setup and want to incorporate the display, make sure to build the GDML after cloning and building the Event Display repository. 
 
     ```
     muse build GDML
@@ -30,22 +30,25 @@ Skipping this step can cause a fatal ROOT error as shown below.
 
 #### 2. Set up the $\text{.rootrc}$ file
 
-The **$\text{.rootrc}$** file configures the ROOT environment and is required for proper startup and graphics behavior in the display.
+The **$\text{.rootrc}$** file configures the ROOT environment and is required for proper start-up and graphics behavior in the display.
 
     ```
     EventDisplay/config/makerootrc.sh
     ```
 ---
 #### 3. Launch the event display 
-
-Use one of the example FCL files in **EventDisplay/examples/** to visualize events from your art file:
+Use one of the example FCL files in **EventDisplay/examples/** to visualize events in your art file:
 ```
     mu2e -c EventDisplay/examples/<example.fcl> -s <art file> 
 ```
-At this stage, you may encounter issues such as missing reco data products or incorrect instance names. Refer to CommonErrors.md for common fixes.
 
 * **Launch the remote browser**
-  Set up an **SSH tunnel** from your local machine:
+  If launching it on the remote mu2e machine itself, do:
+  ```
+    source EventDisplay/config/start_RemoteDisplay.sh --port <WXYZ> --user <username> --machine <mu2e gpvm number e.g. 04>
+    ```
+
+  Else, if on your local machine:
     ```
     ssh -KXY -L 0<port>:localhost:0<port> <username>@mu2egpvm0<machine>.fnal.gov
     ```
