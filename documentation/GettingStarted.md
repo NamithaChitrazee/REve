@@ -1,6 +1,5 @@
-Before running the Event Display, complete steps 1 and 2 to prevent common errors and system hangs.
-
-#### 1a. Use a Musing 
+#### Set up the environment
+##### 1.1 Use a Musing 
 
 The easiest way to use the EventDisplay is by using our Analysis Musing. For example:
 
@@ -10,9 +9,9 @@ muse setup AnalysisMDC2025
 ```
 
 
-#### 1b. Building GDML Geometry (generally not needed if working from a Musing)
+##### 1.2 Build GDML Geometry (generally not needed if working from a Musing)
 
-The Event Display requires the detector geometry to be compiled into a **GDML** (Geometry Description Markup Language) file. Skipping this step will result in a fatal ROOT error, as the application cannot initialize its environment without the geometry data. 
+The Event Display requires the detector geometry in **GDML** (Geometry Description Markup Language) format. Skipping this step can cause a fatal ROOT error as shown below.
 
 * **Command to Build GDML:**
     ```
@@ -27,11 +26,10 @@ The Event Display requires the detector geometry to be compiled into a **GDML** 
      ROOT severity: 2000
     ---- FatalRootError END
     ```
-    This error indicates a critical failure to load the necessary geometry components.
 
 ---
 
-#### 2. Setting up the $\text{.rootrc}$ File
+#### 2. Set up the $\text{.rootrc}$ file
 
 The **$\text{.rootrc}$ configuration file** is crucial for the correct functioning of the **ROOT environment** and the Event Display, especially for graphical and startup behavior.
 
@@ -42,18 +40,18 @@ The **$\text{.rootrc}$ configuration file** is crucial for the correct functioni
     ```
 
 ---
-#### 3. Viewing events 
+#### 3. Launch the event display 
 
 Use one of the example files provided in EventDisplay/examples/ to view the events in your art file like you would do with any other mu2e process
 
 ```
-    mu2e -c EventDisplay/examples/<example>.fcl -c <art file> 
+    mu2e -c EventDisplay/examples/<example.fcl> -s <art file> 
 ```
 
 * **Launch the remote browser**
-   set up an **SSH tunnel** in your local machine or on the remote machine:
+  Set up an **SSH tunnel** from your local machine:
     ```
-    ssh -KXY -L 0<port>:localhost:0<port> <user>@mu2egpvm0<machine>.fnal.gov
+    ssh -KXY -L 0<port>:localhost:0<port> <username>@mu2egpvm0<machine>.fnal.gov
     ```
     Then, copy the URL (e.g., `http://localhost:<port>/win1/`) into your chosen browser.
   > **Note:** **Google Chrome** is the recommended browser.
@@ -78,7 +76,7 @@ Use one of the example files provided in EventDisplay/examples/ to view the even
 
 ---
 
-#### 5. Correcting Stale Browser Sessions (Correcting hangs)
+#### 4. Troubleshooting stale browser sessions
 
 If the event display **hangs** or fails to start correctly, it is often caused by leftover processes or stale browser calls from a previous session.
 
@@ -87,5 +85,3 @@ If the event display **hangs** or fails to start correctly, it is often caused b
     ```
     EventDisplay/config/kill.sh
     ```
-
-
