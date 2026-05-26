@@ -12,33 +12,32 @@ muse setup AnalysisMDC2025
 
 If you are using your own local **muse** setup and want to incorporate the display, make sure to build the GDML after cloning and building the Event Display repository. 
 
-    ```
-    muse build GDML
-    ```
+```
+muse build GDML
+```
 Skipping this step can cause a fatal ROOT error as shown below.
 
-    ```
-     what(): ---- FatalRootError BEGIN
-     Fatal Root Error: TFile::Write
-     file /dev/null not opened in write mode
-     ROOT severity: 2000
-    ---- FatalRootError END
-    ```
+```
+what(): ---- FatalRootError BEGIN
+Fatal Root Error: TFile::Write
+file /dev/null not opened in write mode
+ROOT severity: 2000
+---- FatalRootError END
+```
 
----
 
 # 2. Set up the $\text{.rootrc}$ file
 
 The **$\text{.rootrc}$** file configures the ROOT environment and is required for proper start-up and graphics behavior in the display.
 
-    ```
-    EventDisplay/config/makerootrc.sh
-    ```
----
+```
+EventDisplay/config/makerootrc.sh
+```
+
 # 3. Launch the event display 
 Use one of the example FCL files in **EventDisplay/examples/** to visualize events in your art file:
 ```
-    mu2e -c EventDisplay/examples/<example.fcl> -s <art file> 
+mu2e -c EventDisplay/examples/<example.fcl> -s <art file> 
 ```
 ## Launch the remote browser
 If running directly on a remote mu2e machine, execute:
@@ -70,9 +69,7 @@ Geometry file: /exp/mu2e/app/users/sophie/...
 ...
 ```
 
----
-
-## 4. Troubleshooting stale browser sessions
+# 4. Troubleshooting stale browser sessions
 
 If the Event Display hangs or fails to start correctly, the issue is often caused by stale browser sessions or leftover processes from a previous run.
 Run the following command to terminate lingering browser and display processes:
