@@ -47,8 +47,22 @@ The **$\text{.rootrc}$ configuration file** is crucial for the correct functioni
 
 #### 3. Launching the Remote Browser
 
-Once you've run the display on the local **Mu2e machines** (refer to the documentation on EventNavigation for local instructions), you can access the remote display using a browser.
+* **Accessing the Remote Display:**
+    Use the provided script on your remote machine to set up the connection.
 
+    ```
+    start_RemoteDisplay.sh --port <WXYZ> --user <your_name> --machine <mu2e gpvm number e.g. 04>
+    ```
+
+    > **Note:** **Google Chrome** is the recommended browser.
+
+* **Manual Setup for Other Browsers:**
+    If you prefer another browser, you can manually set up an **SSH tunnel**:
+    ```
+    ssh -KXY -L 0<port>:localhost:0<port> <user>@mu2egpvm0<machine>.fnal.gov
+    ```
+    Then, copy the displayed URL (e.g., `http://localhost:<port>/win1/`) into your chosen browser.
+  
 * **Sign that the Display is Accessible:**
     The local (mu2e) machine will print a log that includes the **EVE URL** and streaming details, indicating that the geometry and event scenes have loaded successfully.
 
@@ -66,22 +80,6 @@ Once you've run the display on the local **Mu2e machines** (refer to the documen
     ...
     ```
     The presence of the `EVE URL` and logs for streaming the `[Geometry scene]` and `[Event scene]` confirms it's safe to attempt remote access.
-
-* **Accessing the Remote Display:**
-    Use the provided script on your remote machine to set up the connection.
-
-    ```
-    start_RemoteDisplay.sh --port <WXYZ> --user <your_name> --machine <mu2e gpvm number e.g. 04>
-    ```
-
-    > **Note:** **Google Chrome** is the recommended browser.
-
-* **Manual Setup for Other Browsers:**
-    If you prefer another browser, you can manually set up an **SSH tunnel**:
-    ```
-    ssh -KXY -L 0<port>:localhost:0<port> <user>@mu2egpvm0<machine>.fnal.gov
-    ```
-    Then, copy the displayed URL (e.g., `http://localhost:<port>/win1/`) into your chosen browser.
 
 ---
 
