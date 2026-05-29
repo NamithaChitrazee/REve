@@ -564,7 +564,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     SimpleConfig trackerconfig(trackerfilename);
 
     // Get CRV Z-shift for extracted geometry alignment
-    double tracker_half_length_cm = trackerconfig.getDouble("tracker.mother.halfLength")/10.0;
+    double tracker_half_length_cm = 0.0; //trackerconfig.getDouble("tracker.mother.halfLength")/10.0;
     double x_world = 0;
     double y_world = 0;
     double z_world = 0;
