@@ -22,7 +22,7 @@ SimpleConfig trackerconfig(trackerfilename);
 // Get CRV Z-shift for extracted geometry alignment
 double GetCrvExtractedZShift() {
     // Tracker envelope half-length in mm, converted to cm
-    double tracker_half_length_cm = trackerconfig.getDouble("tracker.mother.halfLength")/10.0;
+  double tracker_half_length_cm = 0.0; //trackerconfig.getDouble("tracker.mother.halfLength")/10.0;
     return tracker_half_length_cm;
 }
 
