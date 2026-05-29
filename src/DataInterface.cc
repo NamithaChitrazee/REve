@@ -146,12 +146,8 @@ void DataInterface::AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_,
                 CLHEP::Hep3Vector crystalPos_local_mm = cal.geomUtil().mu2eToDisk(diskID, crystal.position());
                 
                 // Label
-                std::string label = " CaloDigi Instance = " + names[j] + '\n'
-                                  + " Crystal ID = " + std::to_string(cryID) + '\n'
-                                  + " SiPM. = "+std::to_string(sipmID)+ '\n'
-                                  + " Max Amplitude (ADC) = "+std::to_string(max_amplitude)+" " + '\n'
-                                  + " t0 = "+std::to_string(digi.t0())+" ns " + '\n'
-                                  + " peakPos = "+std::to_string(digi.peakpos());
+                std::string label = Form(" Crystal ID = %d \n SiPM = %d \n Max Amplitude (ADC) = %.2f \n t0 = %.2d ns \n peakPos = %d",
+                                         cryID, sipmID, max_amplitude, digi.t0(), digi.peakpos());
                 
                 std::cout << "[DataInterface] Adding CaloDigi: " << digi.t0() << std::endl;
                 // A. Draw Crystal Center (Point Set)
@@ -176,9 +172,8 @@ void DataInterface::AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_,
                 scene->AddElement(ps2);
 
                 // B. Draw Crystal Volume (REveBox)
-                std::string crytitle = "Crystal ID = " + std::to_string(cryID) + '\n'
-                                     + " Max Amplitude (ADC) = " + std::to_string(max_amplitude) + '\n'
-                                     + " Time = " + std::to_string(digi.t0()) + " ns ";
+                std::string crytitle = Form("Crystal ID = %d \n Max Amplitude (ADC) = %.2f \n Time = %.2d ns",
+                                            cryID, max_amplitude, digi.t0());
                 
                 auto b = new REX::REveBox(crytitle.c_str(), crytitle.c_str());
                 b->SetMainColor(color);
@@ -254,8 +249,7 @@ void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_,
                 CLHEP::Hep3Vector pointInMu2e = det->toMu2e(crystalPos);
                 std::string label = Form(" Cluster %d \n E = %.2f MeV, Time = %.2f ns \n Pos = (%.2f,%.2f,%.2f) mm",i, cluster.energyDep(), cluster.time(),
                                          cluster.cog3Vector().x(), cluster.cog3Vector().y(), cluster.cog3Vector().z());
-                  // " Instance = " + names[0] + '\n'
-
+                 
                 auto ps = new REX::REvePointSet(label, "CaloCluster: " + label, 0);
                 ps->SetNextPoint(pointmmTocm(COG.x()), pointmmTocm(COG.y()), abs(pointmmTocm(pointInMu2e.z())));
                 ps->SetMarkerColor(color);
@@ -468,12 +462,8 @@ void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_,
                     double y1 = (p.y()+s*w.y());
                     double y2 = (p.y()-s*w.y());
                     // Add a detailed error bar label
-                    std::string errorbar_label = std::string("ComboHit Error Bar") + '\n' 
-                                               + "Hit Time: " + std::to_string(hit.time()) + " ns" + '\n'
-                                               + "Wire Res (half-length): " + std::to_string(s) + " mm" + '\n'
-                                               + "Error Bar Endpoints (mm):" + '\n'
-                                               + " P1 (" + std::to_string(x1) + ", " + std::to_string(y1) + ", " + std::to_string(z1) + ")" + '\n'
-                                               + " P2 (" + std::to_string(x2) + ", " + std::to_string(y2) + ", " + std::to_string(z2) + ")";
+                    std::string errorbar_label = Form("ComboHit Error Bar \n Hit Time: %.2f ns \n Wire Res (half-length): %.2f mm \n Error Bar Endpoints (mm): \n P1 (%.2f, %.2f, %.2f) \n P2 (%.2f, %.2f, %.2f)",
+                                                      hit.time(), s, x1, y1, z1, x2, y2, z2);
                     auto error = new REX::REveLine(errorbar_label.c_str(), errorbar_label.c_str(), 2);
                     error->SetPoint(0, pointmmTocm(x1), pointmmTocm(y1), pointmmTocm(z1));
                     error->SetNextPoint(pointmmTocm(x2), pointmmTocm(y2), pointmmTocm(z2)); 
@@ -483,13 +473,8 @@ void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_,
                 } 
                 // C. Draw ComboHit Position (REvePointSet)
                 CLHEP::Hep3Vector HitPos(pointmmTocm(hit.pos().x()), pointmmTocm(hit.pos().y()), pointmmTocm(hit.pos().z()));
-                std::string chtitle = "ComboHits tag = "
-                    + (names[j]) + '\n'
-                    + " position : x " + std::to_string(hit.pos().x()) + '\n'
-                    + " y " + std::to_string(hit.pos().y()) + '\n'
-                    + " z " + std::to_string(hit.pos().z()) + '\n'
-                    + " time :" + std::to_string(hit.time()) + '\n'
-                    + " energy dep : " + std::to_string(hit.energyDep()) + "MeV";
+                std::string chtitle = Form("ComboHits tag = %s \n Pos = (%.2f, %.2f, %.2f) mm \n Time = %.2f ns \n E = %.2f MeV",
+                                           names[j].c_str(), hit.pos().x(), hit.pos().y(), hit.pos().z(), hit.time(), hit.energyDep());
                     
                 auto ps1 = new REX::REvePointSet(chtitle.c_str(), chtitle.c_str(), 0);
                 if (!hit.flag().hasAnyProperty(StrawHitFlagDetail::bkg)){
@@ -629,9 +614,8 @@ void DataInterface::AddCrvClusters(REX::REveManager *&eveMng, bool firstLoop_,
         auto allcrvbars_collection = new REX::REveCompound(bars_title.c_str(), bars_title.c_str(), 1); 
         for(unsigned int j=0; j< crvClusters->size(); j++){
             mu2e::CrvCoincidenceCluster const &crvclu = (*crvClusters)[j];
-            std::string crvtitle = "CrvCoincidenceCluster" + std::to_string(j) + " tag : " + names[i] + '\n'
-            + " averge hit time = " + std::to_string(crvclu.GetAvgHitTime())+" ns " + '\n'
-            + " PEs = " + std::to_string(crvclu.GetPEs());
+            std::string crvtitle = Form("CrvCoincidenceCluster %d tag: %s \n Avg Hit Time = %.2f ns \n PEs = %.2f",
+                                        j, names[i].c_str(), crvclu.GetAvgHitTime(), crvclu.GetPEs());
             auto ps1 = new REX::REvePointSet(crvtitle.c_str(), crvtitle.c_str(), 0);
             CLHEP::Hep3Vector pointInMu2e = det->toDetector(crvclu.GetAvgHitPos());
             double cluster_z = pointmmTocm(pointInMu2e.z());
@@ -644,12 +628,8 @@ void DataInterface::AddCrvClusters(REX::REveManager *&eveMng, bool firstLoop_,
                 if (addCrvBars && crvpulse && drawn_bars.count(crvBarIndex) == 0) {
                     drawn_bars.insert(crvBarIndex);
                     double pulse_time = crvpulse->GetPulseTime();
-                    std::string pulsetitle = " Crv Bar Hit for tag : " + names[i] +  '\n'
-                                              + "Bar ID: " + std::to_string(crvBarIndex.asInt()) +  '\n'
-                                              + "Pulse Time: " + std::to_string(pulse_time) + " ns" + '\n'
-                                              + "Pulse Height: " + std::to_string(crvpulse->GetPulseHeight()) + " ADC" + '\n'
-                                              + "Coincidence start time: " + std::to_string(crvclu.GetStartTime()) +  '\n'
-                                              + "Coincidence end time: " + std::to_string(crvclu.GetEndTime());
+                    std::string pulsetitle = Form(" Crv Bar Hit for tag: %s \n Bar ID: %d \n Pulse Time: %.2f ns \n Pulse Height: %.2f ADC \n Coincidence start: %.2f ns \n Coincidence end: %.2f ns",
+                                                  names[i].c_str(), crvBarIndex.asInt(), pulse_time, crvpulse->GetPulseHeight(), crvclu.GetStartTime(), crvclu.GetEndTime());
                     AddCrvBar(crvBarIndex, pulsetitle, kBlack, extracted, scene, allcrvbars_collection);
                 }
             }
@@ -675,8 +655,8 @@ void DataInterface::AddTimeClusters(REX::REveManager *&eveMng, bool firstLoop_, 
       const TimeClusterCollection* tccol = timecluster_list[i];
         for(size_t j=0; j<tccol->size();j++){
           mu2e::TimeCluster const  &tclust= (*tccol)[j];
-          std::string tctitle = "Time Cluster tag: " + names[i] + '\n'
-            + "t0 " + std::to_string(tclust.t0().t0()) + " +/- " + std::to_string(tclust.t0().t0Err()) + " ns " + '\n' ;
+          std::string tctitle = Form("Time Cluster tag: %s \n t0 = %.2f +/- %.2f ns",
+                                     names[i].c_str(), tclust.t0().t0(), tclust.t0().t0Err());
           auto ps1 = new REX::REvePointSet("TimeClusters", tctitle, 0);
           int tchitsize = tclust.hits().size();
           for (int ih=0; ih < tchitsize; ih++) {
@@ -732,10 +712,8 @@ void DataInterface::AddHelixSeedCollection(REX::REveManager *&eveMng, bool first
                 double r_center = rhelix._rcent; // Radius of center vector
                 
                 // Create Detailed Title String
-                std::string helix_title = "HelixSeed " + std::to_string(k) + " tag: " + names[j] + '\n'
-                    + " Momentum (p): " + std::to_string(momentum) + " MeV/c" + '\n'
-                    + " Pitch (lambda): " + std::to_string(lambda_pitch) + '\n'
-                    + " Center Radius (R_cent): " + std::to_string(r_center) + " mm";
+                std::string helix_title = Form("HelixSeed %d tag: %s \n Momentum (p): %.2f MeV/c \n Pitch (lambda): %.4f \n Center Radius (R_cent): %.2f mm",
+                                               k, names[j].c_str(), momentum, lambda_pitch, r_center);
                 
                 
                 // Use the calculated number of points for the REveLine constructor
@@ -794,16 +772,7 @@ void DataInterface::AddKalIntersection(mu2e::KalSeed const& kalseed, REX::REveEl
         const KinKal::VEC3& posKI = inter.position3();
         
         // Create Detailed Title String
-        std::string title = std::string("KalIntersection for track: ") + track_tag + '\n'
-            + "Surface: " + inter.surfaceId().name() + '\n'
-            + "Position (x, y, z): (" 
-                + std::to_string(posKI.x()) + ", " 
-                + std::to_string(posKI.y()) + ", " 
-                + std::to_string(posKI.z()) + ") mm" + '\n'
-            + "Time: " + std::to_string(inter.time()) + " ns" + '\n'
-            + "Momentum (p, dp): " 
-                + std::to_string(inter.mom()) + " +/- " 
-                + std::to_string(inter.dMom()) + " MeV/c";
+        std::string title = Form("KalIntersection Surface: %s \n Pos = (%.2f, %.2f, %.2f) mm \n Time = %.2f ns \n Momentum = %.2f +/- %.2f MeV/c", inter.surfaceId().name().c_str(), posKI.x(), posKI.y(), posKI.z(), inter.time(), inter.mom(), inter.dMom());
         
         // Create and Style REve Point Set
         auto interpoint = new REX::REvePointSet(title.c_str(), title.c_str(), 1);
@@ -839,40 +808,9 @@ void DataInterface::AddTrkStrawHit(mu2e::KalSeed const& kalseed, REX::REveElemen
     mu2e::GeomHandle<mu2e::Tracker> tracker;
     std::vector<mu2e::TrkStrawHitSeed> const& hits = kalseed.hits();
 
-    // Configuration Constants
-    const double N_SIGMA = 2.0; // Length of the error line in sigma
-    const std::string SIGMA_TITLE = "+/-" + std::to_string(N_SIGMA) + " sigma";
-    // Loop Over Track-Straw Hits
     for(mu2e::TrkStrawHitSeed const& tshs : hits){
         // Get Geometry and State
         const mu2e::Straw& straw = tracker->straw(tshs.strawId());
-        /*const CLHEP::Hep3Vector& p = straw.getMidPoint();
-        const CLHEP::Hep3Vector& d = straw.getDirection();
-        double l = straw.halfLength();
-        double st = sin(d.theta());
-        double ct = cos(d.theta());
-        double sp = sin(d.phi()+TMath::Pi()/2.0);
-        double cp = cos(d.phi()+TMath::Pi()/2.0);
-        double x1=p.x()+l*st*sp;
-        double y1=p.y()-l*st*cp;
-        double z1=p.z()+l*ct;
-        double x2=p.x()-l*st*sp;
-        double y2=p.y()+l*st*cp;
-        double z2=p.z()-l*ct;
-        std::cout<<"Hit Straw = "<<x1<<" "<<y1<<" "<<z1<<" end = "<<x2<<" "<<y2<<" "<<z2<<std::endl;
-        std::string strawtitle;
-        strawtitle =Form("Straw %i Panel %i Plane %i",straw.id().getStraw(), straw.id().getPanel(), straw.id().getPlane());
-        CLHEP::Hep3Vector sposi(0.0,0.0,0.0), sposf(0.0,0.0,0.0);
-        sposi.set(x1, y1, z1);
-        sposf.set(x2, y2, z2);
-        if(sposi.x() != 0){
-          auto strawline = new REX::REveLine(strawtitle, strawtitle, 2);
-          strawline->SetPoint(0, pointmmTocm(sposi.x()), pointmmTocm(sposi.y()), pointmmTocm(sposi.z()));
-          strawline->SetNextPoint(pointmmTocm(sposf.x()), pointmmTocm(sposf.y()), pointmmTocm(sposf.z()));
-          strawline->SetLineWidth(1);
-          strawline->SetLineColor(kGray); 
-          if(strawline->GetSize() != 0) scene->AddElement(strawline);
-        }*/
         // Setup the hit state based on parameters in the seed
         mu2e::WireHitState whs(mu2e::WireHitState::State(tshs._ambig), mu2e::StrawHitUpdaters::algorithm(tshs._algo), tshs._kkshflag);
         bool active = whs.active();
@@ -881,7 +819,6 @@ void DataInterface::AddTrkStrawHit(mu2e::KalSeed const& kalseed, REX::REveElemen
         if(active){
             // Start position: position on the wire at the reference POCA (RUpOS)
             auto tshspos = XYZVectorF(straw.wirePosition(tshs._rupos));
-            double hit_error(0.0);
             // Find direction perpendicular to the wire and the track direction (drift direction)
             // track direction at POCA
             auto tdir = lhptr->direction(tshs._ptoca);
@@ -890,7 +827,7 @@ void DataInterface::AddTrkStrawHit(mu2e::KalSeed const& kalseed, REX::REveElemen
             // drift direction is perpendicular to the plane formed by wire and track
             auto ddir = wdir.Cross(tdir).Unit() * whs.lrSign();
 
-            // 1. LONGITUDINAL ERROR BAR
+            // LONGITUDINAL ERROR BAR
             float long_error = tshs._werr;
             auto long_end1 = tshspos + long_error*wdir;
             auto long_end2 = tshspos - long_error*wdir;
@@ -898,34 +835,14 @@ void DataInterface::AddTrkStrawHit(mu2e::KalSeed const& kalseed, REX::REveElemen
             long_line->SetNextPoint(pointmmTocm(long_end1.x()), pointmmTocm(long_end1.y()), pointmmTocm(long_end1.z()));
             long_line->SetNextPoint(pointmmTocm(long_end2.x()), pointmmTocm(long_end2.y()), pointmmTocm(long_end2.z()));
             long_line->SetLineWidth(3);
-            long_line->SetLineColor(kBlue); // Distinct color for wire-direction error
+            long_line->SetLineColor(kBlue);
+            // Move position out by the drift distance along the signed drift direction
+            if(usedrift)
+              tshspos += tshs._rdrift * ddir;
+            std::string title = Form("TrkStrawHit\n Pos = (%.2f, %.2f, %.2f) mm \n Time = %.2f ns",
+                                     tshspos.x(), tshspos.y(), tshspos.z(), tshs.time());
 
-            if(usedrift){
-                // Move position out by the drift distance along the signed drift direction
-                tshspos += tshs._rdrift * ddir;
-                hit_error = tshs._sderr; // Use signed drift error
-            } else {
-                hit_error = tshs._uderr; // Use unsigned drift error
-            }
-            // Calculate the endpoints for the error line segment
-            auto end1 = tshspos + N_SIGMA * hit_error * ddir;
-            auto end2 = tshspos - N_SIGMA * hit_error * ddir;
-            std::cout<<"Hit Error = "<<hit_error<<" ddir = "<<ddir<<std::endl;
-            // Create Title and Compound
-            std::string title = std::string("TrkStrawHitSeed:") + '\n'
-                + " Position (x,y,z): (" 
-                    + std::to_string(tshspos.x()) + ", " 
-                    + std::to_string(tshspos.y()) + ", " 
-                    + std::to_string(tshspos.z()) + ") mm" + '\n'
-                + " Time: " + std::to_string(tshs.time()) + " ns" + '\n'
-                + " EnergyDep: " + std::to_string(tshs.energyDep()) + " MeV" + '\n'
-                + " Error: " + SIGMA_TITLE;
-
-            // Compound holds the point and the error line together
-            auto point_with_error = new REX::REveCompound(title.c_str(), "TrkStrawHitSeed", 1);
-            // Create Point Marker
             auto trkstrawpoint = new REX::REvePointSet(title.c_str(), title.c_str(), 1);
-            // Marker configuration
             trkstrawpoint->SetMarkerStyle(DataInterface::mstyle);
             trkstrawpoint->SetMarkerSize(DataInterface::msize); 
             // Color logic: Redraw color if drift constraint wasn't used
@@ -934,26 +851,9 @@ void DataInterface::AddTrkStrawHit(mu2e::KalSeed const& kalseed, REX::REveElemen
               base_color = drawconfig.getInt("TrkNoHitColor"); //Red color hit
             }
             trkstrawpoint->SetMarkerColor(base_color);
-            // Set the position of the hit marker
             trkstrawpoint->SetNextPoint(pointmmTocm(tshspos.x()), pointmmTocm(tshspos.y()), pointmmTocm(tshspos.z()));
-            //  Error Line
-            auto line = new REX::REveLine(("TrkStrawHit Error " + SIGMA_TITLE).c_str(), SIGMA_TITLE.c_str(), 2);
-            // Set line endpoints (converted to cm)
-            std::cout<<"Error bars = "<<end1.x()<<" "<<end1.y()<<" "<<end1.z()<<" "<<end2.x()<<" "<<end2.y()<<" "<<end2.z()<<std::endl;
-            //line->SetNextPoint(pointmmTocm(end1.x()), pointmmTocm(end1.y()), pointmmTocm(end1.z()));
-            //line->SetNextPoint(pointmmTocm(end2.x()), pointmmTocm(end2.y()), pointmmTocm(end2.z()));
-            line->SetNextPoint(end1.x(), end1.y(), end1.z());
-            line->SetNextPoint(end2.x(), end2.y(), end2.z());
-            
-            // Line color is the same as the base hit color
-            line->SetLineColor(kBlack); 
-
-            // Add Elements to Compound and Compound to Products
-            point_with_error->AddElement(trkstrawpoint);
-            point_with_error->AddElement(line);
-            point_with_error->AddElement(long_line);
-           
-            trackproducts->AddElement(point_with_error);
+            trackproducts->AddElement(trkstrawpoint);
+            trackproducts->AddElement(long_line);
         }
     }
 }
@@ -980,13 +880,8 @@ void DataInterface::AddTrkCaloHit(mu2e::KalSeed const& kalseed, REX::REveElement
         mu2e::Calorimeter const &cal = *(mu2e::GeomHandle<mu2e::Calorimeter>());
         GeomHandle<DetectorSystem> det;
         // Create Title String
-        std::string cluster_title = std::string("TrkCaloHit CaloCluster") + '\n'
-                                  + " Position (x,y,z): (" 
-                                  + std::to_string(clusterPos.x()) + ", " 
-                                  + std::to_string(clusterPos.y()) + ", " 
-                                  + std::to_string(clusterPos.z()) + ") mm" + '\n'
-                                  + " Energy: " + std::to_string(energy) + " MeV" + '\n'
-                                  + " Time: " + std::to_string(time) + " ns";
+        std::string cluster_title = Form("TrkCaloHit CaloCluster \n Pos = (%.2f, %.2f, %.2f) mm \n E = %.2f MeV \n Time = %.2f ns",
+                                         clusterPos.x(), clusterPos.y(), clusterPos.z(), energy, time);
 
         CLHEP::Hep3Vector crystalPos = cal.geomUtil().mu2eToDisk(cluster->diskID(),clusterPos);
         CLHEP::Hep3Vector pointInMu2e = det->toMu2e(crystalPos);
@@ -1084,9 +979,7 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
 
     // Setup and Data Extraction 
     const auto& ptable = GlobalConstantsHandle<ParticleDataList>();
-    const auto& track_list = std::get<1>(track_tuple);
-    const auto& names = std::get<0>(track_tuple);
-    
+    const auto& track_list = std::get<1>(track_tuple);    
     if (track_list.empty()) return;
 
     // Loop over KalSeed Collections 
@@ -1136,8 +1029,7 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
                     << "cx " << lh.cx() << " mm, "
                     << "cy " << lh.cy() << " mm, "
                     << "phi0 " << lh.phi0() << " rad" << '\n'
-                    << "N active hits: " << nactive << ", Fit cons: " << kseed.fitConsistency() << '\n'
-                    << "Instance: " << names[j];
+                         << "N active hits: " << nactive << ", Fit cons: " << kseed.fitConsistency();
                 
                 AddKinKalTrajectory<LHPT>(trajectory, scene, j, ksstream.str(), t1, t2);
                 if(addTrkHits) {
@@ -1161,8 +1053,7 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
                     << "z0 " << ch.z0() << " mm, "
                     << "phi0 " << ch.phi0() << " rad" << '\n'
                     << "omega " << ch.omega() << " mm^-1" << '\n'
-                    << "Track arrival time " << t1 << '\n'
-                    << "Instance: " << names[j];
+                    << "Track arrival time " << t1;
                 
                 AddKinKalTrajectory<CHPT>(trajectory, scene, j, ksstream.str(), t1, t2);
                 if(addTrkHits) {
@@ -1185,8 +1076,7 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
                     << "z0 " << kl.z0() << " mm" << '\n'
                     << "phi0 " << kl.phi0() << " rad, "
                     << "theta " << kl.theta() << " rad" << '\n'
-                    << "Track arrival time " << t1 << '\n'
-                    << "Instance: " << names[j];
+                    << "Track arrival time " << t1;
                 
                 AddKinKalTrajectory<KLPT>(trajectory, scene, j, ksstream.str(), t1, t2);
                 if(addTrkHits) {
@@ -1336,9 +1226,8 @@ void DataInterface::AddCRVKalIntersection(REX::REveManager *&eveMng, bool firstl
             
             mu2e::CrvCoincidenceCluster const &crvclu = (*crvClusters)[j];
             // Make title
-            std::string crvtitle = "CrvCoincidenceCluster" + std::to_string(j) + " tag : " + names[i] + '\n'
-            + " averge hit time = " + std::to_string(crvclu.GetAvgHitTime())+" ns " + '\n'
-            + " PEs = " + std::to_string(crvclu.GetPEs());
+            std::string crvtitle = Form("CrvCoincidenceCluster %d Avg Hit Time = %.2f ns \n PEs = %.2f",
+                                        j, crvclu.GetAvgHitTime(), crvclu.GetPEs());
             auto ps1 = new REX::REvePointSet(crvtitle.c_str(), crvtitle.c_str(), 0);
             
             CLHEP::Hep3Vector pointInMu2e = det->toDetector(crvclu.GetAvgHitPos());
@@ -1372,13 +1261,7 @@ void DataInterface::AddCRVKalIntersection(REX::REveManager *&eveMng, bool firstl
                       hit_color = kRed;
                     else
                       hit_color = kBlack;
-                    std::string pulsetitle = " Crv Bar Hit for tag : "
-                                             + names[i] +  '\n'
-                                             + "Bar ID: " + std::to_string(crvBarIndex.asInt()) +  '\n'
-                                             + "Pulse Time: " + std::to_string(pulse_time) + '\n'
-                                             + "Pulse Height: " + std::to_string(pulse_height) + " ADC" + '\n'
-                                             + "Coincidence start time: " + std::to_string(crvclu.GetStartTime()) +  '\n'
-                                             + "Coincidence end time: " + std::to_string(crvclu.GetEndTime());
+                    std::string pulsetitle = Form(" Crv Hit Bar ID: %d \n Pulse Time: %.2f ns \n Pulse Height: %.2f ADC \n Coincidence start: %.2f ns \n Coincidence end: %.2f ns",crvBarIndex.asInt(), pulse_time, pulse_height, crvclu.GetStartTime(), crvclu.GetEndTime());
                     AddCrvBar(crvBarIndex, pulsetitle, hit_color, extracted, scene, allcrvbars_collection);
                 }
             } // End of inner h loop (pulses)
