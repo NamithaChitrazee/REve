@@ -312,9 +312,8 @@ void DataInterface::AddBkgClusters(REX::REveManager *&eveMng, bool firstLoop_, s
   std::vector<const BkgClusterCollection*> bkgcluster_list = std::get<1>(bkgcluster_tuple);
   // std::vector<std::string> names = std::get<0>(bkgcluster_tuple);
   std::cout<<"BkgClusterCollection size = "<<bkgcluster_list.size()<<std::endl;
-  std::string bctitle = "BkgCluster";
-  auto ps1 = new REX::REvePointSet(bctitle, bctitle,0);
   int colour = 6; //Magenta
+  auto bkgcluster_compound = new REX::REveCompound("BkgClusters", "BkgClusters", 1);
   for(unsigned int j = 0; j < bkgcluster_list.size(); j++){
     const BkgClusterCollection* bccol = bkgcluster_list[j];
     if(bccol->size() !=0 ){
@@ -331,17 +330,20 @@ void DataInterface::AddBkgClusters(REX::REveManager *&eveMng, bool firstLoop_, s
         ps2->SetMarkerStyle(DataInterface::mstyle);
         ps2->SetMarkerSize(DataInterface::msize);
         if(ps2->GetSize() !=0 ) scene->AddElement(ps2);
-        //int colour = (i+3);
-        //std::cout<<"BkgCluster ="<<bkgcluster.hits().size()<<std::endl;
         CLHEP::Hep3Vector ClusterPos(pointmmTocm(bkgcluster.pos().x()), pointmmTocm(bkgcluster.pos().y()), pointmmTocm(bkgcluster.pos().z()));
-        ps1->SetNextPoint(ClusterPos.x(), ClusterPos.y() , ClusterPos.z());
+        std::string bctitle = Form("BkgCluster %d \n Pos = (%.2f, %.2f, %.2f) mm \n Hit Size = %zu \n Keras Quality = %.3f",
+                                   i, bkgcluster.pos().x(), bkgcluster.pos().y(), bkgcluster.pos().z(),
+                                   bkgcluster.hits().size(), bkgcluster.getKerasQ());
+        auto ps1 = new REX::REvePointSet(bctitle.c_str(), bctitle.c_str(), 1);
+        ps1->SetNextPoint(ClusterPos.x(), ClusterPos.y(), ClusterPos.z());
+        ps1->SetMarkerColor(colour);
+        ps1->SetMarkerStyle(DataInterface::mstyle);
+        ps1->SetMarkerSize(DataInterface::msize);
+        bkgcluster_compound->AddElement(ps1);
       }
     }
   }
-  ps1->SetMarkerColor(colour);
-  ps1->SetMarkerStyle(DataInterface::mstyle);
-  ps1->SetMarkerSize(DataInterface::msize);
-  if(ps1->GetSize() !=0 ) scene->AddElement(ps1);
+  if(bkgcluster_compound->NumChildren() != 0) scene->AddElement(bkgcluster_compound);
 }
 /*
  * Adds reconstructed ComboHits data products to the REve visualization scene.
