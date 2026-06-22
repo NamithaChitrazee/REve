@@ -63,6 +63,11 @@ class PrintInfo : public ROOT::Experimental::REveElement
     // Primary storage: Tuple for all CRV Coincidence Cluster collections
     std::tuple<std::vector<std::string>, std::vector<const mu2e::CrvCoincidenceClusterCollection*>> fcrvcoin_tuple;
 
+    // --- Current Event Identifiers (Updated each event by Mu2eEventDisplay) ---
+    int feventid{0};
+    int fsubrunid{0};
+    int frunid{0};
+
     // --- Print Command Methods (Invoked by REve commands) ---
 
     /**

@@ -42,6 +42,7 @@
 #include <condition_variable>
 #include <iostream>
 #include <mutex>
+#include <string>
 #include <thread>
 
 //Offline:
@@ -614,9 +615,9 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
     // --- Custom GUI and HTML Page Setup ---
 
     // Add a location path for custom files (like JavaScript or CSS).
-    eveMng_->AddLocation("mydir/", configFile("EventDisplay/CustomGUIv2")); 
+    //eveMng_->AddLocation("mydir/", configFile("EventDisplay/CustomGUIv2")); 
     // Set the default HTML page that the web browser will load.
-    eveMng_->SetDefaultHtmlPage("file:mydir/eventDisplay.html"); 
+    //eveMng_->SetDefaultHtmlPage("file:mydir/eventDisplay.html"); 
 
     // --- Add Elements to the World (Element ID Assignment occurs here) ---
 
@@ -666,7 +667,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       eveMng_->GetWorld()->BeginAcceptingChanges(); 
       
       // Tell all scenes managed by the REveManager to start accepting batched changes.
-      eveMng_->GetScenes()->AcceptChanges(true); 
+      // eveMng_->GetScenes()->AcceptChanges(true); 
 
       // --- 2. Update GUI and PrintInfo Data Structures ---
 
@@ -677,6 +678,14 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
 
       // Transfer the relevant collection data to the PrintInfo object. 
       // This allows the PrintInfo command to access and display details when triggered.
+      fPrint->feventid = eventid_;
+      fPrint->fsubrunid = subrunid_;
+      fPrint->frunid = runid_;
+      fPrint->SetTitle(("Run:" + std::to_string((int)runid_) +
+                        "  Subrun:" + std::to_string((int)subrunid_) +
+                        "  Event:" + std::to_string((int)eventid_)).c_str());
+      fPrint->StampObjProps();
+
       fPrint->fcalocluster_tuple = data.calocluster_tuple;
       fPrint->fmctrack_tuple = data.mctrack_tuple;
       fPrint->ftrack_tuple = data.track_tuple;
@@ -712,7 +721,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       firstLoop_ = false; 
       
       // Stop tracking changes in all scenes.
-      eveMng_->GetScenes()->AcceptChanges(false); 
+      // eveMng_->GetScenes()->AcceptChanges(false); 
       
       // Finalize the batch of changes for the World scene. This triggers the update signal.
       eveMng_->GetWorld()->EndAcceptingChanges(); 
