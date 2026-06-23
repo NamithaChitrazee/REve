@@ -1,0 +1,47 @@
+<mvc:View height="100%" class="sapUiSizeCompact"
+      controllerName="mu2e.controller.Mu2eMain"
+      xmlns="sap.m"
+      xmlns:mvc="sap.ui.core.mvc"
+      xmlns:l="sap.ui.layout">
+
+   <Page showNavButton="false" showFooter="false" enableScrolling="false"
+         showHeader="true" id="CanvasMainPage">
+
+      <customHeader>
+         <Bar id="topBar">
+            <contentLeft>
+               <Button id="nextEventBtn"
+                       text="Next Event"
+                       icon="sap-icon://media-play"
+                       tooltip="Load next event"
+                       press="nextEvent"/>
+               <Button id="quitBtn"
+                       text="Quit"
+                       icon="sap-icon://log"
+                       tooltip="Quit ROOT"
+                       type="Reject"
+                       press="quitRoot"/>
+            </contentLeft>
+            <contentMiddle>
+               <Label id="eventInfoLabel"
+                      text="Run: -- | Subrun: -- | Event: --"
+                      design="Bold"/>
+            </contentMiddle>
+            <contentRight>
+               <Label id="statusLabel" text="Mu2e Event Display"/>
+            </contentRight>
+         </Bar>
+      </customHeader>
+
+      <content>
+         <l:Splitter orientation="Horizontal" id="MainAreaSplitter">
+            <l:contentAreas>
+               <mvc:XMLView id="Summary" viewName="rootui5.eve7.view.Summary" height="100%">
+                  <mvc:layoutData><l:SplitterLayoutData size="25%"/></mvc:layoutData>
+               </mvc:XMLView>
+            </l:contentAreas>
+         </l:Splitter>
+      </content>
+
+   </Page>
+</mvc:View>

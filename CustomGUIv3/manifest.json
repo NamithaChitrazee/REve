@@ -1,0 +1,45 @@
+{
+   "sap.app": { "id": "mu2e" },
+   "sap.ui5": {
+      "rootView": {
+         "viewName": "mu2e.view.MainMain",
+         "type": "XML",
+         "async": true,
+         "id": "Eve7"
+      },
+      "dependencies": {
+         "libs": {
+            "sap.ui.core": {},
+            "sap.ui.layout": {},
+            "sap.m": {}
+         }
+      },
+      "routing": {
+         "config": {
+            "routerClass": "sap.m.routing.Router",
+            "viewType": "XML",
+            "async": true,
+            "viewPath": "mu2e.view",
+            "controlAggregation": "pages",
+            "controlId": "myApp"
+         },
+         "routes": [
+            { "name": "Default", "pattern": "", "target": ["Mu2eMain"] },
+            { "name": "View",    "pattern": "view/:viewName:", "target": ["GL"] }
+         ],
+         "targets": {
+            "Mu2eMain": {
+               "transition": "slide",
+               "clearAggregation": false,
+               "viewName": "Mu2eMain"
+            },
+            "GL": {
+               "transition": "slide",
+               "clearAggregation": false,
+               "viewName": "GL",
+               "viewPath": "rootui5.eve7.view"
+            }
+         }
+      }
+   }
+}

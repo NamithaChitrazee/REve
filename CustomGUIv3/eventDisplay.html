@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>Mu2e Event Display</title>
+      <style>
+         html { height: 100%; }
+         body { min-height: 100%; margin: 0; overflow: hidden }
+         #EveDiv {
+            position: absolute;
+            left: 0; top: 0; bottom: 0; right: 0;
+            padding: 1
+         }
+      </style>
+   </head>
+   <body>
+      <div id="EveDiv"></div>
+      <script type='module'>
+         import { source_dir } from '/jsrootsys/modules/core.mjs';
+         import { connectWebWindow } from '/jsrootsys/modules/webwindow.mjs';
+         import { initEVE } from '/rootui5sys/eve7/eve.mjs';
+
+         initEVE(source_dir).then(() => connectWebWindow({
+            ui5: true,
+            openui5libs: "sap.ui.core"
+         })).then(handle => {
+            sap.ui.loader.config({ paths: { mu2e: "mydir/" } });
+            sap.ui.require(["sap/ui/core/ComponentContainer"], ComponentContainer => {
+               new ComponentContainer({
+                  name: "mu2e",
+                  manifest: true,
+                  async: true,
+                  settings: { componentData: { conn_handle: handle } },
+                  height: "100%"
+               }).placeAt("EveDiv");
+            });
+         });
+      </script>
+   </body>
+</html>
