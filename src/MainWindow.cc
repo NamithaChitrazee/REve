@@ -783,6 +783,10 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
     pass_data->FillKinKalTrajectory(eveMng, firstLoop, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, KKOpts.addTrkCaloHits, t1, t2);
     //redrawCanvas(seedcol);
      if(drawOpts.addTrackerHist and track_list.size() !=0) {
+      if (!fTrackerCalo2DViews) {
+        fTrackerCalo2DViews = new TrackerCalo2DViews();
+        fTrackerCalo2DViews->createHistogramView();
+      }
       auto const& track_list = std::get<1>(data.track_tuple);
       const mu2e::KalSeedPtrCollection* seedcol = track_list[0];
       fTrackerCalo2DViews->drawTrackerStation(seedcol);
@@ -822,6 +826,8 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
     if(calocluster_list.size() !=0 ) 
       pass_data->AddCaloClusters(eveMng, firstLoopCalo, data.calocluster_tuple, eventScene, drawOpts.addCrystalDraw);
     if(drawOpts.addCaloHist and calocluster_list.size() !=0) {
+      if (!fTrackerCalo2DViews)
+        fTrackerCalo2DViews = new TrackerCalo2DViews();
       const CaloClusterCollection* clustercol = calocluster_list[0];
       fTrackerCalo2DViews->drawCalorimeterDisk(clustercol);
    }
@@ -869,9 +875,6 @@ void MainWindow::makeGeometryScene(REX::REveManager *eveMng, GeomOptions geomOpt
   gGeoManager->SetTopVisible(kFALSE);
   TGeoNode* topnode = gGeoManager->GetTopNode();
   createProjectionStuff(eveMng);
-  fTrackerCalo2DViews = new TrackerCalo2DViews();
-  fTrackerCalo2DViews->createHistogramView();
-  fTrackerCalo2DViews->drawTrackerXYView(nullptr); // seeds baseline geometry into the canvas immediately
   std::string name(topnode->GetName());
   {
     // make holders for different parts of geometry
