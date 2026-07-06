@@ -615,9 +615,9 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
     // --- Custom GUI and HTML Page Setup ---
 
     // Add a location path for custom files (like JavaScript or CSS).
-    eveMng_->AddLocation("mydir/", configFile("EventDisplay/CustomGUIv3"));
+    // eveMng_->AddLocation("mydir/", configFile("EventDisplay/CustomGUIv3"));
     // Set the default HTML page that the web browser will load.
-    eveMng_->SetDefaultHtmlPage("file:mydir/eventDisplay.html");
+    // eveMng_->SetDefaultHtmlPage("file:mydir/eventDisplay.html");
 
     // --- Add Elements to the World (Element ID Assignment occurs here) ---
 
