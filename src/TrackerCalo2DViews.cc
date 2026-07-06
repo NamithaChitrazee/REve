@@ -38,6 +38,8 @@ void TrackerCalo2DViews::createHistogramView() {
     auto histScene = evMng.SpawnNewScene("Histograms", "Histogram Scene");
     fCanvasHolder = new REX::REvePointSet("CanvasData");
     histScene->AddElement(fCanvasHolder);
+    fXYCanvasHolder = new REX::REvePointSet("TrackerXYData");
+    histScene->AddElement(fXYCanvasHolder);
     fCanvas = new TCanvas("Mu2eCanvas", "Tracker Plane Y v/s Z View", 800, 600);
     auto canvasViewer = evMng.SpawnNewViewer("Histogram viewer", "Mu2e Histogram");
     canvasViewer->AddScene(histScene);
@@ -362,6 +364,12 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
 
     fXYCanvas->Modified();
     fXYCanvas->Update();
+
+    if (fXYCanvasHolder) {
+        TString json = TBufferJSON::ToJSON(fXYCanvas);
+        fXYCanvasHolder->SetTitle(TBase64::Encode(json).Data());
+        fXYCanvasHolder->StampObjProps();
+    }
 }
 
 void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* clustercol) {
