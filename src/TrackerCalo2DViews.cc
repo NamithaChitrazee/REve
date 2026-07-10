@@ -366,6 +366,7 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
     fXYCanvas->Update();
 
     if (fXYCanvasHolder) {
+      std::cout<<"do you happen?"<<std::endl;
         TString json = TBufferJSON::ToJSON(fXYCanvas);
         fXYCanvasHolder->SetTitle(TBase64::Encode(json).Data());
         fXYCanvasHolder->StampObjProps();

@@ -764,7 +764,9 @@ void MainWindow::createProjectionStuff(REX::REveManager *eveMng)
   XYCaloDisk1View->AddScene(XYCaloDisk1EventScene);
 
   for (auto v: {TrackerXYView, XYCaloDisk0View, XYCaloDisk1View, rhoZView}){
-    v->SetAxesType(REX::REveViewer::kAxesOrigin);
+    //v->SetAxesType(REX::REveViewer::kAxesOrigin);
+    //v->StampObjProps();
+    v->SetAxesType(REX::REveViewer::kAxesEdge);
     v->StampObjProps();
   }
 }
