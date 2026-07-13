@@ -52,11 +52,6 @@ void MainWindow::makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX::REveEl
     mngXYCaloDisk1->ImportElements(b1s, XYCaloDisk1GeomScene);
   }
 
-  //show only first tracker plane
-  if( val == FrontTracker_gdmltag ){
-    mngTrackerXY->ImportElements(b1s, TrackerXYGeomScene); //shows only one plane for 2D view for simplicity
-  }
-
   bool isCrv = name.find("CRS") != string::npos;
   // remove Crv from the YZ view as it blocks tracker/calo view (will have its own view)
   if(!isCrv) { mngRhoZ->ImportElements(b1s, rhoZGeomScene); }
@@ -703,11 +698,9 @@ void MainWindow::projectEvents(REX::REveManager *eveMng)
 {
   for (auto &ie : eveMng->GetEventScene()->RefChildren())
   {
-    TrackerXYView->SetCameraType(REX::REveViewer::kCameraOrthoXOY);
     XYCaloDisk0View->SetCameraType(REX::REveViewer::kCameraOrthoXOY);
     XYCaloDisk1View->SetCameraType(REX::REveViewer::kCameraOrthoXOY);
     rhoZView->SetCameraType(REX::REveViewer::kCameraOrthoXOY);
-    mngTrackerXY->ImportElements(ie, TrackerXYEventScene);
 
     mngRhoZ  ->ImportElements(ie, rhoZEventScene);
 
@@ -720,16 +713,6 @@ void MainWindow::projectEvents(REX::REveManager *eveMng)
 
 void MainWindow::createProjectionStuff(REX::REveManager *eveMng)
 {
-  // -------------------Tracker XY View ----------------------------------
-  TrackerXYGeomScene  = eveMng->SpawnNewScene("TrackerXY Geometry","TrackerXY");
-  TrackerXYEventScene = eveMng->SpawnNewScene("TrackerXY Event Data","TrackerXY");
-
-  mngTrackerXY = new REX::REveProjectionManager(REX::REveProjection::kPT_RPhi);
-
-  TrackerXYView = eveMng->SpawnNewViewer("TrackerXY View", "");
-  TrackerXYView->AddScene(TrackerXYGeomScene);
-  TrackerXYView->AddScene(TrackerXYEventScene);
-
   // --------------------Tracker + Calo YZ View ------------------------------
 
   rhoZGeomScene  = eveMng->SpawnNewScene("ZY Detector Geometry", "ZY");
@@ -763,7 +746,7 @@ void MainWindow::createProjectionStuff(REX::REveManager *eveMng)
   XYCaloDisk1View->AddScene(XYCaloDisk1GeomScene);
   XYCaloDisk1View->AddScene(XYCaloDisk1EventScene);
 
-  for (auto v: {TrackerXYView, XYCaloDisk0View, XYCaloDisk1View, rhoZView}){
+  for (auto v: {XYCaloDisk0View, XYCaloDisk1View, rhoZView}){
     //v->SetAxesType(REX::REveViewer::kAxesOrigin);
     //v->StampObjProps();
     v->SetAxesType(REX::REveViewer::kAxesEdge);

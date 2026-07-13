@@ -196,21 +196,15 @@ namespace mu2e {
             
             TrackerCalo2DViews *fTrackerCalo2DViews = nullptr;
 
-            REX::REveProjectionManager *mngTrackerXY   = nullptr;
             REX::REveProjectionManager *mngXYCaloDisk0 = nullptr;
             REX::REveProjectionManager *mngXYCaloDisk1 = nullptr;
             REX::REveProjectionManager *mngRhoZ   = nullptr;
-            REX::REveScene  *TrackerXYGeomScene = nullptr, *TrackerXYEventScene = nullptr;
             REX::REveScene  *XYCaloDisk0GeomScene = nullptr, *XYCaloDisk0EventScene = nullptr;
             REX::REveScene  *XYCaloDisk1GeomScene = nullptr, *XYCaloDisk1EventScene = nullptr;
             REX::REveScene  *rhoZGeomScene = nullptr, *rhoZEventScene = nullptr;
-            REX::REveViewer *TrackerXYView = nullptr;
             REX::REveViewer *XYCaloDisk0View = nullptr;
             REX::REveViewer *XYCaloDisk1View = nullptr;
             REX::REveViewer *rhoZView = nullptr;
-
-      /*REX::REvePointSet* fCanvasHolder{nullptr};
-        TCanvas* fCanvas{nullptr};*/
 
             #else
                 ClassDef(MainWindow, 0);
