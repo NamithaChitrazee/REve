@@ -27,9 +27,7 @@ public:
   //void redrawCanvas(const mu2e::KalSeedPtrCollection* seedcol);
 
 private:
-    REX::REvePointSet* fCanvasHolder{nullptr};
     REX::REvePointSet* fXYCanvasHolder{nullptr};
-    TCanvas* fCanvas{nullptr};
     TCanvas* fCaloCanvas{nullptr};
     TCanvas* fCaloCanvas1{nullptr};
     TCanvas* fXYCanvas{nullptr};

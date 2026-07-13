@@ -36,12 +36,11 @@ TrackerCalo2DViews::~TrackerCalo2DViews() {}
 void TrackerCalo2DViews::createHistogramView() {
     auto &evMng = *REX::gEve;
     auto histScene = evMng.SpawnNewScene("Histograms", "Histogram Scene");
-    fCanvasHolder = new REX::REvePointSet("CanvasData");
-    histScene->AddElement(fCanvasHolder);
-    fXYCanvasHolder = new REX::REvePointSet("TrackerXYData");
+    // "Calo Lego" is the element name expected by rootui5.eve7.view.Lego
+    fXYCanvasHolder = new REX::REvePointSet("Calo Lego");
     histScene->AddElement(fXYCanvasHolder);
-    fCanvas = new TCanvas("Mu2eCanvas", "Tracker Plane Y v/s Z View", 800, 600);
-    auto canvasViewer = evMng.SpawnNewViewer("Histogram viewer", "Mu2e Histogram");
+    // Viewer name must be exactly "Lego" so the browser routes to rootui5.eve7.view.Lego
+    auto canvasViewer = evMng.SpawnNewViewer("Lego", "Tracker X-Y View");
     canvasViewer->AddScene(histScene);
 }
 
@@ -366,9 +365,9 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
     fXYCanvas->Update();
 
     if (fXYCanvasHolder) {
-      std::cout<<"do you happen?"<<std::endl;
         TString json = TBufferJSON::ToJSON(fXYCanvas);
         fXYCanvasHolder->SetTitle(TBase64::Encode(json).Data());
+        fXYCanvasHolder->SetMainColor(kWhite);
         fXYCanvasHolder->StampObjProps();
     }
 }
