@@ -21,6 +21,7 @@ public:
     virtual ~TrackerCalo2DViews();
 
     void createHistogramView();
+    void createCaloView();
   void drawTrackerStation(const mu2e::KalSeedPtrCollection* seedcol); //, const CaloDigiCollection* calodigicol);
   void drawTrackerXYView(const mu2e::KalSeedPtrCollection* seedcol);
   void drawCalorimeterDisk(const CaloClusterCollection* clustercol = nullptr);
@@ -28,6 +29,8 @@ public:
 
 private:
     REX::REvePointSet* fXYCanvasHolder{nullptr};
+    REX::REvePointSet* fCaloDisk0CanvasHolder{nullptr};
+    REX::REvePointSet* fCaloDisk1CanvasHolder{nullptr};
     TCanvas* fCaloCanvas{nullptr};
     TCanvas* fCaloCanvas1{nullptr};
     TCanvas* fXYCanvas{nullptr};

@@ -44,6 +44,22 @@ void TrackerCalo2DViews::createHistogramView() {
     canvasViewer->AddScene(histScene);
 }
 
+void TrackerCalo2DViews::createCaloView() {
+    auto &evMng = *REX::gEve;
+
+    auto disk0Scene = evMng.SpawnNewScene("CaloDisk0", "Calo Disk 0 Scene");
+    fCaloDisk0CanvasHolder = new REX::REvePointSet("Calo Lego");
+    disk0Scene->AddElement(fCaloDisk0CanvasHolder);
+    auto disk0Viewer = evMng.SpawnNewViewer("Lego", "Calorimeter Disk 0");
+    disk0Viewer->AddScene(disk0Scene);
+
+    auto disk1Scene = evMng.SpawnNewScene("CaloDisk1", "Calo Disk 1 Scene");
+    fCaloDisk1CanvasHolder = new REX::REvePointSet("Calo Lego");
+    disk1Scene->AddElement(fCaloDisk1CanvasHolder);
+    auto disk1Viewer = evMng.SpawnNewViewer("Lego", "Calorimeter Disk 1");
+    disk1Viewer->AddScene(disk1Scene);
+}
+
 template<class KTRAJ>
 static void drawTrajectory2D(const KTRAJ& trajectory, const mu2e::Plane& plane, std::map<int, TPad*>& panelPads, const std::set<int>& activePanels)
 {
@@ -373,6 +389,9 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
 }
 
 void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* clustercol) {
+    if (!fCaloDisk0CanvasHolder)
+        createCaloView();
+
     mu2e::GeomHandle<mu2e::DiskCalorimeter> calo;
 
     // Collect per-hit data from cluster hit vectors
@@ -459,6 +478,12 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
 
     fCaloCanvas->Modified();
     fCaloCanvas->Update();
+    if (fCaloDisk0CanvasHolder) {
+        TString json = TBufferJSON::ToJSON(fCaloCanvas);
+        fCaloDisk0CanvasHolder->SetTitle(TBase64::Encode(json).Data());
+        fCaloDisk0CanvasHolder->SetMainColor(kWhite);
+        fCaloDisk0CanvasHolder->StampObjProps();
+    }
 
     // --- Disk 1 ---
     const mu2e::Disk& disk1 = calo->disk(1);
@@ -527,6 +552,12 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
 
     fCaloCanvas1->Modified();
     fCaloCanvas1->Update();
+    if (fCaloDisk1CanvasHolder) {
+        TString json = TBufferJSON::ToJSON(fCaloCanvas1);
+        fCaloDisk1CanvasHolder->SetTitle(TBase64::Encode(json).Data());
+        fCaloDisk1CanvasHolder->SetMainColor(kWhite);
+        fCaloDisk1CanvasHolder->StampObjProps();
+    }
 }
 
   /*void TrackerCalo2DViews::redrawCanvas(const mu2e::KalSeedPtrCollection* seedcol) {
