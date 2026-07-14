@@ -17,6 +17,7 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <TROOT.h>
 #include "Offline/Mu2eKinKal/inc/WireHitState.hh"
 #include "Offline/GeometryService/inc/GeomHandle.hh"
 #include "Offline/TrackerGeom/inc/Tracker.hh"
@@ -274,15 +275,19 @@ static void drawTrajectoryXY(const KTRAJ& trajectory)
 }
 
 void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* seedcol) {
-    if (!fXYCanvasHolder) return;
 
     mu2e::GeomHandle<mu2e::Tracker> tracker;
 
     double rInner = tracker->g4Tracker()->getInnerTrackerEnvelopeParams().innerRadius();
     double rOuter = tracker->g4Tracker()->getInnerTrackerEnvelopeParams().outerRadius();
 
-    if (!fXYCanvas)
-        fXYCanvas = new TCanvas("TrackerXY", "Tracker X-Y View", 800, 800);
+    if (!fXYCanvas){
+      bool wasBatch = gROOT->IsBatch();
+      gROOT->SetBatch(kTRUE);
+      fXYCanvas = new TCanvas("TrackerXY", "Tracker X-Y View", 800, 800);
+      fXYCanvas->SetBatch(kTRUE);
+      gROOT->SetBatch(wasBatch);
+    }
     fXYCanvas->cd();
     fXYCanvas->Clear();
     gPad->SetFixedAspectRatio();
@@ -391,8 +396,6 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
 }
 
 void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* clustercol) {
-    if (!fCaloDisk0CanvasHolder) return;
-
     mu2e::GeomHandle<mu2e::DiskCalorimeter> calo;
 
     // Collect per-hit data from cluster hit vectors
@@ -415,7 +418,7 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
     const mu2e::Disk& disk = calo->disk(0);
 
     if (!fCaloCanvas)
-        fCaloCanvas = new TCanvas("calo_disk0_canvas", "Disk 0", 1400, 1200);
+      fCaloCanvas = new TCanvas("calo_disk0_canvas", "Disk 0", 1400, 1200);
     fCaloCanvas->cd();
     fCaloCanvas->Clear();
     fCaloCanvas->SetRightMargin(0.15);
