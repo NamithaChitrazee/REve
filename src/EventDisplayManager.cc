@@ -97,34 +97,26 @@ void EventDisplayManager::setTextSelectId(std::uint32_t textId) {
  * @brief Executes the command to set the user-requested Run/Event ID.
  * * This runs in the REve thread and communicates the command to the TextSelect object.
  */
-void mu2e::EventDisplayManager::goToRunEvent(int runId, int eventId)
+void mu2e::EventDisplayManager::goToRunEvent(int runId, int subrunId, int eventId)
 {
-    std::cout << "[EventDisplayManager::goToRunEvent] received: " << runId<<" "<<eventId << std::endl;
-    
+    std::cout << "[EventDisplayManager::goToRunEvent] received: "
+              << runId << "/" << subrunId << "/" << eventId << std::endl;
+
     TextSelect* fText_obj = nullptr;
-    
-    // Check if the global REveManager instance is available.
+
     if (ROOT::Experimental::gEve != nullptr) {
-        
-        // 1. Retrieve the generic REveElement using the global manager (gEve) and the Element ID.
-        // The function name should be FindElementWithId(fTextId_)but I found that this does not work so I hardcoded FIXME
-        ROOT::Experimental::REveElement* element = ROOT::Experimental::gEve->FindElementById(4336); 
-        
-        if (element != nullptr) {
-            // 2. Safely cast the generic element to the specific TextSelect type.
+        ROOT::Experimental::REveElement* element = ROOT::Experimental::gEve->FindElementById(4336); // FIXME use fTextId_
+        if (element != nullptr)
             fText_obj = dynamic_cast<TextSelect*>(element);
-        }
-    }
-    
-    if (fText_obj == nullptr) {
-        // CRITICAL ERROR if the object wasn't found or the cast failed.
-        std::cerr << "CRITICAL ERROR: TextSelect object not found via gEve->FindElementWithId(" 
-                  << fTextId_ << "). Cannot set Run/Event." << std::endl; 
-        return; 
     }
 
-    // 3. Command executed: Set the Run/Event numbers in the TextSelect object.
-    fText_obj->set(runId, eventId); 
+    if (fText_obj == nullptr) {
+        std::cerr << "CRITICAL ERROR: TextSelect object not found via gEve->FindElementById("
+                  << fTextId_ << "). Cannot set Run/Subrun/Event." << std::endl;
+        return;
+    }
+
+    fText_obj->set(runId, subrunId, eventId);
 }
 
 }

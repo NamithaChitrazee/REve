@@ -59,7 +59,7 @@ namespace mu2e {
          * @brief Command to handle user input and trigger loading a specific Run and Event ID.
          * * This function runs in the REve thread and uses fTextId_ to look up the TextSelect object.
          */
-        void goToRunEvent(int runId, int eventId);
+        void goToRunEvent(int runId, int subrunId, int eventId);
 
         // --- Public Members ---
 

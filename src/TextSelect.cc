@@ -4,13 +4,13 @@
 namespace mu2e {
 
 // Setter: Called by the REve thread (EventDisplayManager)
-void TextSelect::set(int run, int event) {
-    // Lock the mutex for writing
+void TextSelect::set(int run, int subrun, int event) {
     std::lock_guard<std::mutex> lock(_mutex);
-    runN = run;
-    eventN = event;
-    std::cout<<"user has set "<<runN << " " << eventN <<std::endl;
-    std::cout << "[TextSelect::set] Run/Event set to: " << runN << "/" << eventN << std::endl;
+    runN    = run;
+    subrunN = subrun;
+    eventN  = event;
+    std::cout << "[TextSelect::set] Run/Subrun/Event set to: "
+              << runN << "/" << subrunN << "/" << eventN << std::endl;
 }
 
 // Setter: Called by the REve thread (EventDisplayManager)
@@ -26,11 +26,9 @@ int TextSelect::getAutoplay(){
 }
 
 // Getter: Called by the art module thread (Mu2eEventDisplay::analyze)
-std::pair<int, int> TextSelect::getRunEvent() {
-    // Lock the mutex for reading
+std::tuple<int, int, int> TextSelect::getRunEvent() {
     std::lock_guard<std::mutex> lock(_mutex);
-    std::cout<<"user has received "<<runN << " " << eventN <<std::endl;
-    return {runN, eventN};
+    return {runN, subrunN, eventN};
 }
 
 }

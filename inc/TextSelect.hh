@@ -15,17 +15,17 @@ class TextSelect : public ROOT::Experimental::REveElement
     TextSelect() : REveElement{"TextSelect"} {} 
       
     // Setter (Called by the GUI thread/EventDisplayManager)
-    void set(int run, int event);
+    void set(int run, int subrun, int event);
 
     // Getter (Called by the art module thread)
-    // We now retrieve both run and event in one call for atomic safety
-    std::pair<int, int> getRunEvent(); // <<< Modified getter signature
+    std::tuple<int, int, int> getRunEvent();
 
     // setAutoplay
     void setAutoplay(int x);
     int getAutoplay();
     private:
      int runN = 0;
+     int subrunN = 0;
      int eventN = 0;
      int autoplay_=0;
      std::mutex _mutex; // <<< The synchronization tool

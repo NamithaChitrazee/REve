@@ -368,24 +368,13 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       // via the REve GUI command box.
       
       if (fText) {
-          // Retrieve the user-specified Run/Event numbers from the TextSelect object.
-          std::pair<int, int> user_input = fText->getRunEvent();
-          int user_run = user_input.first;
-          int user_event = user_input.second;
+          auto [user_run, user_subrun, user_event] = fText->getRunEvent();
           autoplay = fText->getAutoplay();
-          std::cout << "\n[Mu2eEventDisplay::analyze] -------------------------" << std::endl;
-          std::cout << "[Mu2eEventDisplay::analyze] User Input Detected:" << std::endl;
-          std::cout << "[Mu2eEventDisplay::analyze] Run Number:  " << user_run << std::endl;
-          std::cout << "[Mu2eEventDisplay::analyze] Event Number: " << user_event << std::endl;
-          std::cout << "[Mu2eEventDisplay::analyze] Autoplay set " << autoplay << std::endl;
-          std::cout << "[Mu2eEventDisplay::analyze] -------------------------\n" << std::endl;
-          
-          // Check if valid input was provided (Run and Event are non-zero).
-          if(user_run !=0 and user_event != 0){
-              // Store the user-requested event number internally.
-              runn = user_run;
-              eventn = user_event;
-              // Disable sequential processing mode. The module must stop after this event is found.
+
+          if (user_run != 0 && user_event != 0) {
+              runn    = user_run;
+              subrunn = user_subrun;
+              eventn  = user_event;
               seqMode_ = false;
           }
       }
@@ -394,7 +383,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       // Process the event ONLY IF:
       // 1. We are in sequential mode (seqMode_ is true, meaning iterate through all events), OR
       // 2. The current event matches the user-requested event (runn, eventn).
-      if((seqMode_) or ( runid_ == runn and subrunid_ == subrunid_ and eventid_ == eventn)){
+      if (seqMode_ || (runid_ == runn && subrunid_ == subrunn && eventid_ == eventn)) {
           
           // Acquire a lock on the mutex. This ensures the Art thread (analyze) waits 
           // for the REve thread (GUI) to finish processing the display before proceeding 
@@ -501,10 +490,10 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
               cv_.wait(lock);
           }
           
-          // Reset these to return to sequential navigation
           seqMode_ = true;
-          runn = 0;
-          eventn = 0;
+          runn    = 0;
+          subrunn = 0;
+          eventn  = 0;
           
 
           if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] -- TApplication thread returning control "<<std::endl;
