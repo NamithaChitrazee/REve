@@ -47,7 +47,6 @@ void MainWindow::makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX::REveEl
 
   bool isCrv = name.find("CRS") != string::npos;
   // remove Crv from the YZ view as it blocks tracker/calo view (will have its own view)
-  if(!isCrv) { mngRhoZ->ImportElements(b1s, rhoZGeomScene); }
 }
 
 int j = 0;
@@ -687,35 +686,12 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
   }
 }
 
-void MainWindow::projectEvents(REX::REveManager *eveMng)
+void MainWindow::projectEvents(REX::REveManager */*eveMng*/)
 {
-  for (auto &ie : eveMng->GetEventScene()->RefChildren())
-  {
-    rhoZView->SetCameraType(REX::REveViewer::kCameraOrthoXOY);
-
-    mngRhoZ  ->ImportElements(ie, rhoZEventScene);
-  }
 }
 
-void MainWindow::createProjectionStuff(REX::REveManager *eveMng)
+void MainWindow::createProjectionStuff(REX::REveManager */*eveMng*/)
 {
-  // --------------------Tracker + Calo YZ View ------------------------------
-
-  rhoZGeomScene  = eveMng->SpawnNewScene("ZY Detector Geometry", "ZY");
-  rhoZEventScene = eveMng->SpawnNewScene("ZY Event Data","YZ");
-
-  mngRhoZ = new REX::REveProjectionManager(REX::REveProjection::kPT_ZY );
-
-  rhoZView = eveMng->SpawnNewViewer("ZY Detector View", "");
-  rhoZView->AddScene(rhoZGeomScene);
-  rhoZView->AddScene(rhoZEventScene);
-
-  for (auto v: {rhoZView}){
-    //v->SetAxesType(REX::REveViewer::kAxesOrigin);
-    //v->StampObjProps();
-    v->SetAxesType(REX::REveViewer::kAxesEdge);
-    v->StampObjProps();
-  }
 }
 
 

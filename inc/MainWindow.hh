@@ -196,11 +196,7 @@ namespace mu2e {
             
             TrackerCalo2DViews *fTrackerCalo2DViews = nullptr;
 
-            REX::REveProjectionManager *mngRhoZ   = nullptr;
-            REX::REveScene  *rhoZGeomScene = nullptr, *rhoZEventScene = nullptr;
-            REX::REveViewer *rhoZView = nullptr;
-
-            #else
+#else
                 ClassDef(MainWindow, 0);
             #endif
 
