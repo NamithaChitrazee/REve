@@ -274,6 +274,8 @@ static void drawTrajectoryXY(const KTRAJ& trajectory)
 }
 
 void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* seedcol) {
+    if (!fXYCanvasHolder) return;
+
     mu2e::GeomHandle<mu2e::Tracker> tracker;
 
     double rInner = tracker->g4Tracker()->getInnerTrackerEnvelopeParams().innerRadius();
@@ -389,8 +391,7 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
 }
 
 void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* clustercol) {
-    if (!fCaloDisk0CanvasHolder)
-        createCaloView();
+    if (!fCaloDisk0CanvasHolder) return;
 
     mu2e::GeomHandle<mu2e::DiskCalorimeter> calo;
 
