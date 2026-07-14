@@ -21,20 +21,21 @@ public:
     virtual ~TrackerCalo2DViews();
 
     void createHistogramView();
+    void createStationView();
     void createCaloView();
-  void drawTrackerStation(const mu2e::KalSeedPtrCollection* seedcol); //, const CaloDigiCollection* calodigicol);
-  void drawTrackerXYView(const mu2e::KalSeedPtrCollection* seedcol);
-  void drawCalorimeterDisk(const CaloClusterCollection* clustercol = nullptr);
-  //void redrawCanvas(const mu2e::KalSeedPtrCollection* seedcol);
+    void drawTrackerStation(const mu2e::KalSeedPtrCollection* seedcol);
+    void drawTrackerXYView(const mu2e::KalSeedPtrCollection* seedcol);
+    void drawCalorimeterDisk(const CaloClusterCollection* clustercol = nullptr);
 
 private:
     REX::REvePointSet* fXYCanvasHolder{nullptr};
+    REX::REvePointSet* fStationCanvasHolder{nullptr};
     REX::REvePointSet* fCaloDisk0CanvasHolder{nullptr};
     REX::REvePointSet* fCaloDisk1CanvasHolder{nullptr};
+    TCanvas* fXYCanvas{nullptr};
+    TCanvas* fStationCanvas{nullptr};
     TCanvas* fCaloCanvas{nullptr};
     TCanvas* fCaloCanvas1{nullptr};
-    TCanvas* fXYCanvas{nullptr};
-    std::map<int, TCanvas*> fPlaneCanvases;
 };
 
 } // namespace mu2e

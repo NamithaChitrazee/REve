@@ -708,6 +708,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
       if (!fTrackerCalo2DViews) {
         fTrackerCalo2DViews = new TrackerCalo2DViews();
         fTrackerCalo2DViews->createHistogramView();
+        fTrackerCalo2DViews->createStationView();
       }
       auto const& track_list = std::get<1>(data.track_tuple);
       const mu2e::KalSeedPtrCollection* seedcol = track_list[0];

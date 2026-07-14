@@ -45,6 +45,15 @@ void TrackerCalo2DViews::createHistogramView() {
     canvasViewer->AddScene(histScene);
 }
 
+void TrackerCalo2DViews::createStationView() {
+    auto& evMng = *REX::gEve;
+    auto stationScene = evMng.SpawnNewScene("TrackerStation", "Tracker Station Scene");
+    fStationCanvasHolder = new REX::REvePointSet("Calo Lego");
+    stationScene->AddElement(fStationCanvasHolder);
+    auto stationViewer = evMng.SpawnNewViewer("Lego", "Tracker Station View");
+    stationViewer->AddScene(stationScene);
+}
+
 void TrackerCalo2DViews::createCaloView() {
     auto &evMng = *REX::gEve;
 
@@ -111,167 +120,154 @@ static void drawTrajectoryXY(const KTRAJ& trajectory)
     graph->Draw("L SAME");
 }
 
-  void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* seedcol){ //, const CaloDigiCollection* calodigicol) {
-    // Note: We can draw without fCanvas/fCanvasHolder since you want offline viewing
-     std::map<mu2e::StrawId, const mu2e::TrkStrawHitSeed*> hitDataMap;
-     std::set<int> uniquePlanes;
-     std::map<int, std::set<int>> activePanelsPerPlane;
+void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* seedcol) {
+    // Collect hit data and identify which (plane, panel) pairs have hits.
+    std::map<mu2e::StrawId, const mu2e::TrkStrawHitSeed*> hitDataMap;
+    std::set<std::pair<int,int>> seenPanels;
+    std::vector<std::pair<int,int>> panelsWithHits; // (planeId, panelId)
+
     if (seedcol != nullptr) {
-      for (auto const& kseedptr : *seedcol) {
-        const mu2e::KalSeed& kseed = *kseedptr;
-        for (auto const& hit : kseed.hits()) {
-          mu2e::StrawId sid = hit.strawId();
-          uniquePlanes.insert(sid.getPlane());
-          hitDataMap[sid] = &hit;
-	  activePanelsPerPlane[sid.getPlane()].insert(sid.getPanel());
-        }
-      }
-    }
-      mu2e::GeomHandle<mu2e::Tracker> tracker;
-     
-      double strawRadius = tracker->strawProperties()._strawOuterRadius;
-      std::vector<int> planeIdA = {0,3,4,7,8,11,12,15,16,19,20,23,24,27,28,31,32,35};
-      for (const auto& planeId : uniquePlanes) {
-        std::cout << "Processing Canvas for Plane " << planeId << std::endl;
-        std::array<int, 6> padMap;
-        if(std::find(planeIdA.begin(), planeIdA.end(), planeId) != planeIdA.end())
-          padMap = {2, 3, 6, 5, 4, 1};
-        else
-          padMap = {5, 4, 1, 2, 3, 6};
-        TString canvasName = Form("Canvas_Plane_%d", planeId);
-        TString canvasTitle = Form("Plane %d - V vs W View", planeId);
-        auto cit = fPlaneCanvases.find(planeId);
-        if (cit != fPlaneCanvases.end()) {
-            delete cit->second;
-            fPlaneCanvases.erase(cit);
-        }
-        TCanvas* planeCanvas = new TCanvas(canvasName, canvasTitle, 1000, 800);
-        fPlaneCanvases[planeId] = planeCanvas;
-        planeCanvas->Divide(2, 3, 0.005, 0.005);
-        const mu2e::Plane& plane = tracker->getPlane(planeId);
-	std::map<int, TPad*> panelPads;
-        for (int panelId = 0; panelId < 6; ++panelId) {
-          const mu2e::Panel& panel = plane.getPanel(panelId);
-          // 1. Calculate Bounds for this specific panel
-          /*double ymin = 1e9, ymax = -1e9, zmin = 1e9, zmax = -1e9;
-          for (size_t iStraw = 0; iStraw < panel.nStraws(); ++iStraw) {
-             const mu2e::Straw& straw = panel.getStraw(iStraw);
-             CLHEP::Hep3Vector pos_l = plane.dsToPlane()*straw.getMidPoint();
-             ymin = std::min(ymin, pos_l.y());
-             ymax = std::max(ymax, pos_l.y());
-             zmin = std::min(zmin, pos_l.z());
-             zmax = std::max(zmax, pos_l.z());
-           }*/
-           //std::cout<<"Plane = "<<planeId<<" panel = "<<panelId<<" ymin = "<<ymin<<" max = "<<ymax<<" zmin = "<<zmin<<" max = "<<zmax<<std::endl;
-           // 2. Prepare the Pad
-           planeCanvas->cd(padMap[panelId]);
-	   panelPads[panelId] = dynamic_cast<TPad*>(gPad);
-           gPad->SetBottomMargin(0.15);
-           gPad->SetLeftMargin(0.15);
-           gPad->SetFixedAspectRatio();
-           TString frameName = Form("h_plane%d_panel%d", planeId, panelId);
-           TString frameTitle = Form("Plane %d: Panel %d;W (mm);V (mm)", planeId, panelId);
-           //double dz = zmax - zmin;
-           //double dy = ymax - ymin;
-           //double margin = std::max(dz, dy) * 0.1;
-           //TH2F* frame = new TH2F(frameName, frameTitle, 100, zmin - margin, zmax + margin, 100, ymin - margin, ymax + margin);
-           TH2F* frame = new TH2F(frameName, frameTitle, 100, -20, 20, 100, -170, 170);
-           frame->SetStats(0);
-           frame->Draw();
-           // 3. Draw Straws and Hits
-           for (size_t iStraw = 0; iStraw < panel.nStraws(); ++iStraw) {
-             const mu2e::Straw& straw = panel.getStraw(iStraw);
-             CLHEP::Hep3Vector pos_l = panel.dsToPanel()*straw.getMidPoint();
-             // Base Straw Geometry
-             TEllipse *circ = new TEllipse(pos_l.z(), pos_l.y(), strawRadius, strawRadius);
-             circ->SetLineColor(kGray + 1);
-             circ->SetFillStyle(0);
-             circ->Draw();
-             // Check for Hits
-             if (hitDataMap.count(straw.id())) {
-               const auto* hit = hitDataMap[straw.id()];
-               mu2e::WireHitState whs = hit->wireHitState();
-               double rdrift = hit->driftRadius();
-               TEllipse *rcirc = new TEllipse(pos_l.z(), pos_l.y(), rdrift, rdrift);
-               TEllipse *hitcirc = new TEllipse(pos_l.z(), pos_l.y(), strawRadius, strawRadius);   
-               if (!whs.active()) {
-                 rcirc->SetFillStyle(0);
-                 rcirc->SetLineColor(kBlack);
-                 rcirc->SetLineStyle(2);
-                 hitcirc->SetLineColor(kBlack);
-                 hitcirc->SetLineWidth(0);
-                 hitcirc->SetFillStyle(0);
-               }
-               else{
-                 if (!whs.driftConstraint()) {
-                   hitcirc->SetFillColor(kAzure - 9);
-                   hitcirc->SetFillStyle(1001);
-                   hitcirc->SetLineColor(kBlue);
-                   rcirc->SetLineColor(kWhite);
-                 } else {
-                   rcirc->SetFillStyle(0);
-                   rcirc->SetLineColor(kRed);
-                   rcirc->SetLineWidth(hit->radialErr()*10);
-                   hitcirc->SetLineColor(kBlack);
-                   hitcirc->SetLineWidth(0);
-                   hitcirc->SetFillStyle(0);
-                 }
-               }
-               rcirc->Draw();
-               hitcirc->Draw();
-               // Tooltip/Data Graph
-               double sz = pos_l.z();
-               double sy = pos_l.y();
-               TGraph *g = new TGraph(1, &sz, &sy);
-               g->SetMarkerStyle(1);
-               g->SetMarkerColorAlpha(kWhite, 0);
-               g->SetName(Form("hit_%d_%d_%d", straw.id().getPlane(), straw.id().getPanel(), straw.id().getStraw()));
-               g->Draw("P SAME");
-             }
-           }
-        }
-        
-	if(seedcol != nullptr) {
-          for (auto const& kseedptr : *seedcol) {
-            const mu2e::KalSeed& kseed = *kseedptr;
-            if(kseed.loopHelixFit()) {
-              auto traj = kseed.loopHelixFitTrajectory();
-              if (!traj) continue;
-              drawTrajectory2D(*traj, plane, panelPads, activePanelsPerPlane[planeId]);
-            } else if(kseed.centralHelixFit()) {
-              auto traj = kseed.centralHelixFitTrajectory();
-              if (!traj) continue;
-              drawTrajectory2D(*traj, plane, panelPads, activePanelsPerPlane[planeId]);
-            } else if(kseed.kinematicLineFit()) {
-              auto traj = kseed.kinematicLineFitTrajectory();
-              if (!traj) continue;
-              drawTrajectory2D(*traj, plane, panelPads, activePanelsPerPlane[planeId]);
+        for (auto const& kseedptr : *seedcol) {
+            for (auto const& hit : kseedptr->hits()) {
+                mu2e::StrawId sid = hit.strawId();
+                hitDataMap[sid] = &hit;
+                auto key = std::make_pair((int)sid.getPlane(), (int)sid.getPanel());
+                if (seenPanels.insert(key).second)
+                    panelsWithHits.push_back(key);
             }
-          }
-	}
-        /*planeCanvas->cd();
-        TLegend *leg = new TLegend(0.72, 0.82, 0.97, 0.96);
-        leg->SetTextSize(0.022);
-        leg->SetBorderSize(0);
-        //leg->SetHeader("Hit key", "C");
-        TEllipse *dummyInactive = new TEllipse();
-        dummyInactive->SetFillStyle(0);
-        dummyInactive->SetLineColor(kBlack);
-        dummyInactive->SetLineStyle(2);
-        TEllipse *dummyNoDrift = new TEllipse();
-        dummyNoDrift->SetFillColor(kAzure - 9);
-        dummyNoDrift->SetFillStyle(1001);
-        dummyNoDrift->SetLineColor(kBlue);
-        TEllipse *dummyDrift = new TEllipse();
-        dummyDrift->SetFillColor(kAzure - 9);
-        dummyDrift->SetFillStyle(1001);
-        dummyDrift->SetLineColor(kRed);
-        leg->AddEntry(dummyInactive, "Inactive (dashed circle)", "l");
-        leg->AddEntry(dummyNoDrift,  "Active, no drift (full straw)", "f");
-        leg->AddEntry(dummyDrift,    "Active, drift constraint", "f");
-        leg->Draw();*/
-        planeCanvas->Update();
-      }
+        }
+    }
+
+    // Sort by plane then panel, keep only the first 6.
+    std::sort(panelsWithHits.begin(), panelsWithHits.end());
+    if (panelsWithHits.size() > 6)
+        panelsWithHits.resize(6);
+
+    if (panelsWithHits.empty()) return;
+
+    mu2e::GeomHandle<mu2e::Tracker> tracker;
+    double strawRadius = tracker->strawProperties()._strawOuterRadius;
+
+    // Create the canvas once; clear and re-divide on each event.
+    if (!fStationCanvas) {
+        bool wasBatch = gROOT->IsBatch();
+        gROOT->SetBatch(kTRUE);
+        fStationCanvas = new TCanvas("TrackerStation", "Tracker Station View", 1200, 800);
+        fStationCanvas->SetBatch(kTRUE);
+        gROOT->SetBatch(wasBatch);
+    }
+    fStationCanvas->cd();
+    fStationCanvas->Clear();
+    fStationCanvas->Divide(2, 3, 0.005, 0.005);
+
+    // Maps needed for trajectory drawing (grouped by plane).
+    std::map<std::pair<int,int>, TPad*> panelPadMap;
+    std::map<int, std::set<int>> activePanelsPerPlane;
+
+    // Draw each of the (up to 6) panels in its own sub-pad.
+    for (int i = 0; i < (int)panelsWithHits.size(); ++i) {
+        auto [planeId, panelId] = panelsWithHits[i];
+        activePanelsPerPlane[planeId].insert(panelId);
+
+        fStationCanvas->cd(i + 1);
+        panelPadMap[{planeId, panelId}] = dynamic_cast<TPad*>(gPad);
+        gPad->SetBottomMargin(0.15);
+        gPad->SetLeftMargin(0.15);
+        gPad->SetFixedAspectRatio();
+
+        TH2F* frame = new TH2F(
+            Form("h_pl%d_pa%d", planeId, panelId),
+            Form("Plane %d Panel %d;W (mm);V (mm)", planeId, panelId),
+            100, -20, 20, 100, -170, 170);
+        frame->SetStats(0);
+        frame->Draw();
+
+        const mu2e::Plane& plane = tracker->getPlane(planeId);
+        const mu2e::Panel& panel = plane.getPanel(panelId);
+
+        for (size_t iStraw = 0; iStraw < panel.nStraws(); ++iStraw) {
+            const mu2e::Straw& straw = panel.getStraw(iStraw);
+            CLHEP::Hep3Vector pos_l = panel.dsToPanel() * straw.getMidPoint();
+
+            TEllipse* circ = new TEllipse(pos_l.z(), pos_l.y(), strawRadius, strawRadius);
+            circ->SetLineColor(kGray + 1);
+            circ->SetFillStyle(0);
+            circ->Draw();
+
+            if (!hitDataMap.count(straw.id())) continue;
+
+            const auto* hit    = hitDataMap[straw.id()];
+            mu2e::WireHitState whs = hit->wireHitState();
+            double rdrift      = hit->driftRadius();
+            TEllipse* rcirc   = new TEllipse(pos_l.z(), pos_l.y(), rdrift,      rdrift);
+            TEllipse* hitcirc = new TEllipse(pos_l.z(), pos_l.y(), strawRadius, strawRadius);
+
+            if (!whs.active()) {
+                rcirc->SetFillStyle(0);
+                rcirc->SetLineColor(kBlack);
+                rcirc->SetLineStyle(2);
+                hitcirc->SetLineColor(kBlack);
+                hitcirc->SetLineWidth(0);
+                hitcirc->SetFillStyle(0);
+            } else if (!whs.driftConstraint()) {
+                hitcirc->SetFillColor(kAzure - 9);
+                hitcirc->SetFillStyle(1001);
+                hitcirc->SetLineColor(kBlue);
+                rcirc->SetLineColor(kWhite);
+            } else {
+                rcirc->SetFillStyle(0);
+                rcirc->SetLineColor(kRed);
+                rcirc->SetLineWidth(hit->radialErr() * 10);
+                hitcirc->SetLineColor(kBlack);
+                hitcirc->SetLineWidth(0);
+                hitcirc->SetFillStyle(0);
+            }
+            rcirc->Draw();
+            hitcirc->Draw();
+
+            double sz = pos_l.z(), sy = pos_l.y();
+            TGraph* g = new TGraph(1, &sz, &sy);
+            g->SetMarkerStyle(1);
+            g->SetMarkerColorAlpha(kWhite, 0);
+            g->SetName(Form("hit_%d_%d_%d",
+                            straw.id().getPlane(), straw.id().getPanel(), straw.id().getStraw()));
+            g->Draw("P SAME");
+        }
+    }
+
+    // Draw trajectories, grouped by plane so dsToPanel transforms are correct.
+    if (seedcol != nullptr) {
+        for (auto const& kseedptr : *seedcol) {
+            const mu2e::KalSeed& kseed = *kseedptr;
+            for (auto& [planeId, panelSet] : activePanelsPerPlane) {
+                const mu2e::Plane& plane = tracker->getPlane(planeId);
+                std::map<int, TPad*> thisPlanesPads;
+                for (int pid : panelSet)
+                    thisPlanesPads[pid] = panelPadMap.at({planeId, pid});
+
+                if (kseed.loopHelixFit()) {
+                    auto traj = kseed.loopHelixFitTrajectory();
+                    if (traj) drawTrajectory2D(*traj, plane, thisPlanesPads, panelSet);
+                } else if (kseed.centralHelixFit()) {
+                    auto traj = kseed.centralHelixFitTrajectory();
+                    if (traj) drawTrajectory2D(*traj, plane, thisPlanesPads, panelSet);
+                } else if (kseed.kinematicLineFit()) {
+                    auto traj = kseed.kinematicLineFitTrajectory();
+                    if (traj) drawTrajectory2D(*traj, plane, thisPlanesPads, panelSet);
+                }
+            }
+        }
+    }
+
+    fStationCanvas->Modified();
+    fStationCanvas->Update();
+
+    if (fStationCanvasHolder) {
+        TString json = TBufferJSON::ToJSON(fStationCanvas);
+        fStationCanvasHolder->SetTitle(TBase64::Encode(json).Data());
+        fStationCanvasHolder->SetMainColor(kWhite);
+        fStationCanvasHolder->StampObjProps();
+    }
 }
 
 void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* seedcol) {
