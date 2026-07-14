@@ -44,9 +44,6 @@ void MainWindow::makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX::REveEl
   b1s->SetEditMainColor(true);
   b1s-> SetEditMainTransparency(true);
   if(!isMother) holder->AddElement(b1s);
-
-  bool isCrv = name.find("CRS") != string::npos;
-  // remove Crv from the YZ view as it blocks tracker/calo view (will have its own view)
 }
 
 int j = 0;
