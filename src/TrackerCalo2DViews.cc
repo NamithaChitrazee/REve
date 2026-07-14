@@ -396,6 +396,8 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
 }
 
 void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* clustercol) {
+    if(!fCaloDisk0CanvasHolder)
+      createCaloView();
     mu2e::GeomHandle<mu2e::DiskCalorimeter> calo;
 
     // Collect per-hit data from cluster hit vectors
@@ -422,11 +424,11 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
         const mu2e::Disk& disk = calo->disk(0);
 
         if (!fCaloCanvas) {
-            bool wasBatch = gROOT->IsBatch();
-            gROOT->SetBatch(kTRUE);
-            fCaloCanvas = new TCanvas("calo_disk0_canvas", "Disk 0", 1400, 1200);
-            fCaloCanvas->SetBatch(kTRUE);
-            gROOT->SetBatch(wasBatch);
+           bool wasBatch = gROOT->IsBatch();
+           gROOT->SetBatch(kTRUE);
+           fCaloCanvas = new TCanvas("calo_disk0_canvas", "Disk 0", 1400, 1200);
+           fCaloCanvas->SetBatch(kTRUE);
+           gROOT->SetBatch(wasBatch);
         }
         fCaloCanvas->cd();
         fCaloCanvas->Clear();
@@ -496,6 +498,7 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
             fCaloDisk0CanvasHolder->SetTitle(TBase64::Encode(json).Data());
             fCaloDisk0CanvasHolder->SetMainColor(kWhite);
             fCaloDisk0CanvasHolder->StampObjProps();
+            std::cout<<"Disk 0 online?"<<std::endl;
         }
     }
 
@@ -504,11 +507,11 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
         const mu2e::Disk& disk1 = calo->disk(1);
 
         if (!fCaloCanvas1) {
-            bool wasBatch = gROOT->IsBatch();
-            gROOT->SetBatch(kTRUE);
-            fCaloCanvas1 = new TCanvas("calo_disk1_canvas", "Disk 1", 1400, 1200);
-            fCaloCanvas1->SetBatch(kTRUE);
-            gROOT->SetBatch(wasBatch);
+          bool wasBatch = gROOT->IsBatch();
+          gROOT->SetBatch(kTRUE);
+          fCaloCanvas1 = new TCanvas("calo_disk1_canvas", "Disk 1", 1400, 1200);
+          fCaloCanvas1->SetBatch(kTRUE);
+          gROOT->SetBatch(wasBatch);
         }
         fCaloCanvas1->cd();
         fCaloCanvas1->Clear();
@@ -577,6 +580,7 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
             fCaloDisk1CanvasHolder->SetTitle(TBase64::Encode(json).Data());
             fCaloDisk1CanvasHolder->SetMainColor(kWhite);
             fCaloDisk1CanvasHolder->StampObjProps();
+            std::cout<<"Disk 1 online?"<<std::endl;
         }
     }
 }
