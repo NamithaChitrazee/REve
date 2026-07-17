@@ -340,9 +340,9 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
     outerCircle->SetFillStyle(0);
     outerCircle->Draw();
 
-    TLatex* evLabel = new TLatex(-rMax * 0.95, rMax * 0.88,
-                                  Form("Run:%d  SubRun:%d  Event:%d", run, subRun, event));
-    evLabel->SetNDC(false);
+    TLatex* evLabel = new TLatex(0.5, 0.91, Form("%d:%d:%d", run, subRun, event));
+    evLabel->SetNDC(true);
+    evLabel->SetTextAlign(22);
     evLabel->SetTextSize(0.035);
     evLabel->SetTextColor(kBlack);
     evLabel->Draw();
