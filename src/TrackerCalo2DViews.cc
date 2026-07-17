@@ -150,9 +150,19 @@ static void drawTrajectoryXY(const KTRAJ& trajectory)
         gPad->SetLeftMargin(0.15);
         gPad->SetFixedAspectRatio();
 
+        double yHitMin =  1e9, yHitMax = -1e9;
+        for (size_t iStraw = 0; iStraw < panel.nStraws(); ++iStraw) {
+          const mu2e::Straw& straw = panel.getStraw(iStraw);
+          if (!hitDataMap.count(straw.id())) continue;
+          CLHEP::Hep3Vector pos_l = panel.dsToPanel() * straw.getMidPoint();
+          yHitMin = std::min(yHitMin, pos_l.y());
+          yHitMax = std::max(yHitMax, pos_l.y());
+        }
+        if (yHitMin > yHitMax) { yHitMin = -170; yHitMax = 170; }
+
         TString frameName  = Form("h_plane%d_panel%d", planeId, panelId);
         TString frameTitle = Form("Plane %d Panel %d;W (mm);V (mm)", planeId, panelId);
-        TH2F* frame = new TH2F(frameName, frameTitle, 100, -20, 20, 100, -170, 170);
+        TH2F* frame = new TH2F(frameName, frameTitle, 100, -20, 20, 100, yHitMin - 20, yHitMax + 20);
         frame->SetStats(0);
         frame->Draw();
 
