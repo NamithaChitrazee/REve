@@ -120,9 +120,9 @@ static void drawTrajectoryXY(const KTRAJ& trajectory)
       delete canvas;
     fPlaneCanvases.clear();
 
-    const int panelsPerCanvas = 8;
+    const int panelsPerCanvas = 12;
     const int nCols = 4;
-    const int nRows = 2;
+    const int nRows = 3;
     int nBatches = ((int)hitPanels.size() + panelsPerCanvas - 1) / panelsPerCanvas;
 
     for (int b = 0; b < nBatches; ++b) {
@@ -132,7 +132,7 @@ static void drawTrajectoryXY(const KTRAJ& trajectory)
 
       TString canvasName  = Form("Canvas_Batch_%d", b);
       TString canvasTitle = Form("Hit Panels (batch %d of %d)", b + 1, nBatches);
-      TCanvas* canvas = new TCanvas(canvasName, canvasTitle, 1400, 700);
+      TCanvas* canvas = new TCanvas(canvasName, canvasTitle, 1400, 1050);
       fPlaneCanvases[b] = canvas;
       canvas->Divide(nCols, nRows, 0.005, 0.005);
 
