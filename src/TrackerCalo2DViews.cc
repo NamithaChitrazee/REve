@@ -138,10 +138,10 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
         }
     }
 
-    // Sort by plane then panel, keep only the first 6.
+    // Sort by plane then panel, keep only the first 8.
     std::sort(panelsWithHits.begin(), panelsWithHits.end());
-    if (panelsWithHits.size() > 6)
-        panelsWithHits.resize(6);
+    if (panelsWithHits.size() > 8)
+        panelsWithHits.resize(8);
 
     if (panelsWithHits.empty()) return;
 
@@ -152,13 +152,13 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
     if (!fStationCanvas) {
         bool wasBatch = gROOT->IsBatch();
         gROOT->SetBatch(kTRUE);
-        fStationCanvas = new TCanvas("TrackerStation", "Tracker Station View", 1200, 800);
+        fStationCanvas = new TCanvas("TrackerStation", "Tracker Station View", 1600, 800);
         fStationCanvas->SetBatch(kTRUE);
         gROOT->SetBatch(wasBatch);
     }
     fStationCanvas->cd();
     fStationCanvas->Clear();
-    fStationCanvas->Divide(2, 3, 0.005, 0.005);
+    fStationCanvas->Divide(4, 2, 0.005, 0.005);
 
     // Maps needed for trajectory drawing (grouped by plane).
     std::map<std::pair<int,int>, TPad*> panelPadMap;
