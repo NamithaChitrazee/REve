@@ -14,6 +14,7 @@
 #include <TBase64.h>
 #include <algorithm>
 #include <array>
+#include <limits>
 #include <iostream>
 #include <map>
 #include <set>
@@ -138,10 +139,10 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
         }
     }
 
-    // Sort by plane then panel, keep only the first 8.
+    // Sort by plane then panel, keep only the first 18.
     std::sort(panelsWithHits.begin(), panelsWithHits.end());
-    if (panelsWithHits.size() > 8)
-        panelsWithHits.resize(8);
+    if (panelsWithHits.size() > 18)
+        panelsWithHits.resize(18);
 
     if (panelsWithHits.empty()) return;
 
@@ -152,19 +153,19 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
     if (!fStationCanvas) {
         bool wasBatch = gROOT->IsBatch();
         gROOT->SetBatch(kTRUE);
-        fStationCanvas = new TCanvas("TrackerStation", "Tracker Station View", 1600, 800);
+        fStationCanvas = new TCanvas("TrackerStation", "Tracker Station View", 2400, 1200);
         fStationCanvas->SetBatch(kTRUE);
         gROOT->SetBatch(wasBatch);
     }
     fStationCanvas->cd();
     fStationCanvas->Clear();
-    fStationCanvas->Divide(4, 2, 0.005, 0.005);
+    fStationCanvas->Divide(6, 3, 0.005, 0.005);
 
     // Maps needed for trajectory drawing (grouped by plane).
     std::map<std::pair<int,int>, TPad*> panelPadMap;
     std::map<int, std::set<int>> activePanelsPerPlane;
 
-    // Draw each of the (up to 6) panels in its own sub-pad.
+    // Draw each of the (up to 18) panels in its own sub-pad.
     for (int i = 0; i < (int)panelsWithHits.size(); ++i) {
         auto [planeId, panelId] = panelsWithHits[i];
         activePanelsPerPlane[planeId].insert(panelId);
@@ -175,15 +176,26 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
         gPad->SetLeftMargin(0.15);
         gPad->SetFixedAspectRatio();
 
+        const mu2e::Plane& plane = tracker->getPlane(planeId);
+        const mu2e::Panel& panel = plane.getPanel(panelId);
+
+        double yMin = std::numeric_limits<double>::max();
+        double yMax = std::numeric_limits<double>::lowest();
+        for (size_t iStraw = 0; iStraw < panel.nStraws(); ++iStraw) {
+            const mu2e::Straw& straw = panel.getStraw(iStraw);
+            if (!hitDataMap.count(straw.id())) continue;
+            CLHEP::Hep3Vector pos_l = panel.dsToPanel() * straw.getMidPoint();
+            yMin = std::min(yMin, pos_l.y());
+            yMax = std::max(yMax, pos_l.y());
+        }
+        if (yMin > yMax) { yMin = -170.0; yMax = 170.0; }
+
         TH2F* frame = new TH2F(
             Form("h_pl%d_pa%d", planeId, panelId),
             Form("Plane %d Panel %d;W (mm);V (mm)", planeId, panelId),
-            100, -20, 20, 100, -170, 170);
+            100, -20, 20, 100, yMin - 20.0, yMax + 20.0);
         frame->SetStats(0);
         frame->Draw();
-
-        const mu2e::Plane& plane = tracker->getPlane(planeId);
-        const mu2e::Panel& panel = plane.getPanel(panelId);
 
         for (size_t iStraw = 0; iStraw < panel.nStraws(); ++iStraw) {
             const mu2e::Straw& straw = panel.getStraw(iStraw);
