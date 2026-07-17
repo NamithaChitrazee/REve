@@ -10,6 +10,7 @@
 #include "Offline/RecoDataProducts/inc/KalSeed.hh"
 #include "Offline/RecoDataProducts/inc/CaloCluster.hh"
 #include <map>
+#include <vector>
 
 namespace REX = ROOT::Experimental;
 
@@ -29,13 +30,13 @@ public:
 
 private:
     REX::REvePointSet* fXYCanvasHolder{nullptr};
-    REX::REvePointSet* fStationCanvasHolder{nullptr};
     REX::REvePointSet* fCaloDisk0CanvasHolder{nullptr};
     REX::REvePointSet* fCaloDisk1CanvasHolder{nullptr};
     TCanvas* fXYCanvas{nullptr};
-    TCanvas* fStationCanvas{nullptr};
     TCanvas* fCaloCanvas{nullptr};
     TCanvas* fCaloCanvas1{nullptr};
+    std::vector<TCanvas*> fStationCanvases;
+    std::vector<REX::REvePointSet*> fStationCanvasHolders;
 };
 
 } // namespace mu2e
