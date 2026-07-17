@@ -25,6 +25,8 @@ physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : true
 physics.analyzers.Mu2eEventDisplay.filler.addCrvRecoPulse : true
 physics.analyzers.Mu2eEventDisplay.filler.addSimParts : true
 physics.analyzers.Mu2eEventDisplay.filler.addCaloDigis : true
+physics.analyzers.Mu2eEventDisplay.filler.addTrackerHist : true
+physics.analyzers.Mu2eEventDisplay.filler.addCaloHist : true
 # the path
 physics.EndPath  : [ @sequence::REveDis.seqBase]
 physics.REvePath : @local::REvePath
