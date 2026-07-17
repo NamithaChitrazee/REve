@@ -47,12 +47,7 @@ void TrackerCalo2DViews::createHistogramView() {
 }
 
 void TrackerCalo2DViews::createStationView() {
-    auto& evMng = *REX::gEve;
-    auto stationScene = evMng.SpawnNewScene("TrackerStation", "Tracker Station Scene");
-    fStationCanvasHolder = new REX::REvePointSet("Calo Lego");
-    stationScene->AddElement(fStationCanvasHolder);
-    auto stationViewer = evMng.SpawnNewViewer("Lego", "Tracker Station View");
-    stationViewer->AddScene(stationScene);
+    // Scenes/viewers/holders are created lazily in drawTrackerStation.
 }
 
 void TrackerCalo2DViews::createCaloView() {
@@ -139,111 +134,134 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
         }
     }
 
-    // Sort by plane then panel, keep only the first 18.
     std::sort(panelsWithHits.begin(), panelsWithHits.end());
-    if (panelsWithHits.size() > 18)
-        panelsWithHits.resize(18);
 
     if (panelsWithHits.empty()) return;
 
     mu2e::GeomHandle<mu2e::Tracker> tracker;
     double strawRadius = tracker->strawProperties()._strawOuterRadius;
 
-    // Create the canvas once; clear and re-divide on each event.
-    if (!fStationCanvas) {
+    const int kPanelsPerCanvas = 18;
+    int nPanels   = (int)panelsWithHits.size();
+    int nCanvases = (nPanels + kPanelsPerCanvas - 1) / kPanelsPerCanvas;
+
+    // Create canvases and Eve holders on demand; reuse existing ones.
+    while ((int)fStationCanvases.size() < nCanvases) {
+        int idx = (int)fStationCanvases.size();
         bool wasBatch = gROOT->IsBatch();
         gROOT->SetBatch(kTRUE);
-        fStationCanvas = new TCanvas("TrackerStation", "Tracker Station View", 2400, 1200);
-        fStationCanvas->SetBatch(kTRUE);
+        auto* c = new TCanvas(Form("TrackerStation%d", idx),
+                              Form("Tracker Station View %d", idx), 2400, 1200);
+        c->SetBatch(kTRUE);
         gROOT->SetBatch(wasBatch);
+        fStationCanvases.push_back(c);
     }
-    fStationCanvas->cd();
-    fStationCanvas->Clear();
-    fStationCanvas->Divide(6, 3, 0.005, 0.005);
+    while ((int)fStationCanvasHolders.size() < nCanvases) {
+        int idx = (int)fStationCanvasHolders.size();
+        auto& evMng = *REX::gEve;
+        auto* holder = new REX::REvePointSet("Calo Lego");
+        auto* scene  = evMng.SpawnNewScene(Form("TrackerStation%d", idx),
+                                            Form("Tracker Station Scene %d", idx));
+        scene->AddElement(holder);
+        auto* viewer = evMng.SpawnNewViewer("Lego",
+                                            Form("Tracker Station View %d", idx));
+        viewer->AddScene(scene);
+        fStationCanvasHolders.push_back(holder);
+    }
 
     // Maps needed for trajectory drawing (grouped by plane).
     std::map<std::pair<int,int>, TPad*> panelPadMap;
     std::map<int, std::set<int>> activePanelsPerPlane;
 
-    // Draw each of the (up to 18) panels in its own sub-pad.
-    for (int i = 0; i < (int)panelsWithHits.size(); ++i) {
-        auto [planeId, panelId] = panelsWithHits[i];
-        activePanelsPerPlane[planeId].insert(panelId);
+    // Draw panels, 18 per canvas in a 6x3 grid.
+    for (int ci = 0; ci < nCanvases; ++ci) {
+        TCanvas* canvas = fStationCanvases[ci];
+        canvas->cd();
+        canvas->Clear();
+        canvas->Divide(6, 3, 0.005, 0.005);
 
-        fStationCanvas->cd(i + 1);
-        panelPadMap[{planeId, panelId}] = dynamic_cast<TPad*>(gPad);
-        gPad->SetBottomMargin(0.15);
-        gPad->SetLeftMargin(0.15);
-        gPad->SetFixedAspectRatio();
+        int start = ci * kPanelsPerCanvas;
+        int end   = std::min(start + kPanelsPerCanvas, nPanels);
 
-        const mu2e::Plane& plane = tracker->getPlane(planeId);
-        const mu2e::Panel& panel = plane.getPanel(panelId);
+        for (int i = start; i < end; ++i) {
+            auto [planeId, panelId] = panelsWithHits[i];
+            activePanelsPerPlane[planeId].insert(panelId);
 
-        double yMin = std::numeric_limits<double>::max();
-        double yMax = std::numeric_limits<double>::lowest();
-        for (size_t iStraw = 0; iStraw < panel.nStraws(); ++iStraw) {
-            const mu2e::Straw& straw = panel.getStraw(iStraw);
-            if (!hitDataMap.count(straw.id())) continue;
-            CLHEP::Hep3Vector pos_l = panel.dsToPanel() * straw.getMidPoint();
-            yMin = std::min(yMin, pos_l.y());
-            yMax = std::max(yMax, pos_l.y());
-        }
-        if (yMin > yMax) { yMin = -170.0; yMax = 170.0; }
+            canvas->cd(i - start + 1);
+            panelPadMap[{planeId, panelId}] = dynamic_cast<TPad*>(gPad);
+            gPad->SetBottomMargin(0.15);
+            gPad->SetLeftMargin(0.15);
+            gPad->SetFixedAspectRatio();
 
-        TH2F* frame = new TH2F(
-            Form("h_pl%d_pa%d", planeId, panelId),
-            Form("Plane %d Panel %d;W (mm);V (mm)", planeId, panelId),
-            100, -20, 20, 100, yMin - 20.0, yMax + 20.0);
-        frame->SetStats(0);
-        frame->Draw();
+            const mu2e::Plane& plane = tracker->getPlane(planeId);
+            const mu2e::Panel& panel = plane.getPanel(panelId);
 
-        for (size_t iStraw = 0; iStraw < panel.nStraws(); ++iStraw) {
-            const mu2e::Straw& straw = panel.getStraw(iStraw);
-            CLHEP::Hep3Vector pos_l = panel.dsToPanel() * straw.getMidPoint();
-
-            TEllipse* circ = new TEllipse(pos_l.z(), pos_l.y(), strawRadius, strawRadius);
-            circ->SetLineColor(kGray + 1);
-            circ->SetFillStyle(0);
-            circ->Draw();
-
-            if (!hitDataMap.count(straw.id())) continue;
-
-            const auto* hit    = hitDataMap[straw.id()];
-            mu2e::WireHitState whs = hit->wireHitState();
-            double rdrift      = hit->driftRadius();
-            TEllipse* rcirc   = new TEllipse(pos_l.z(), pos_l.y(), rdrift,      rdrift);
-            TEllipse* hitcirc = new TEllipse(pos_l.z(), pos_l.y(), strawRadius, strawRadius);
-
-            if (!whs.active()) {
-                rcirc->SetFillStyle(0);
-                rcirc->SetLineColor(kBlack);
-                rcirc->SetLineStyle(2);
-                hitcirc->SetLineColor(kBlack);
-                hitcirc->SetLineWidth(0);
-                hitcirc->SetFillStyle(0);
-            } else if (!whs.driftConstraint()) {
-                hitcirc->SetFillColor(kAzure - 9);
-                hitcirc->SetFillStyle(1001);
-                hitcirc->SetLineColor(kBlue);
-                rcirc->SetLineColor(kWhite);
-            } else {
-                rcirc->SetFillStyle(0);
-                rcirc->SetLineColor(kRed);
-                rcirc->SetLineWidth(hit->radialErr() * 10);
-                hitcirc->SetLineColor(kBlack);
-                hitcirc->SetLineWidth(0);
-                hitcirc->SetFillStyle(0);
+            double yMin = std::numeric_limits<double>::max();
+            double yMax = std::numeric_limits<double>::lowest();
+            for (size_t iStraw = 0; iStraw < panel.nStraws(); ++iStraw) {
+                const mu2e::Straw& straw = panel.getStraw(iStraw);
+                if (!hitDataMap.count(straw.id())) continue;
+                CLHEP::Hep3Vector pos_l = panel.dsToPanel() * straw.getMidPoint();
+                yMin = std::min(yMin, pos_l.y());
+                yMax = std::max(yMax, pos_l.y());
             }
-            rcirc->Draw();
-            hitcirc->Draw();
+            if (yMin > yMax) { yMin = -170.0; yMax = 170.0; }
 
-            double sz = pos_l.z(), sy = pos_l.y();
-            TGraph* g = new TGraph(1, &sz, &sy);
-            g->SetMarkerStyle(1);
-            g->SetMarkerColorAlpha(kWhite, 0);
-            g->SetName(Form("hit_%d_%d_%d",
-                            straw.id().getPlane(), straw.id().getPanel(), straw.id().getStraw()));
-            g->Draw("P SAME");
+            TH2F* frame = new TH2F(
+                Form("h_pl%d_pa%d", planeId, panelId),
+                Form("Plane %d Panel %d;W (mm);V (mm)", planeId, panelId),
+                100, -20, 20, 100, yMin - 20.0, yMax + 20.0);
+            frame->SetStats(0);
+            frame->Draw();
+
+            for (size_t iStraw = 0; iStraw < panel.nStraws(); ++iStraw) {
+                const mu2e::Straw& straw = panel.getStraw(iStraw);
+                CLHEP::Hep3Vector pos_l = panel.dsToPanel() * straw.getMidPoint();
+
+                TEllipse* circ = new TEllipse(pos_l.z(), pos_l.y(), strawRadius, strawRadius);
+                circ->SetLineColor(kGray + 1);
+                circ->SetFillStyle(0);
+                circ->Draw();
+
+                if (!hitDataMap.count(straw.id())) continue;
+
+                const auto* hit    = hitDataMap[straw.id()];
+                mu2e::WireHitState whs = hit->wireHitState();
+                double rdrift      = hit->driftRadius();
+                TEllipse* rcirc   = new TEllipse(pos_l.z(), pos_l.y(), rdrift,      rdrift);
+                TEllipse* hitcirc = new TEllipse(pos_l.z(), pos_l.y(), strawRadius, strawRadius);
+
+                if (!whs.active()) {
+                    rcirc->SetFillStyle(0);
+                    rcirc->SetLineColor(kBlack);
+                    rcirc->SetLineStyle(2);
+                    hitcirc->SetLineColor(kBlack);
+                    hitcirc->SetLineWidth(0);
+                    hitcirc->SetFillStyle(0);
+                } else if (!whs.driftConstraint()) {
+                    hitcirc->SetFillColor(kAzure - 9);
+                    hitcirc->SetFillStyle(1001);
+                    hitcirc->SetLineColor(kBlue);
+                    rcirc->SetLineColor(kWhite);
+                } else {
+                    rcirc->SetFillStyle(0);
+                    rcirc->SetLineColor(kRed);
+                    rcirc->SetLineWidth(hit->radialErr() * 10);
+                    hitcirc->SetLineColor(kBlack);
+                    hitcirc->SetLineWidth(0);
+                    hitcirc->SetFillStyle(0);
+                }
+                rcirc->Draw();
+                hitcirc->Draw();
+
+                double sz = pos_l.z(), sy = pos_l.y();
+                TGraph* g = new TGraph(1, &sz, &sy);
+                g->SetMarkerStyle(1);
+                g->SetMarkerColorAlpha(kWhite, 0);
+                g->SetName(Form("hit_%d_%d_%d",
+                                straw.id().getPlane(), straw.id().getPanel(), straw.id().getStraw()));
+                g->Draw("P SAME");
+            }
         }
     }
 
@@ -271,14 +289,18 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
         }
     }
 
-    fStationCanvas->Modified();
-    fStationCanvas->Update();
-
-    if (fStationCanvasHolder) {
-        TString json = TBufferJSON::ToJSON(fStationCanvas);
-        fStationCanvasHolder->SetTitle(TBase64::Encode(json).Data());
-        fStationCanvasHolder->SetMainColor(kWhite);
-        fStationCanvasHolder->StampObjProps();
+    // Serialize each canvas to its Eve holder.
+    for (int ci = 0; ci < nCanvases; ++ci) {
+        TCanvas* canvas = fStationCanvases[ci];
+        canvas->Modified();
+        canvas->Update();
+        REX::REvePointSet* holder = fStationCanvasHolders[ci];
+        if (holder) {
+            TString json = TBufferJSON::ToJSON(canvas);
+            holder->SetTitle(TBase64::Encode(json).Data());
+            holder->SetMainColor(kWhite);
+            holder->StampObjProps();
+        }
     }
 }
 
