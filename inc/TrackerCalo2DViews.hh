@@ -25,7 +25,7 @@ public:
     void createStationView();
     void createCaloView();
     void drawTrackerStation(const mu2e::KalSeedPtrCollection* seedcol);
-    void drawTrackerXYView(const mu2e::KalSeedPtrCollection* seedcol);
+    void drawTrackerXYView(const mu2e::KalSeedPtrCollection* seedcol, int run = 0, int subRun = 0, int event = 0);
     void drawCalorimeterDisk(const CaloClusterCollection* clustercol = nullptr);
 
 private:

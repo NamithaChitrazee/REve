@@ -692,7 +692,7 @@ void MainWindow::createProjectionStuff(REX::REveManager */*eveMng*/)
 }
 
 
-void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventScene, bool firstLoop, bool firstLoopCalo, DataCollections &data, DrawOptions drawOpts, std::vector<int> particleIds, bool strawdisplay, GeomOptions geomOpts, KinKalOptions KKOpts){
+void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventScene, bool firstLoop, bool firstLoopCalo, DataCollections &data, DrawOptions drawOpts, std::vector<int> particleIds, bool strawdisplay, GeomOptions geomOpts, KinKalOptions KKOpts, int run, int subRun, int event){
   if(!firstLoop){
     eventScene->DestroyElements();
   }
@@ -713,7 +713,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
       auto const& track_list = std::get<1>(data.track_tuple);
       const mu2e::KalSeedPtrCollection* seedcol = track_list[0];
       fTrackerCalo2DViews->drawTrackerStation(seedcol);
-      fTrackerCalo2DViews->drawTrackerXYView(seedcol);
+      fTrackerCalo2DViews->drawTrackerXYView(seedcol, run, subRun, event);
      }
   }
    if(drawOpts.addCrvTrack) {

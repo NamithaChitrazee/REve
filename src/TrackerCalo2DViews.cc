@@ -304,7 +304,7 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
     }
 }
 
-void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* seedcol) {
+void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* seedcol, int run, int subRun, int event) {
 
     mu2e::GeomHandle<mu2e::Tracker> tracker;
 
@@ -339,6 +339,13 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
     outerCircle->SetLineWidth(2);
     outerCircle->SetFillStyle(0);
     outerCircle->Draw();
+
+    TLatex* evLabel = new TLatex(-rMax * 0.95, rMax * 0.88,
+                                  Form("Run:%d  SubRun:%d  Event:%d", run, subRun, event));
+    evLabel->SetNDC(false);
+    evLabel->SetTextSize(0.035);
+    evLabel->SetTextColor(kBlack);
+    evLabel->Draw();
 
     if (seedcol == nullptr) {
         fXYCanvas->Modified();
