@@ -22,6 +22,7 @@ void TextSelect::setAutoplay(int x) {
 }
 
 int TextSelect::getAutoplay(){
+  std::lock_guard<std::mutex> lock(_mutex);
   return autoplay_;
 }
 

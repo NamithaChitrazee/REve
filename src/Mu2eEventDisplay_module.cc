@@ -165,6 +165,7 @@ namespace mu2e
         // Control between the main thread and event-display thread
         std::condition_variable cv_{};
         std::mutex m_{};
+        bool nextEventSignaled_{false};
 
         int  diagLevel_;
         bool showCrv_;
@@ -480,14 +481,16 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
           if (autoplay > 0) {
               // Autoplay is ON (Autoplay value is the delay in seconds)
               std::cout << "Auto play switched on.... waiting 10 s for REve display." << std::endl;
-              
+
               auto timeout = std::chrono::seconds(10);
-              cv_.wait_for(lock, timeout); 
+              cv_.wait_for(lock, timeout, [this]{ return nextEventSignaled_; });
+              nextEventSignaled_ = false;
 
               lock.unlock();
-              
+
           } else {
-              cv_.wait(lock);
+              cv_.wait(lock, [this]{ return nextEventSignaled_; });
+              nextEventSignaled_ = false;
           }
           
           seqMode_ = true;
@@ -584,11 +587,12 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
     // 2. The synchronization primitives (cv_, m_)
     // 3. The custom GUI object (fGui.get())
     eventMgr_ = std::make_unique<EventDisplayManager>(
-        eveMng_, 
-        cv_, 
-        m_, 
+        eveMng_,
+        cv_,
+        m_,
         fGui.get()
     );
+    eventMgr_->setNextEventSignal(&nextEventSignaled_);
 
     // --- Scene Setup ---
 
@@ -639,21 +643,29 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
   
   
 
-  // Actually interesting function responsible for drawing the current event
+  // Draws the current event into the REve scene.
+  // MUST be called on the ROOT/REve thread — always schedule via XThreadTimer.
+  // DestroyElements() calls in DataInterface are only safe on this thread.
   void Mu2eEventDisplay::process_single_event()
   {
-      
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] Start "<<std::endl;
       
       // --- 1. Disable Redrawing and Start Change Tracking ---
       
-      // Temporarily disable the browser redraw to prevent the display from updating 
+      // Temporarily disable the browser redraw to prevent the display from updating
       // multiple times during the process, leading to flickering and slow performance.
-      eveMng_->DisableRedraw(); 
-      
-      // Tell the World Scene to start tracking changes. All element additions/modifications 
+      eveMng_->DisableRedraw();
+
+      // Null out any pointers to the previous event's collections before doing anything else.
+      // Web callbacks (PrintRecoInfo / PrintMCInfo) can fire asynchronously from the browser;
+      // clearing here ensures they never see a pointer into a destroyed art::Event.
+      fPrint->fcalocluster_tuple = {};
+      fPrint->fmctrack_tuple     = {};
+      fPrint->ftrack_tuple       = {};
+
+      // Tell the World Scene to start tracking changes. All element additions/modifications
       // are batched until EndAcceptingChanges() is called.
-      eveMng_->GetWorld()->BeginAcceptingChanges(); 
+      eveMng_->GetWorld()->BeginAcceptingChanges();
       
       // Tell all scenes managed by the REveManager to start accepting batched changes.
       // eveMng_->GetScenes()->AcceptChanges(true); 

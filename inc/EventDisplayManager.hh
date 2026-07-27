@@ -91,10 +91,16 @@ namespace mu2e {
         // Pointer to the custom GUI element instance.
         GUI *fGui_{nullptr};                               
         
-        // Raw pointer to the TextSelect element. While fTextId_ is preferred for lookup, 
+        // Raw pointer to the TextSelect element. While fTextId_ is preferred for lookup,
         // this is kept for direct access if necessary (but is less robust).
         TextSelect *fText_{nullptr};
-        
+
+        // Pointer to the module-owned flag set when NextEvent fires.
+        // The analyze() cv_.wait() predicate reads this to avoid spurious wakeups.
+        bool* nextEventSignaled_{nullptr};
+
+    public:
+        void setNextEventSignal(bool* flag) { nextEventSignaled_ = flag; }
     };
 }
 

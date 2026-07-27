@@ -32,8 +32,9 @@ EventDisplayManager::EventDisplayManager(
 */
 void EventDisplayManager::NextEvent()
 {
-    std::unique_lock lock{*m_}; // Acquire lock on the mutex
-    cv_->notify_all();          // Notify the waiting Art thread (in analyze())
+    std::unique_lock lock{*m_};
+    if (nextEventSignaled_) *nextEventSignaled_ = true;
+    cv_->notify_all();
 }
 
 /*Terminates the application and exits the process.
@@ -56,9 +57,7 @@ void EventDisplayManager::autoplay(int x)
     // Check if the global REveManager instance is available.
     if (ROOT::Experimental::gEve != nullptr) {
         
-        // 1. Retrieve the generic REveElement using the global manager (gEve) and the Element ID.
-        // The function name should be FindElementWithId(fTextId_)but I found that this does not work so I hardcoded FIXME
-        ROOT::Experimental::REveElement* element = ROOT::Experimental::gEve->FindElementById(4336); 
+        ROOT::Experimental::REveElement* element = ROOT::Experimental::gEve->FindElementById(fTextId_);
         
         if (element != nullptr) {
             // 2. Safely cast the generic element to the specific TextSelect type.
@@ -105,7 +104,7 @@ void mu2e::EventDisplayManager::goToRunEvent(int runId, int subrunId, int eventI
     TextSelect* fText_obj = nullptr;
 
     if (ROOT::Experimental::gEve != nullptr) {
-        ROOT::Experimental::REveElement* element = ROOT::Experimental::gEve->FindElementById(4336); // FIXME use fTextId_
+        ROOT::Experimental::REveElement* element = ROOT::Experimental::gEve->FindElementById(fTextId_);
         if (element != nullptr)
             fText_obj = dynamic_cast<TextSelect*>(element);
     }
