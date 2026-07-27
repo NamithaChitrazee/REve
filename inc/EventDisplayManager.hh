@@ -4,6 +4,7 @@
 #include <ROOT/REveElement.hxx>
 #include <ROOT/REveScene.hxx>
 #include <condition_variable>
+#include <functional>
 #include <limits>
 #include <mutex>
 #include <stdexcept>
@@ -61,6 +62,12 @@ namespace mu2e {
          */
         void goToRunEvent(int runId, int subrunId, int eventId);
 
+        // Called via ScheduleMIR from the Art thread to dispatch process_single_event()
+        // onto the ROOT/REve thread.
+        void ProcessEvent();
+
+        void setProcessCallback(std::function<void()> cb) { processCallback_ = std::move(cb); }
+
         // --- Public Members ---
 
         // Stores the current Run ID, often used by commands or display logic.
@@ -98,6 +105,8 @@ namespace mu2e {
         // Pointer to the module-owned flag set when NextEvent fires.
         // The analyze() cv_.wait() predicate reads this to avoid spurious wakeups.
         bool* nextEventSignaled_{nullptr};
+
+        std::function<void()> processCallback_;
 
     public:
         void setNextEventSignal(bool* flag) { nextEventSignaled_ = flag; }

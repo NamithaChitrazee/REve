@@ -88,6 +88,12 @@ void EventDisplayManager::autoplay(int x)
  * * This ID is used for robust, thread-safe lookup of the object via gEve.
  * @param textId The assigned REve Element ID (e.g., 4285).
  */
+void EventDisplayManager::ProcessEvent()
+{
+    std::cout << "EventDisplayManager::ProcessEvent thread = " << std::this_thread::get_id() << std::endl;
+    if (processCallback_) processCallback_();
+}
+
 void EventDisplayManager::setTextSelectId(std::uint32_t textId) {
     fTextId_ = textId;
     std::cout << "[EventDisplayManager::setTextSelectId] fTextId_ set to: " << fTextId_ << std::endl;

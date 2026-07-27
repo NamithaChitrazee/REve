@@ -27,10 +27,6 @@
 //ROOT:
 //#include "art_root_io/TFileService.h"
 #include <TApplication.h>
-#include <TSystem.h>
-#include <TList.h>
-#include <TObjArray.h>
-#include <Rtypes.h>
 #include <TFile.h>
 #include <TTree.h>
 
@@ -85,24 +81,6 @@ using namespace std;
 namespace mu2e
 {
 
-    class XThreadTimer : public TTimer {
-        std::function<void()> foo_;
-        public:
-            XThreadTimer(std::function<void()> f) : foo_(f)
-            {
-                SetTime(0);
-                R__LOCKGUARD2(gSystemMutex);
-                gSystem->AddTimer(this);
-            }
-            Bool_t Notify() override
-            {
-                std::cout << "XThreadTimer callback thread = " << std::this_thread::get_id() << std::endl;
-                foo_();
-                gSystem->RemoveTimer(this);
-                return kTRUE;
-            }
-    };
-
     class Mu2eEventDisplay : public art::EDAnalyzer {
       public:
         struct Config{
@@ -143,7 +121,6 @@ namespace mu2e
         virtual void beginRun(const art::Run& run) override;
         virtual void analyze(const art::Event& e);
         virtual void endJob() override;
-        void signalAppStart();
       private:
 
         art::ServiceHandle<art::TFileService> tfs;
@@ -250,32 +227,19 @@ namespace mu2e
     showEM_(conf().showEM()),
     seqMode_(conf().seqMode())
     {
+      ROOT::EnableThreadSafety();
       geomOpts.fill(showCrv_,showPS_, showTS_, showDS_, show2D_, caloVST_, showST_, extracted_, showSTM_, showCalo_, showTracker_, showCaloCrystals_, showEM_ );
     }
 
   Mu2eEventDisplay::~Mu2eEventDisplay() {}
 
-  void Mu2eEventDisplay::signalAppStart()
-  { 
-      std::unique_lock lock{m_};
-      cv_.notify_all();
-  }
-
   void Mu2eEventDisplay::beginJob(){
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : beginJob()] -- starting ..."<<std::endl;
-      {      
-        std::unique_lock lock{m_};
-        appThread_ = std::thread{[this] { run_application(); }};
-        // Wait for app init to finish ... this will process pending timer events.
-        XThreadTimer sut([this]{ signalAppStart(); });
-        if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : beginJob()] -- starting wait on app start"<<std::endl;
-        cv_.wait(lock);
-        if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : beginJob()] -- app start signal received, starting eve init"<<std::endl;
-        XThreadTimer suet([this]{ setup_eve(); });
-        if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : beginJob()] -- starting wait on eve setup"<<std::endl;
-        cv_.wait(lock);
-        if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : beginJob()] -- eve setup apparently complete"<<std::endl;
-      }
+      std::unique_lock lock{m_};
+      appThread_ = std::thread{[this] { run_application(); }};
+      if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : beginJob()] -- waiting for eve setup"<<std::endl;
+      cv_.wait(lock);
+      if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : beginJob()] -- eve setup complete"<<std::endl;
   }
 
 
@@ -472,10 +436,9 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
 
           if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] -- Event processing started "<<std::endl;
 
-          // Thread Synchronization
-          // Start the single-event processing job (updating the REve display) in the REve/ROOT thread.
-          // The XThreadTimer ensures the display update happens outside the current Art/analysis thread.
-          XThreadTimer proc_timer([this]{ process_single_event(); }); 
+          // Schedule process_single_event() on the ROOT/REve thread via ScheduleMIR,
+          // the same cross-thread dispatch mechanism used by FireworksWeb.
+          eveMng_->ScheduleMIR("ProcessEvent()", eventMgr_->GetElementId(), "mu2e::EventDisplayManager", 0);
 
           if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] -- transferring to TApplication thread "<<std::endl;
           
@@ -536,17 +499,12 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
 
   void Mu2eEventDisplay::run_application()
   {
-      // Without this the startup timer might not get invoked.
-      // Explicitly process any waiting system events (like timer ticks or thread signals) 
-      // that were queued before the TApplication event loop officially started. 
-      // This ensures initialization tasks (like setting up the REve browser/GUI) are executed promptly.
-      gSystem->ProcessEvents(); 
+      // setup_eve() runs here in the ROOT thread so REveManager and web window
+      // are created on their owning thread without needing a cross-thread timer.
+      setup_eve();
 
-      // Start the TApplication event loop. 
-      // The argument 'true' typically means that the function should return only when 
-      // the application is explicitly terminated (e.g., via application_.Terminate(0) in endJob()).
-      // This line blocks the appThread_ until the user closes the display or the Art job finishes.
-      // 
+      // Start the TApplication event loop. Blocks until application_.Terminate(0)
+      // is called from endJob().
       application_.Run(true);
   }
 
@@ -603,6 +561,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
         fGui.get()
     );
     eventMgr_->setNextEventSignal(&nextEventSignaled_);
+    eventMgr_->setProcessCallback([this]{ process_single_event(); });
 
     // --- Scene Setup ---
 
@@ -654,7 +613,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
   
 
   // Draws the current event into the REve scene.
-  // MUST be called on the ROOT/REve thread — always schedule via XThreadTimer.
+  // MUST be called on the ROOT/REve thread — dispatched via ScheduleMIR through EventDisplayManager::ProcessEvent().
   // DestroyElements() calls in DataInterface are only safe on this thread.
   void Mu2eEventDisplay::process_single_event()
   {
