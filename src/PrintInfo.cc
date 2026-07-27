@@ -1,6 +1,8 @@
 #include "EventDisplay/inc/PrintInfo.hh"
 #include "Offline/GlobalConstantsService/inc/GlobalConstantsHandle.hh"
 #include "Offline/GlobalConstantsService/inc/ParticleDataList.hh"
+#include <iostream>
+#include <thread>
 
 using namespace mu2e;
 
@@ -11,6 +13,7 @@ using namespace mu2e;
  * It currently delegates to the PrintSimInfo method.
  */
 void PrintInfo::PrintMCInfo(){
+    std::cout << "PrintMCInfo thread = " << std::this_thread::get_id() << std::endl;
     PrintMCTrajInfo();
     PrintSimPartInfo();
 }
@@ -21,6 +24,7 @@ void PrintInfo::PrintMCInfo(){
  * It aggregates printing from tracking, calorimetry, and CRV components.
  */
 void PrintInfo::PrintRecoInfo(){
+    std::cout << "PrintRecoInfo thread = " << std::this_thread::get_id() << std::endl;
     PrintKalInfo();
     PrintCaloInfo();
     PrintCRVInfo();

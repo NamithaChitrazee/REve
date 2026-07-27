@@ -1,4 +1,6 @@
 #include "EventDisplay/inc/EventDisplayManager.hh"
+#include <iostream>
+#include <thread>
 namespace mu2e {
 
 // --- Constructor Implementation ---
@@ -32,6 +34,7 @@ EventDisplayManager::EventDisplayManager(
 */
 void EventDisplayManager::NextEvent()
 {
+    std::cout << "NextEvent thread = " << std::this_thread::get_id() << std::endl;
     std::unique_lock lock{*m_};
     if (nextEventSignaled_) *nextEventSignaled_ = true;
     cv_->notify_all();

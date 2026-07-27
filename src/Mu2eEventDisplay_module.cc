@@ -96,6 +96,7 @@ namespace mu2e
             }
             Bool_t Notify() override
             {
+                std::cout << "XThreadTimer callback thread = " << std::this_thread::get_id() << std::endl;
                 foo_();
                 gSystem->RemoveTimer(this);
                 return kTRUE;
@@ -562,11 +563,20 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
 
     // Configure REve to disallow multiple simultaneous browser connections.
     // The second 'false' is typically related to connection handling details.
-    eveMng_->AllowMultipleRemoteConnections(false, false); 
+    eveMng_->AllowMultipleRemoteConnections(false, false);
 
-    // Set the global WebWindowsManager to not use session keys for connections, 
+    // Set the global WebWindowsManager to not use session keys for connections,
     // simplifying access to the display.
-    ROOT::RWebWindowsManager::SetUseSessionKey(false); 
+    ROOT::RWebWindowsManager::SetUseSessionKey(false);
+
+    eveMng_->GetWebWindow()->SetConnectCallBack([](unsigned connid) {
+        std::cout << "connection callback thread = " << std::this_thread::get_id()
+                  << " connid=" << connid << std::endl;
+    });
+    eveMng_->GetWebWindow()->SetDisconnectCallBack([](unsigned connid) {
+        std::cout << "disconnection callback thread = " << std::this_thread::get_id()
+                  << " connid=" << connid << std::endl;
+    }); 
 
     // --- Object Creation (Using std::unique_ptr for robust lifetime management) ---
 
@@ -648,6 +658,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
   // DestroyElements() calls in DataInterface are only safe on this thread.
   void Mu2eEventDisplay::process_single_event()
   {
+      std::cout << "process_single_event thread = " << std::this_thread::get_id() << std::endl;
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] Start "<<std::endl;
       
       // --- 1. Disable Redrawing and Start Change Tracking ---
