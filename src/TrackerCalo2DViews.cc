@@ -118,7 +118,7 @@ static void drawTrajectoryXY(const KTRAJ& trajectory)
     graph->Draw("L SAME");
 }
 
-void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* seedcol) {
+void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* seedcol, const art::EventID& eventID) {
   std::cout<<"drawTrackerSTATION"<<std::endl;
     // Collect hit data and identify which (plane, panel) pairs have hits.
     std::map<mu2e::StrawId, const mu2e::TrkStrawHitSeed*> hitDataMap;
@@ -143,11 +143,10 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
 
     if (panelsWithHits.empty()) return;
 
-    mu2e::GeomHandle<mu2e::Tracker> tracker;
     ProditionsHandle<StrawResponse> strawResponse_h_;
     ProditionsHandle<Tracker> alignedTracker_h_;
-    auto const& strawresponse = strawResponse_h_.getPtr(event.id());
-    auto const& tracker = alignedTracker_h_.getPtr(event.id()).get();
+    auto const& strawresponse = strawResponse_h_.getPtr(eventID);
+    auto const& tracker = alignedTracker_h_.getPtr(eventID).get();
     double strawRadius = tracker->strawProperties()._strawOuterRadius;
 
     const int kPanelsPerCanvas = 18;

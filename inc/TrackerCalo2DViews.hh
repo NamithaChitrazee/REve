@@ -9,6 +9,7 @@
 #include <ROOT/REveScene.hxx>
 #include "Offline/RecoDataProducts/inc/KalSeed.hh"
 #include "Offline/RecoDataProducts/inc/CaloCluster.hh"
+#include "canvas/Persistency/Provenance/EventID.h"
 #include <map>
 #include <vector>
 
@@ -24,7 +25,7 @@ public:
     void createHistogramView();
     void createStationView();
     void createCaloView();
-    void drawTrackerStation(const mu2e::KalSeedPtrCollection* seedcol);
+    void drawTrackerStation(const mu2e::KalSeedPtrCollection* seedcol, const art::EventID& eventID);
     void drawTrackerXYView(const mu2e::KalSeedPtrCollection* seedcol, int run = 0, int subRun = 0, int event = 0);
     void drawCalorimeterDisk(const CaloClusterCollection* clustercol = nullptr, const mu2e::KalSeedPtrCollection* seedcol = nullptr);
 

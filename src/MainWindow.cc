@@ -1,4 +1,5 @@
 #include "Offline/ConfigTools/inc/SimpleConfig.hh"
+#include "canvas/Persistency/Provenance/EventID.h"
 #include "EventDisplay/inc/MainWindow.hh"
 #include "Offline/GeometryService/inc/GeomHandle.hh"
 #include "Offline/GeometryService/inc/DetectorSystem.hh"
@@ -732,7 +733,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
       }
       auto const& track_list = std::get<1>(data.track_tuple);
       const mu2e::KalSeedPtrCollection* seedcol = track_list[0];
-      fTrackerCalo2DViews->drawTrackerStation(seedcol);
+      fTrackerCalo2DViews->drawTrackerStation(seedcol, art::EventID(run, subRun, event));
       fTrackerCalo2DViews->drawTrackerXYView(seedcol, run, subRun, event);
      }
   }
