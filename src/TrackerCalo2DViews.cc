@@ -209,7 +209,7 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
             for (size_t iStraw = 0; iStraw < panel.nStraws(); ++iStraw) {
                 const mu2e::Straw& straw = panel.getStraw(iStraw);
                 if (!hitDataMap.count(straw.id())) continue;
-                CLHEP::Hep3Vector pos_l = panel.dsToPanel() * straw.getMidPoint();
+                CLHEP::Hep3Vector pos_l = panel.dsToPanel() * straw.strawPosition(hitDataMap.at(straw.id())->refPOCA_Upos());
                 yMin = std::min(yMin, pos_l.y());
                 yMax = std::max(yMax, pos_l.y());
             }
@@ -224,7 +224,8 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
 
             for (size_t iStraw = 0; iStraw < panel.nStraws(); ++iStraw) {
                 const mu2e::Straw& straw = panel.getStraw(iStraw);
-                CLHEP::Hep3Vector pos_l = panel.dsToPanel() * straw.getMidPoint();
+                float rupos = hitDataMap.count(straw.id()) ? hitDataMap.at(straw.id())->refPOCA_Upos() : 0.0f;
+                CLHEP::Hep3Vector pos_l = panel.dsToPanel() * straw.strawPosition(rupos);
 
                 TEllipse* circ = new TEllipse(pos_l.z(), pos_l.y(), strawRadius, strawRadius);
                 circ->SetLineColor(kGray + 1);
@@ -371,7 +372,7 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
 
     for (auto const& [sid, hit] : hitMap) {
         const mu2e::Straw& straw = tracker->getStraw(sid);
-        const CLHEP::Hep3Vector& mid = straw.getMidPoint();
+        const CLHEP::Hep3Vector mid = straw.strawPosition(hit->refPOCA_Upos());
         const CLHEP::Hep3Vector& dir = straw.getDirection();
         double hlen = straw.halfLength();
 
