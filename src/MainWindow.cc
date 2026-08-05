@@ -425,12 +425,12 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
         y_cal = y_ds3 + offsets[i].second[1];
         z_cal = z_ds3 + offsets[i].second[2];
       }
-      if(offsets[i].first.find("CaloDisk_00") != string::npos){
+      if(offsets[i].first.find("CaloDisk_0") != string::npos && offsets[i].first.find("CaloDisk_1") == string::npos){
         x_d0 = x_cal + offsets[i].second[0];
         y_d0 = y_cal + offsets[i].second[1];
         z_d0 = z_cal + offsets[i].second[2];
       }
-      if(offsets[i].first.find("CaloDisk_10") != string::npos){
+      if(offsets[i].first.find("CaloDisk_1") != string::npos){
         x_d1 = x_cal + offsets[i].second[0];
         y_d1 = y_cal + offsets[i].second[1];
         z_d1 = z_cal + offsets[i].second[2];
@@ -492,6 +492,7 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
           shift.at(2) = z_cal - z_trk;
+          std::cout<<"calo disk shift = "<<shift.at(2)<<" z_cal = "<<z_cal<<" z_trk = "<<z_trk<<std::endl;
           showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, true, false, drawconfigf.getInt("CALColor") );
         }
       if(geomOpt.showCaloCrystals){
@@ -548,7 +549,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     SimpleConfig trackerconfig(trackerfilename);
 
     // Get CRV Z-shift for extracted geometry alignment
-    double tracker_half_length_cm = 0.0; //trackerconfig.getDouble("tracker.mother.halfLength")/10.0;
+    double tracker_half_length_cm = 0.0; //125.0; //trackerconfig.getDouble("tracker.mother.halfLength")/10.0;
     double x_world = 0;
     double y_world = 0;
     double z_world = 0;
@@ -606,15 +607,17 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
         y_cal = y_ds3 + offsets[i].second[1];
         z_cal = z_ds3 + offsets[i].second[2];
       }
-      if(offsets[i].first.find("CaloDisk_00") != string::npos){
+      if(offsets[i].first.find("CaloDisk_0") != string::npos && offsets[i].first.find("CaloDisk_1") == string::npos){
         x_d0 = x_cal + offsets[i].second[0];
         y_d0 = y_cal + offsets[i].second[1];
         z_d0 = z_cal + offsets[i].second[2];
+        std::cout<<"z_cal = "<<z_cal<<std::endl;
       }
-      if(offsets[i].first.find("CaloDisk_10") != string::npos){
+      if(offsets[i].first.find("CaloDisk_1") != string::npos){
         x_d1 = x_cal + offsets[i].second[0];
         y_d1 = y_cal + offsets[i].second[1];
-        z_d1 = z_cal + offsets[i].second[2];
+        z_d1 = z_cal + offsets[i].second[2] + 22.5;
+        std::cout<<"z_cal = "<<z_cal<<" disk 1 = "<<offsets[i].second[2]<<std::endl;
       }
     }
     std::vector<double> shift;
@@ -633,22 +636,39 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
       }
     }
     // everything else needs to be shifted such that its relative to the tracker center at 0,0,0
-
+  
     if(geomOpt.showCalo){
-        static std::vector <std::string> substrings_disk  {"CaloDisk"};
-        for(auto& i: substrings_disk){
+        static std::vector <std::string> substrings_disk0  {"CaloDisk"};
+        for(auto& i: substrings_disk0){
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
-          shift.at(2) = z_cal - z_trk ;
-          showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, false, false, drawconfigf.getInt("CALColor") );
+          shift.at(2) = z_cal - z_trk; //+ 50.0;
+          std::cout<<"z_cal = "<<z_cal<<" trk = "<<z_trk<<std::endl;
+          showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, true, false, drawconfigf.getInt("CALColor") );
+        }
+        static std::vector <std::string> substrings_disk1  {"CaloDisk_1"};
+        for(auto& i: substrings_disk1){
+          shift.at(0) = x_cal - x_trk;
+          shift.at(1) = y_cal - y_trk;
+          shift.at(2) = z_cal - z_trk; //+ 75.0;
+          std::cout<<"z_cal = "<<z_cal<<" trk = "<<z_trk<<std::endl;
+          showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, true, false, drawconfigf.getInt("CALColor") );
         }
       if(geomOpt.showCaloCrystals){
-        static std::vector <std::string> substrings_crystals  {"CaloWrapper"};
-        for(auto& i: substrings_crystals){
+        static std::vector <std::string> substrings_crystals0  {"CaloWrapper"};
+        for(auto& i: substrings_crystals0){
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
-          shift.at(2) = z_cal - z_trk  ;
-          showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, false, false, drawconfigf.getInt("CALColor"));
+          shift.at(2) = z_cal - z_trk; //+ 50.0;
+          std::cout<<"z_cal = "<<z_cal<<std::endl;
+          showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, true, false, drawconfigf.getInt("CALColor"));
+        }
+        static std::vector <std::string> substrings_crystals1  {"CaloWrapper_1"};
+        for(auto& i: substrings_crystals1){
+          shift.at(0) = x_cal - x_trk;
+          shift.at(1) = y_cal - y_trk;
+          shift.at(2) = z_cal - z_trk; //+ 75.0;
+          showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, true, false, drawconfigf.getInt("CALColor"));
         }
       }
     }
@@ -658,7 +678,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     shift.at(0) = x_crvex - x_trk  ;
     shift.at(1) = y_crvex - y_trk;
     shift.at(2) = z_crvex - z_trk + tracker_half_length_cm;
-
+    std::cout<<"z_crvex = "<<z_crvex<<" trk = "<<z_trk<<std::endl;
     for(auto& i: substrings_ex){
       showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));
     }
@@ -667,7 +687,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     shift.at(0) = x_crvt1 - x_trk;
     shift.at(1) = y_crvt1 - y_trk;
     shift.at(2) = z_crvt1 - z_trk + tracker_half_length_cm;
-
+    std::cout<<"z_crvt1 = "<<z_crvt1<<" trk = "<<z_trk<<std::endl;
     for(auto& i: substrings_t1){
       showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));
     }
@@ -749,10 +769,14 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
     if(calocluster_list.size() !=0 ) 
       pass_data->AddCaloClusters(eveMng, firstLoopCalo, data.calocluster_tuple, eventScene, drawOpts.addCrystalDraw);
     if(drawOpts.addCaloHist and calocluster_list.size() !=0) {
+      std::cout<<"uhm we here??"<<std::endl;
       if (!fTrackerCalo2DViews)
         fTrackerCalo2DViews = new TrackerCalo2DViews();
-      const CaloClusterCollection* clustercol = calocluster_list[0];
-      fTrackerCalo2DViews->drawCalorimeterDisk(clustercol);
+      const CaloClusterCollection* clustercol = calocluster_list[1];
+      std::cout<<"cluster col size = "<<clustercol->size()<<std::endl;
+      auto const& track_list_calo = std::get<1>(data.track_tuple);
+      const mu2e::KalSeedPtrCollection* seedcol_calo = track_list_calo.size() > 0 ? track_list_calo[0] : nullptr;
+      fTrackerCalo2DViews->drawCalorimeterDisk(clustercol, seedcol_calo);
    }
   }
 

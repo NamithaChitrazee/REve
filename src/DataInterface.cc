@@ -22,7 +22,7 @@ SimpleConfig trackerconfig(trackerfilename);
 // Get CRV Z-shift for extracted geometry alignment
 double GetCrvExtractedZShift() {
     // Tracker envelope half-length in mm, converted to cm
-  double tracker_half_length_cm = 0.0; //trackerconfig.getDouble("tracker.mother.halfLength")/10.0;
+  double tracker_half_length_cm = 0.0; // 125.0; //trackerconfig.getDouble("tracker.mother.halfLength")/10.0;
     return tracker_half_length_cm;
 }
 
@@ -223,11 +223,11 @@ void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_,
     std::vector<std::string> names = std::get<0>(calocluster_tuple);
 
     // Distinct solid colors cycled by cluster index
-    const Color_t clusterColors[] = {
+    /*const Color_t clusterColors[] = {
         kRed, kBlue, kGreen+2, kMagenta, kCyan+1,
         kOrange+7, kViolet+1, kTeal+3, kYellow+1, kPink+6
-    };
-    const int nColors = 10;
+        };*/
+    // const int nColors = 10;
 
     for(unsigned int j = 0; j < calocluster_list.size(); j++){
         const CaloClusterCollection* clustercol = calocluster_list[j];
@@ -242,7 +242,7 @@ void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_,
 
             for(unsigned int i = 0; i < clustercol->size(); i++){
                 const auto& cluster = (*clustercol)[i];
-                Color_t color = clusterColors[i % nColors];
+                Color_t color = kRed; // clusterColors[i % nColors];
                 CLHEP::Hep3Vector COG(cluster.cog3Vector().x(), cluster.cog3Vector().y(), cluster.cog3Vector().z());
 
                 CLHEP::Hep3Vector crystalPos = cal.geomUtil().mu2eToDisk(cluster.diskID(), COG);
@@ -251,8 +251,11 @@ void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_,
                                          cluster.cog3Vector().x(), cluster.cog3Vector().y(), cluster.cog3Vector().z());
                  
                 auto ps = new REX::REvePointSet(label, "CaloCluster: " + label, 0);
-                ps->SetNextPoint(pointmmTocm(COG.x()), pointmmTocm(COG.y()), abs(pointmmTocm(pointInMu2e.z())));
-                ps->SetMarkerColor(color);
+                double clusterZOffset = abs(pointmmTocm(pointInMu2e.z()));
+                // if (cluster.diskID() == 0) clusterZOffset += 50.0;
+                // else if (cluster.diskID() == 1) clusterZOffset += 75.0;
+                ps->SetNextPoint(pointmmTocm(COG.x()), pointmmTocm(COG.y()), clusterZOffset); 
+                ps->SetMarkerColor(kRed);
                 ps->SetMarkerStyle(DataInterface::mstyle);
                 ps->SetMarkerSize(DataInterface::msize);
                 scene->AddElement(ps);
@@ -284,6 +287,8 @@ void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_,
                         double thickness = crystalZLen / 2;
 
                         double crystalZOffset = pointmmTocm(cryPos.z()) + abs(pointmmTocm(pointInMu2e.z())) + crystalZLen / 2;
+                        //if(cluster.diskID() == 0) crystalZOffset +=50.0;
+                        //if(cluster.diskID() == 1) crystalZOffset +=75.0;
 
                         b->SetVertex(0, pointmmTocm(cryPos.x()) - width, pointmmTocm(cryPos.y()) - height, crystalZOffset - thickness);
                         b->SetVertex(1, pointmmTocm(cryPos.x()) - width, pointmmTocm(cryPos.y()) + height, crystalZOffset - thickness);
@@ -526,7 +531,7 @@ void DataInterface::AddCrvBar(const mu2e::CRSScintillatorBarIndex& barIndex, con
 
     auto b = new REX::REveBox(title.c_str(), title.c_str());
     b->SetMainColor(color);
-    b->SetMainTransparency(drawconfig.getInt("Crvtrans"));
+    b->SetMainTransparency(0); //drawconfig.getInt("Crvtrans"));
     b->SetLineWidth(drawconfig.getInt("GeomLineWidth"));
 
     if(!extracted){
@@ -820,12 +825,12 @@ void DataInterface::AddTrkStrawHit(mu2e::KalSeed const& kalseed, REX::REveElemen
         // Calculate Position and Error Vectors
         if(active){
             // Start position: position on the wire at the reference POCA (RUpOS)
-            auto tshspos = XYZVectorF(straw.wirePosition(tshs._rupos));
+            auto tshspos = XYZVectorF(straw.wirePosition(tshs._wdist));
             // Find direction perpendicular to the wire and the track direction (drift direction)
             // track direction at POCA
             auto tdir = lhptr->direction(tshs._ptoca);
             // wire direction
-            auto wdir = XYZVectorF(straw.wireDirection(tshs._rupos));
+            auto wdir = XYZVectorF(straw.wireDirection(tshs._wdist));
             // drift direction is perpendicular to the plane formed by wire and track
             auto ddir = wdir.Cross(tdir).Unit() * whs.lrSign();
 
@@ -833,11 +838,11 @@ void DataInterface::AddTrkStrawHit(mu2e::KalSeed const& kalseed, REX::REveElemen
             float long_error = tshs._werr;
             auto long_end1 = tshspos + long_error*wdir;
             auto long_end2 = tshspos - long_error*wdir;
-            auto long_line = new REX::REveLine("Longitudinal Error", "Longitudinal", 2);
+            auto long_line = new REX::REveLine("Longitudinal Error", " ", 2);
             long_line->SetNextPoint(pointmmTocm(long_end1.x()), pointmmTocm(long_end1.y()), pointmmTocm(long_end1.z()));
             long_line->SetNextPoint(pointmmTocm(long_end2.x()), pointmmTocm(long_end2.y()), pointmmTocm(long_end2.z()));
-            long_line->SetLineWidth(3);
-            long_line->SetLineColor(kBlue);
+            long_line->SetLineWidth(2);
+            long_line->SetLineColor(kBlack);
             // Move position out by the drift distance along the signed drift direction
             if(usedrift)
               tshspos += tshs._rdrift * ddir;
@@ -848,9 +853,9 @@ void DataInterface::AddTrkStrawHit(mu2e::KalSeed const& kalseed, REX::REveElemen
             trkstrawpoint->SetMarkerStyle(DataInterface::mstyle);
             trkstrawpoint->SetMarkerSize(DataInterface::msize); 
             // Color logic: Redraw color if drift constraint wasn't used
-            Color_t base_color = drawconfig.getInt("TrkHitColor");
+            Color_t base_color = kRed; // drawconfig.getInt("TrkHitColor");
             if (!usedrift) {
-              base_color = drawconfig.getInt("TrkNoHitColor"); //Red color hit
+              base_color = kRed; // drawconfig.getInt("TrkNoHitColor"); //Red color hit
             }
             trkstrawpoint->SetMarkerColor(base_color);
             trkstrawpoint->SetNextPoint(pointmmTocm(tshspos.x()), pointmmTocm(tshspos.y()), pointmmTocm(tshspos.z()));
@@ -942,7 +947,7 @@ void DataInterface::AddKinKalTrajectory(std::unique_ptr<KTRAJ> &trajectory,
     
     // Set the first point explicitly (t = t1)
     const auto &p_start = trajectory->position3(t1);
-    line->SetPoint(0, pointmmTocm(p_start.x()), pointmmTocm(p_start.y()), pointmmTocm(p_start.z()));
+    line->SetPoint(0, pointmmTocm(p_start.x()), pointmmTocm(p_start.y()), pointmmTocm(p_start.z()));// + 1250.0));
     
     // Loop from t1 + step up to t2
     for(double t = t1 + time_step; t <= t2; t += time_step)
@@ -953,13 +958,13 @@ void DataInterface::AddKinKalTrajectory(std::unique_ptr<KTRAJ> &trajectory,
         // Add the point, converting units
         line->SetNextPoint(pointmmTocm(p.x()), 
                            pointmmTocm(p.y()), 
-                           pointmmTocm(p.z()));
+                           pointmmTocm(p.z())); //+1250.0));
     }
 
     // Styling and Scene Addition
     line->SetLineColor(j + 6); // Use a color based on the collection index (j)
     //line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
-    line->SetLineWidth(5);
+    line->SetLineWidth(3);
     scene->AddElement(line);
 }
 
@@ -1054,8 +1059,7 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
                     << "d0 " << ch.d0() << " mm, "
                     << "z0 " << ch.z0() << " mm, "
                     << "phi0 " << ch.phi0() << " rad" << '\n'
-                    << "omega " << ch.omega() << " mm^-1" << '\n'
-                    << "Track arrival time " << t1;
+                    << "omega " << ch.omega() << " mm^-1";
                 
                 AddKinKalTrajectory<CHPT>(trajectory, scene, j, ksstream.str(), t1, t2);
                 if(addTrkHits) {
@@ -1077,8 +1081,7 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
                     << "d0 " << kl.d0() << " mm, "
                     << "z0 " << kl.z0() << " mm" << '\n'
                     << "phi0 " << kl.phi0() << " rad, "
-                    << "theta " << kl.theta() << " rad" << '\n'
-                    << "Track arrival time " << t1;
+                    << "theta " << kl.theta() << " rad";
                 
                 AddKinKalTrajectory<KLPT>(trajectory, scene, j, ksstream.str(), t1, t2);
                 if(addTrkHits) {

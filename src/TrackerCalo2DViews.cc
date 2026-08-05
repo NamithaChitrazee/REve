@@ -29,6 +29,8 @@
 #include "Offline/CalorimeterGeom/inc/Disk.hh"
 #include "Offline/CalorimeterGeom/inc/Crystal.hh"
 #include "Offline/RecoDataProducts/inc/CaloCluster.hh"
+#include "Offline/ProditionsService/inc/ProditionsHandle.hh"
+#include "Offline/TrackerConditions/inc/StrawResponse.hh"
 
 namespace mu2e {
 
@@ -78,7 +80,7 @@ static void drawTrajectory2D(const KTRAJ& trajectory, const mu2e::Plane& plane, 
     }
     for(double t = t1; t <= t2; t += step) {
         auto pos = trajectory.position3(t);
-        CLHEP::Hep3Vector global(pos.x(), pos.y(), pos.z());
+        CLHEP::Hep3Vector global(pos.x(), pos.y(), pos.z()); //+1250.0);
         for (int pid : activePanels) {
             const mu2e::Panel& panel = plane.getPanel(pid);
             CLHEP::Hep3Vector local = panel.dsToPanel() * global;
@@ -92,8 +94,8 @@ static void drawTrajectory2D(const KTRAJ& trajectory, const mu2e::Plane& plane, 
         TPad* pad = panelPads.count(pid) ? panelPads.at(pid) : nullptr;
         if (!pad) continue;
         pad->cd();
-        graph->SetLineColor(kRed);
-        graph->SetLineWidth(3);
+        graph->SetLineColor(kMagenta);
+        graph->SetLineWidth(2);
         graph->Draw("L SAME");
     }
 }
@@ -111,12 +113,13 @@ static void drawTrajectoryXY(const KTRAJ& trajectory)
         graph->SetPoint(graph->GetN(), pos.x(), pos.y());
     }
 
-    graph->SetLineColor(kRed);
-    graph->SetLineWidth(2);
+    graph->SetLineColor(kMagenta);
+    graph->SetLineWidth(3);
     graph->Draw("L SAME");
 }
 
 void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* seedcol) {
+  std::cout<<"drawTrackerSTATION"<<std::endl;
     // Collect hit data and identify which (plane, panel) pairs have hits.
     std::map<mu2e::StrawId, const mu2e::TrkStrawHitSeed*> hitDataMap;
     std::set<std::pair<int,int>> seenPanels;
@@ -127,9 +130,11 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
             for (auto const& hit : kseedptr->hits()) {
                 mu2e::StrawId sid = hit.strawId();
                 hitDataMap[sid] = &hit;
-                auto key = std::make_pair((int)sid.getPlane(), (int)sid.getPanel());
-                if (seenPanels.insert(key).second)
+                if (hit.wireHitState().active()) {
+                  auto key = std::make_pair((int)sid.getPlane(), (int)sid.getPanel());
+                  if (seenPanels.insert(key).second)
                     panelsWithHits.push_back(key);
+                }
             }
         }
     }
@@ -139,6 +144,10 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
     if (panelsWithHits.empty()) return;
 
     mu2e::GeomHandle<mu2e::Tracker> tracker;
+    ProditionsHandle<StrawResponse> strawResponse_h_;
+    ProditionsHandle<Tracker> alignedTracker_h_;
+    auto const& strawresponse = strawResponse_h_.getPtr(event.id());
+    auto const& tracker = alignedTracker_h_.getPtr(event.id()).get();
     double strawRadius = tracker->strawProperties()._strawOuterRadius;
 
     const int kPanelsPerCanvas = 18;
@@ -375,32 +384,32 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
         strawLine->SetLineWidth(1);
         strawLine->Draw();
 
-        // Use the fitted POCA position (refPOCA_Upos) — bounded within the straw.
-        // wireDist() is the raw TDC measurement and can exceed halfLength().
-        CLHEP::Hep3Vector hitPos3D = straw.wirePosition(hit->refPOCA_Upos());
-        double hx = hitPos3D.x();
-        double hy = hitPos3D.y();
-        float werr = hit->wireRes();
-
-        // Longitudinal error bar: ±werr along wire direction, projected to XY
-        TLine* errBar = new TLine(
-            hx - werr * dir.x(), hy - werr * dir.y(),
-            hx + werr * dir.x(), hy + werr * dir.y());
-        errBar->SetLineColor(kBlack);
-        errBar->SetLineWidth(2);
-        errBar->Draw();
-
-        // Hit marker as TGraph so ROOT shows the title in the status bar on hover
-        double hx_d = hx, hy_d = hy;
-        TGraph* hitPoint = new TGraph(1, &hx_d, &hy_d);
-        hitPoint->SetMarkerStyle(20);
-        hitPoint->SetMarkerSize(0.95);
-        hitPoint->SetMarkerColor(kRed);
-        hitPoint->SetName(Form("hit_%d_%d_%d", sid.getPlane(), sid.getPanel(), sid.getStraw()));
-        hitPoint->SetTitle(Form("Plane %d  Panel %d  Straw %d  rdrift=%.3f mm",
+        mu2e::WireHitState whs(mu2e::WireHitState::State(hit->_ambig), mu2e::StrawHitUpdaters::algorithm(hit->_algo), hit->_kkshflag);
+        bool active = whs.active();
+        if(active) {
+            CLHEP::Hep3Vector hitPos3D = straw.wirePosition(hit->_wdist);
+            double hx = hitPos3D.x();
+            double hy = hitPos3D.y();
+            float werr = hit->_werr;
+            // Longitudinal error bar: ±werr along wire direction, projected to XY
+            TLine* errBar = new TLine(
+                                      hx - werr * dir.x(), hy - werr * dir.y(),
+                                      hx + werr * dir.x(), hy + werr * dir.y());
+            errBar->SetLineColor(kBlack);
+            errBar->SetLineWidth(2);
+            errBar->Draw();
+            // Hit marker as TGraph so ROOT shows the title in the status bar on hover
+            double hx_d = hx, hy_d = hy;
+            TGraph* hitPoint = new TGraph(1, &hx_d, &hy_d);
+            hitPoint->SetMarkerStyle(20);
+            hitPoint->SetMarkerSize(0.95);
+            hitPoint->SetMarkerColor(kRed);
+            hitPoint->SetName(Form("hit_%d_%d_%d", sid.getPlane(), sid.getPanel(), sid.getStraw()));
+            hitPoint->SetTitle(Form("Plane %d  Panel %d  Straw %d  rdrift=%.3f mm",
                                 sid.getPlane(), sid.getPanel(), sid.getStraw(),
                                 hit->driftRadius()));
-        hitPoint->Draw("P SAME");
+            hitPoint->Draw("P SAME");
+        }
     }
 
     // Draw track trajectory in XY for each seed
@@ -432,7 +441,7 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
     }
 }
 
-void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* clustercol) {
+void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* clustercol, const mu2e::KalSeedPtrCollection* seedcol) {
     if(!fCaloDisk0CanvasHolder)
       createCaloView();
     mu2e::GeomHandle<mu2e::DiskCalorimeter> calo;
@@ -528,6 +537,26 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
             g->Draw("P SAME");
         }
 
+        // Draw track trajectory in XY for each seed
+        if (seedcol != nullptr) {
+            for (auto const& kseedptr : *seedcol) {
+                const mu2e::KalSeed& kseed = *kseedptr;
+                if (kseed.loopHelixFit()) {
+                    auto traj = kseed.loopHelixFitTrajectory();
+                    if (!traj) continue;
+                    drawTrajectoryXY(*traj);
+                } else if (kseed.centralHelixFit()) {
+                    auto traj = kseed.centralHelixFitTrajectory();
+                    if (!traj) continue;
+                    drawTrajectoryXY(*traj);
+                } else if (kseed.kinematicLineFit()) {
+                    auto traj = kseed.kinematicLineFitTrajectory();
+                    if (!traj) continue;
+                    drawTrajectoryXY(*traj);
+                }
+            }
+        }
+
         fCaloCanvas->Modified();
         fCaloCanvas->Update();
         if (fCaloDisk0CanvasHolder) {
@@ -608,6 +637,26 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
             g->SetMarkerColorAlpha(kWhite, 0);
             g->SetName(Form("Crystal %d  time=%.2f ns  eDep=%.2f MeV", h.crystalID, h.time, h.eDep));
             g->Draw("P SAME");
+        }
+
+        // Draw track trajectory in XY for each seed
+        if (seedcol != nullptr) {
+            for (auto const& kseedptr : *seedcol) {
+                const mu2e::KalSeed& kseed = *kseedptr;
+                if (kseed.loopHelixFit()) {
+                    auto traj = kseed.loopHelixFitTrajectory();
+                    if (!traj) continue;
+                    drawTrajectoryXY(*traj);
+                } else if (kseed.centralHelixFit()) {
+                    auto traj = kseed.centralHelixFitTrajectory();
+                    if (!traj) continue;
+                    drawTrajectoryXY(*traj);
+                } else if (kseed.kinematicLineFit()) {
+                    auto traj = kseed.kinematicLineFitTrajectory();
+                    if (!traj) continue;
+                    drawTrajectoryXY(*traj);
+                }
+            }
         }
 
         fCaloCanvas1->Modified();
