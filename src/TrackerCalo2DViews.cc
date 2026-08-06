@@ -149,7 +149,7 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
     ProditionsHandle<TrackerStatus> trackerStatus_h_;
     auto const& strawresponse = strawResponse_h_.getPtr(eventID);
     auto const& tracker = alignedTracker_h_.getPtr(eventID).get();
-    TrackerStatus const& trackerStatus = trackerStatus_h_.getPtr(eventID).get();
+    TrackerStatus const& trackerStatus = *trackerStatus_h_.getPtr(eventID);
 
     double strawRadius = tracker->strawProperties()._strawOuterRadius;
 
@@ -245,7 +245,13 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
                 TEllipse* rcirc   = new TEllipse(pos_hit.z(), pos_hit.y(), rdrift,      rdrift);
                 TEllipse* hitcirc = new TEllipse(pos_l.z(), pos_l.y(), strawRadius, strawRadius);
 
-                if (!whs.active()) {
+                if (trackerStatus.noSignal(straw.id()) || trackerStatus.suppress(straw.id())) {
+                    rcirc->SetFillStyle(0);
+                    rcirc->SetLineColor(kGray);
+                    hitcirc->SetFillColor(kGray);
+                    hitcirc->SetFillStyle(1001);
+                    hitcirc->SetLineColor(kGray);
+                } else if (!whs.active()) {
                     rcirc->SetFillStyle(0);
                     rcirc->SetLineColor(kBlack);
                     rcirc->SetLineStyle(2);
