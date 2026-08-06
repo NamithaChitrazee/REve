@@ -31,6 +31,7 @@
 #include "Offline/RecoDataProducts/inc/CaloCluster.hh"
 #include "Offline/ProditionsService/inc/ProditionsHandle.hh"
 #include "Offline/TrackerConditions/inc/StrawResponse.hh"
+#include "Offline/TrackerConditions/inc/TrackerStatus.hh"
 
 namespace mu2e {
 
@@ -145,8 +146,11 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
 
     ProditionsHandle<StrawResponse> strawResponse_h_;
     ProditionsHandle<Tracker> alignedTracker_h_;
+    ProditionsHandle<TrackerStatus> trackerStatus_h_;
     auto const& strawresponse = strawResponse_h_.getPtr(eventID);
     auto const& tracker = alignedTracker_h_.getPtr(eventID).get();
+    TrackerStatus const& trackerStatus = trackerStatus_h_.getPtr(eventID).get();
+
     double strawRadius = tracker->strawProperties()._strawOuterRadius;
 
     const int kPanelsPerCanvas = 18;
@@ -226,6 +230,7 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
                 const mu2e::Straw& straw = panel.getStraw(iStraw);
                 float rupos = hitDataMap.count(straw.id()) ? hitDataMap.at(straw.id())->refPOCA_Upos() : 0.0f;
                 CLHEP::Hep3Vector pos_l = panel.dsToPanel() * straw.strawPosition(rupos);
+                CLHEP::Hep3Vector pos_hit = panel.dsToPanel() * straw.wirePosition(rupos);
 
                 TEllipse* circ = new TEllipse(pos_l.z(), pos_l.y(), strawRadius, strawRadius);
                 circ->SetLineColor(kGray + 1);
@@ -237,7 +242,7 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
                 const auto* hit    = hitDataMap[straw.id()];
                 mu2e::WireHitState whs = hit->wireHitState();
                 double rdrift      = hit->driftRadius();
-                TEllipse* rcirc   = new TEllipse(pos_l.z(), pos_l.y(), rdrift,      rdrift);
+                TEllipse* rcirc   = new TEllipse(pos_hit.z(), pos_hit.y(), rdrift,      rdrift);
                 TEllipse* hitcirc = new TEllipse(pos_l.z(), pos_l.y(), strawRadius, strawRadius);
 
                 if (!whs.active()) {
