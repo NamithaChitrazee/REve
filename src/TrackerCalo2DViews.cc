@@ -233,8 +233,14 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
                 CLHEP::Hep3Vector pos_hit = panel.dsToPanel() * straw.wirePosition(rupos);
 
                 TEllipse* circ = new TEllipse(pos_l.z(), pos_l.y(), strawRadius, strawRadius);
-                circ->SetLineColor(kGray + 1);
-                circ->SetFillStyle(0);
+                if (trackerStatus.noSignal(straw.id()) || trackerStatus.suppress(straw.id())) {
+                    circ->SetFillColor(kGray);
+                    circ->SetFillStyle(1001);
+                    circ->SetLineColor(kGray);
+                } else {
+                    circ->SetLineColor(kGray + 1);
+                    circ->SetFillStyle(0);
+                }
                 circ->Draw();
 
                 if (!hitDataMap.count(straw.id())) continue;
@@ -245,13 +251,7 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
                 TEllipse* rcirc   = new TEllipse(pos_hit.z(), pos_hit.y(), rdrift,      rdrift);
                 TEllipse* hitcirc = new TEllipse(pos_l.z(), pos_l.y(), strawRadius, strawRadius);
 
-                if (trackerStatus.noSignal(straw.id()) || trackerStatus.suppress(straw.id())) {
-                    rcirc->SetFillStyle(0);
-                    rcirc->SetLineColor(kGray);
-                    hitcirc->SetFillColor(kGray);
-                    hitcirc->SetFillStyle(1001);
-                    hitcirc->SetLineColor(kGray);
-                } else if (!whs.active()) {
+                if (!whs.active()) {
                     rcirc->SetFillStyle(0);
                     rcirc->SetLineColor(kBlack);
                     rcirc->SetLineStyle(2);
