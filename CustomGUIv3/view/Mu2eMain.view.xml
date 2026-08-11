@@ -33,6 +33,13 @@
          </Bar>
       </customHeader>
 
+      <subHeader>
+         <OverflowToolbar id="otb2">
+            <Input id="dateTimeInput" width="160px" editable="false" tooltip="Current date and time"/>
+            <ToolbarSpacer/>
+         </OverflowToolbar>
+      </subHeader>
+
       <content>
          <l:Splitter orientation="Horizontal" id="MainAreaSplitter">
             <l:contentAreas>

@@ -23,6 +23,8 @@ sap.ui.define([
          var world = this.mgr.childs[0].childs;
          var pthis = this;
 
+         pthis.showDate();
+
          world.forEach(function(item) {
             if (item._typename === "mu2e::GUI") {
                pthis.gui = item;
@@ -47,6 +49,19 @@ sap.ui.define([
          document.title = info;
          var label = this.byId("eventInfoLabel");
          if (label) label.setText(info);
+      },
+
+      showDate: function() {
+         var now = new Date();
+         var dd   = String(now.getDate()).padStart(2, '0');
+         var mm   = String(now.getMonth() + 1).padStart(2, '0');
+         var yyyy = now.getFullYear();
+         var hh   = String(now.getHours()).padStart(2, '0');
+         var min  = String(now.getMinutes()).padStart(2, '0');
+         var ss   = String(now.getSeconds()).padStart(2, '0');
+         var dateTime = mm + '/' + dd + '/' + yyyy + '  ' + hh + ':' + min + ':' + ss;
+         var input = this.byId("dateTimeInput");
+         if (input) input.setValue(dateTime);
       },
 
       nextEvent: function() {
