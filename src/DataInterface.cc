@@ -70,7 +70,7 @@ void DataInterface::AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_,
     }
     
     if (max_amp == min_amp) {
-        max_amp += 1.0; 
+        max_amp += 1.0;
     }
 
     // Visualization Loop
@@ -143,7 +143,7 @@ void DataInterface::AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_,
                 double fixed_zpos_cm = zpos;//pointmmTocm(zpos); 
 
                 // Get crystal position in its local Mu2e disk frame (still in mm in Hep3Vector)
-                CLHEP::Hep3Vector crystalPos_local_mm = cal.geomUtil().mu2eToDisk(diskID, crystal.position());
+                CLHEP::Hep3Vector crystalPos_local_mm = cal.mu2eToDisk(diskID, crystal.position());
                 
                 // Label
                 std::string label = Form(" Crystal ID = %d \n SiPM = %d \n Max Amplitude (ADC) = %.2f \n t0 = %.2d ns \n peakPos = %d",
@@ -245,7 +245,7 @@ void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_,
                 Color_t color = kRed; // clusterColors[i % nColors];
                 CLHEP::Hep3Vector COG(cluster.cog3Vector().x(), cluster.cog3Vector().y(), cluster.cog3Vector().z());
 
-                CLHEP::Hep3Vector crystalPos = cal.geomUtil().mu2eToDisk(cluster.diskID(), COG);
+                CLHEP::Hep3Vector crystalPos = cal.mu2eToDisk(cluster.diskID(), COG);
                 CLHEP::Hep3Vector pointInMu2e = det->toMu2e(crystalPos);
                 std::string label = Form(" Cluster %d \n E = %.2f MeV, Time = %.2f ns \n Pos = (%.2f,%.2f,%.2f) mm",i, cluster.energyDep(), cluster.time(),
                                          cluster.cog3Vector().x(), cluster.cog3Vector().y(), cluster.cog3Vector().z());
@@ -275,7 +275,7 @@ void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_,
                         double crystalYLen = pointmmTocm(crystal.size().y());
                         double crystalZLen = pointmmTocm(crystal.size().z());
 
-                        CLHEP::Hep3Vector cryPos = cal.geomUtil().mu2eToDisk(cluster.diskID(), crystal.position());
+                        CLHEP::Hep3Vector cryPos = cal.mu2eToDisk(cluster.diskID(), crystal.position());
 
                         std::string crytitle = Form("Crystal = %d, E = %.2f MeV, Time = %.2f ns" ,cryID, crystalhit->energyDep(), crystalhit->time());
 
@@ -890,7 +890,7 @@ void DataInterface::AddTrkCaloHit(mu2e::KalSeed const& kalseed, REX::REveElement
         std::string cluster_title = Form("TrkCaloHit CaloCluster \n Pos = (%.2f, %.2f, %.2f) mm \n E = %.2f MeV \n Time = %.2f ns",
                                          clusterPos.x(), clusterPos.y(), clusterPos.z(), energy, time);
 
-        CLHEP::Hep3Vector crystalPos = cal.geomUtil().mu2eToDisk(cluster->diskID(),clusterPos);
+        CLHEP::Hep3Vector crystalPos = cal.mu2eToDisk(cluster->diskID(),clusterPos);
         CLHEP::Hep3Vector pointInMu2e = det->toMu2e(crystalPos);
 
         // Create REve Point Set

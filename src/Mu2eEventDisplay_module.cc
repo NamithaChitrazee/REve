@@ -66,7 +66,6 @@
 #include "Offline/RecoDataProducts/inc/ComboHit.hh"
 #include "Offline/RecoDataProducts/inc/HelixSeed.hh"
 #include "Offline/GeometryService/inc/GeomHandle.hh"
-#include "Offline/CalorimeterGeom/inc/CaloGeomUtil.hh"
 #include "Offline/CalorimeterGeom/inc/Calorimeter.hh"
 #include "Offline/GeometryService/inc/DetectorSystem.hh"
 #include "Offline/Mu2eInterfaces/inc/Detector.hh"
