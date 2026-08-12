@@ -651,12 +651,10 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       // multiple times during the process, leading to flickering and slow performance.
       eveMng_->DisableRedraw(); 
       
-      // Tell the World Scene to start tracking changes. All element additions/modifications 
+      // Tell the World Scene to start tracking changes. All element additions/modifications
       // are batched until EndAcceptingChanges() is called.
-      eveMng_->GetWorld()->BeginAcceptingChanges(); 
-      
-      // Tell all scenes managed by the REveManager to start accepting batched changes.
-      // eveMng_->GetScenes()->AcceptChanges(true); 
+      eveMng_->GetWorld()->BeginAcceptingChanges();
+      eveMng_->GetEventScene()->BeginAcceptingChanges();
 
       // --- 2. Update GUI and PrintInfo Data Structures ---
 
@@ -709,11 +707,9 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       // Set the flag to false, indicating subsequent events are not the "first loop" (allowing optimization).
       firstLoop_ = false; 
       
-      // Stop tracking changes in all scenes.
-      // eveMng_->GetScenes()->AcceptChanges(false); 
-      
-      // Finalize the batch of changes for the World scene. This triggers the update signal.
-      eveMng_->GetWorld()->EndAcceptingChanges(); 
+      // Finalize the batch of changes for both the EventScene and World scene.
+      eveMng_->GetEventScene()->EndAcceptingChanges();
+      eveMng_->GetWorld()->EndAcceptingChanges();
       
       // Re-enable the browser redraw. The browser now performs a single, optimized refresh 
       // using all the batched changes.
