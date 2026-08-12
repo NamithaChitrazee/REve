@@ -68,7 +68,12 @@ namespace mu2e {
 
         // Stores the unique REve Element ID (EId_t) of the TextSelect object.
         // This is the robust mechanism for looking up the TextSelect element.
-        std::uint32_t fTextId_{0}; 
+        std::uint32_t fTextId_{0};
+
+        // Set to true by NextEvent() under m_ before notifying cv_, so analyze()'s
+        // cv_.wait() predicate guards against spurious wakeups.
+        // Reset to false by analyze() after it wakes up.
+        bool advance_requested_{false};
         
         /**
          * @brief Setter to store the unique REve Element ID after the object is added to the World.
@@ -86,8 +91,8 @@ namespace mu2e {
         std::condition_variable* cv_{nullptr};             
         
         // Pointer to the mutex, used for thread synchronization (locking data access and cv_ usage).
-        std::mutex* m_{nullptr};                           
-        
+        std::mutex* m_{nullptr};
+
         // Pointer to the custom GUI element instance.
         GUI *fGui_{nullptr};                               
         

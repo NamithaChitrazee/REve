@@ -479,15 +479,16 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
           if (autoplay > 0) {
               // Autoplay is ON (Autoplay value is the delay in seconds)
               std::cout << "Auto play switched on.... waiting 10 s for REve display." << std::endl;
-              
+
               auto timeout = std::chrono::seconds(10);
-              cv_.wait_for(lock, timeout); 
+              cv_.wait_for(lock, timeout, [this]{ return eventMgr_->advance_requested_; });
 
               lock.unlock();
-              
+
           } else {
-              cv_.wait(lock);
+              cv_.wait(lock, [this]{ return eventMgr_->advance_requested_; });
           }
+          eventMgr_->advance_requested_ = false;
           
           seqMode_ = true;
           runn    = 0;
