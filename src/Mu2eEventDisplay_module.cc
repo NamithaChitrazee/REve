@@ -653,11 +653,17 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] Start "<<std::endl;
       
       // --- 1. Disable Redrawing and Start Change Tracking ---
-      
-      // Temporarily disable the browser redraw to prevent the display from updating 
+
+      // Clear selection and highlight before destroying elements from the previous event.
+      // REve stores references to selected/highlighted elements; if DestroyElements() runs
+      // while those references are live, REve accesses dangling pointers on the next frame.
+      eveMng_->GetSelection()->ClearSelection();
+      eveMng_->GetHighlight()->ClearSelection();
+
+      // Temporarily disable the browser redraw to prevent the display from updating
       // multiple times during the process, leading to flickering and slow performance.
-      eveMng_->DisableRedraw(); 
-      
+      eveMng_->DisableRedraw();
+
       // Tell the World Scene to start tracking changes. All element additions/modifications
       // are batched until EndAcceptingChanges() is called.
       eveMng_->GetWorld()->BeginAcceptingChanges();
