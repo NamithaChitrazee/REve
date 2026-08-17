@@ -164,6 +164,7 @@ namespace mu2e
         // Control between the main thread and event-display thread
         std::condition_variable cv_{};
         std::mutex m_{};
+        bool event_drawn_ = false;
 
         int  diagLevel_;
         bool showCrv_;
@@ -476,11 +477,16 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
 
           if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : analyze()] -- transferring to TApplication thread "<<std::endl;
           
+          // Wait for process_single_event() to finish drawing before doing anything else.
+          // Without this, pressing NextEvent before drawing completes lets the Art thread
+          // move on and reset 'data' while process_single_event() is still reading it.
+          cv_.wait(lock, [this]{ return event_drawn_; });
+
           if (autoplay > 0) {
               // Autoplay is ON (Autoplay value is the delay in seconds)
               std::cout << "Auto play switched on.... waiting 10 s for REve display." << std::endl;
 
-              auto timeout = std::chrono::seconds(10);
+              auto timeout = std::chrono::seconds(autoplay);
               cv_.wait_for(lock, timeout, [this]{ return eventMgr_->advance_requested_; });
 
               lock.unlock();
@@ -488,6 +494,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
           } else {
               cv_.wait(lock, [this]{ return eventMgr_->advance_requested_; });
           }
+          event_drawn_ = false;
           eventMgr_->advance_requested_ = false;
           
           seqMode_ = true;
@@ -711,11 +718,18 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       eveMng_->GetEventScene()->EndAcceptingChanges();
       eveMng_->GetWorld()->EndAcceptingChanges();
       
-      // Re-enable the browser redraw. The browser now performs a single, optimized refresh 
+      // Re-enable the browser redraw. The browser now performs a single, optimized refresh
       // using all the batched changes.
-      eveMng_->EnableRedraw(); 
+      eveMng_->EnableRedraw();
 
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] End "<<std::endl;
+
+      // Signal the Art thread that drawing is complete so it can safely wait for NextEvent.
+      {
+          std::unique_lock lock{m_};
+          event_drawn_ = true;
+          cv_.notify_all();
+      }
     }
   }
   using mu2e::Mu2eEventDisplay;
