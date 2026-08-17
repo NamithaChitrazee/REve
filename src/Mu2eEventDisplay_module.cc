@@ -38,6 +38,7 @@
 #include <ROOT/RWebWindow.hxx>
 #include <ROOT/RWebWindowsManager.hxx>
 #include <ROOT/REveManager.hxx>
+#include <ROOT/REveSelection.hxx>
 
 #include <condition_variable>
 #include <iostream>
