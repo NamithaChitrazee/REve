@@ -103,7 +103,7 @@ void MCInterface::SetLineColorPID(int PDGCode, REX::REveLine *line)
 void MCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, bool firstloop, 
                                          std::tuple<std::vector<std::string>, 
                                          std::vector<const MCTrajectoryCollection *>> mctrack_tuple, 
-                                         REX::REveElement* &scene, 
+                                         REX::REveScene* &scene, 
                                          std::vector<int> particleIds, 
                                          bool extracted)
 {
@@ -202,7 +202,7 @@ void MCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, bool firs
 void MCInterface::AddSurfaceStepCollection(REX::REveManager *&eveMng, bool firstloop,
                                          std::tuple<std::vector<std::string>, 
                                          std::vector<const SurfaceStepCollection *>> surfstep_tuple, 
-                                         REX::REveElement* &scene, 
+                                         REX::REveScene* &scene, 
                                          std::vector<int> particleIds, 
                                          bool extracted)
 {
@@ -274,7 +274,7 @@ void MCInterface::AddSurfaceStepCollection(REX::REveManager *&eveMng, bool first
     } // End of main loop (SurfaceStep collections)
 }
 
-void MCInterface::AddSimParticleCollection(REX::REveManager *&eveMng, bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const SimParticleCollection *>> sim_tuple, REX::REveElement* &scene, std::vector<int> particleIds, bool extracted){
+void MCInterface::AddSimParticleCollection(REX::REveManager *&eveMng, bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const SimParticleCollection *>> sim_tuple, REX::REveScene* &scene, std::vector<int> particleIds, bool extracted){
   std::cout<<"[MCInterface::AddSimParticleCollection() ]"<<std::endl;
   std::vector<const SimParticleCollection*> sim_list = std::get<1>(sim_tuple);
   std::vector<std::string> names = std::get<0>(sim_tuple);

@@ -713,10 +713,16 @@ void MainWindow::createProjectionStuff(REX::REveManager */*eveMng*/)
 }
 
 
-void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventScene, bool firstLoop, bool firstLoopCalo, DataCollections &data, DrawOptions drawOpts, std::vector<int> particleIds, bool strawdisplay, GeomOptions geomOpts, KinKalOptions KKOpts, int run, int subRun, int event){
+void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScene, bool firstLoop, bool firstLoopCalo, DataCollections &data, DrawOptions drawOpts, std::vector<int> particleIds, bool strawdisplay, GeomOptions geomOpts, KinKalOptions KKOpts, int run, int subRun, int event){
+  if (!eventScene){
+    std::cerr<<"ERROR: eventScene is not an REveScene!"<<std::endl;
+  }
+  std::cout<<">>> BEFORE DestroyElements children = "<<eventScene->NumChildren()<<std::endl;
+  eventScene->BeginAcceptingChanges();
   if(!firstLoop){
     eventScene->DestroyElements();
   }
+  std::cout<<">>> AFTER DestroyElements children = "<<eventScene->NumChildren()<<std::endl;
   //...addReco:
   // for start and end of track
   double t1 = 0.;
@@ -736,9 +742,11 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
       fTrackerCalo2DViews->drawTrackerStation(seedcol, art::EventID(run, subRun, event));
       fTrackerCalo2DViews->drawTrackerXYView(seedcol, run, subRun, event);
      }
+     std::cout <<"After FillKinKalTrajectory:"<< eventScene->NumChildren() << std::endl;
   }
    if(drawOpts.addCrvTrack) {
      pass_data->AddCRVKalIntersection(eveMng, firstLoop, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, KKOpts.addTrkCaloHits, t1, t2, data.crvcoin_tuple, geomOpts.extracted, drawOpts.addCrvBars);
+     std::cout <<"After AddCRVKAlIntersection:"<< eventScene->NumChildren() << std::endl;
    }
   if(drawOpts.addComboHits) {
     std::vector<const ComboHitCollection*> combohit_list = std::get<1>(data.combohit_tuple);
@@ -779,6 +787,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
       const mu2e::KalSeedPtrCollection* seedcol_calo = track_list_calo.size() > 0 ? track_list_calo[0] : nullptr;
       fTrackerCalo2DViews->drawCalorimeterDisk(clustercol, seedcol_calo);
    }
+    std::cout <<"After AddClusters:"<< eventScene->NumChildren() << std::endl;
   }
 
   std::vector<const HelixSeedCollection*> helix_list = std::get<1>(data.helix_tuple);
@@ -812,6 +821,9 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
 
   // ... project these events onto 2D geometry:
   projectEvents(eveMng);
+  std::cout <<"Before END Accepting Changes :"<< eventScene->NumChildren() << std::endl;
+  eventScene->EndAcceptingChanges();
+  std::cout<<">>> END showEvents children = "<<eventScene->NumChildren()<<std::endl;
 }
 
 void MainWindow::makeGeometryScene(REX::REveManager *eveMng, GeomOptions geomOpt, std::string gdmlname)

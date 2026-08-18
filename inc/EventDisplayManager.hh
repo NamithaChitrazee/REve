@@ -25,6 +25,9 @@ namespace mu2e {
      * Inherits from ROOT::Experimental::REveElement to receive browser commands.
      */
     class EventDisplayManager : public ROOT::Experimental::REveElement {
+      std::condition_variable display_cv_;
+      std::mutex display_mutex_;
+      bool display_update_done_ = false;
     public:
         // Default constructor required by ROOT's dictionary generation mechanism.
         EventDisplayManager() = default; 
@@ -46,7 +49,9 @@ namespace mu2e {
         /**
          * @brief Command to signal the Art analysis thread to load the next event.
          */
-        void NextEvent(); 
+        void NextEvent();
+
+      void EventUpdateDone();
         
         /**
          * @brief Command to terminate the ROOT application and the job gracefully.

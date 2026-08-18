@@ -31,11 +31,22 @@ EventDisplayManager::EventDisplayManager(
  This function is invoked by the "NextEvent" REve command button.
 */
 void EventDisplayManager::NextEvent()
-{
+{   std::cout<<">>> NextEvent ENTER thread ="<< std::this_thread::get_id()<<std::endl;
     std::unique_lock lock{*m_};
     advance_requested_ = true;
     cv_->notify_all();
+    std::cout<<">>> NextEvent EXIT thread ="<<std::this_thread::get_id()<<std::endl;
 }
+
+  void EventDisplayManager::EventUpdateDone(){
+    std::cout<<">>> EventUpdateDone ENTER thread = "<<std::this_thread::get_id()<<std::endl;
+    {
+      std::lock_guard<std::mutex> lock(display_mutex_);
+      display_update_done_ = true;
+    }
+    display_cv_.notify_one();
+    std::cout<<">>> EventUpdateDone EXIT"<<std::endl;
+  }
 
 /*Terminates the application and exits the process.
  Invoked by the "QuitRoot" REve command button.
