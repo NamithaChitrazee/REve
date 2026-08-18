@@ -38,6 +38,7 @@ private:
     TCanvas* fCaloCanvas1{nullptr};
     std::vector<TCanvas*> fStationCanvases;
     std::vector<REX::REvePointSet*> fStationCanvasHolders;
+    int fEventCount{0};
 };
 
 } // namespace mu2e

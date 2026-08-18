@@ -188,6 +188,8 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
     // Draw panels, 18 per canvas in a 6x3 grid.
     for (int ci = 0; ci < nCanvases; ++ci) {
         TCanvas* canvas = fStationCanvases[ci];
+        canvas->SetName(Form("TrackerStation%d_%d_%d_%d", ci,
+                             eventID.run(), eventID.subRun(), eventID.event()));
         canvas->cd();
         canvas->Clear();
         canvas->Divide(6, 3, 0.005, 0.005);
@@ -338,6 +340,7 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
       fXYCanvas->SetBatch(kTRUE);
       gROOT->SetBatch(wasBatch);
     }
+    fXYCanvas->SetName(Form("TrackerXY_%d_%d_%d", run, subRun, event));
     fXYCanvas->cd();
     fXYCanvas->Clear();
     gPad->SetFixedAspectRatio();
@@ -453,6 +456,7 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
 }
 
 void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* clustercol, const mu2e::KalSeedPtrCollection* seedcol) {
+    ++fEventCount;
     if(!fCaloDisk0CanvasHolder)
       createCaloView();
     mu2e::GeomHandle<mu2e::DiskCalorimeter> calo;
@@ -484,6 +488,7 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
             canvas->SetBatch(kTRUE);
             gROOT->SetBatch(wasBatch);
         }
+        canvas->SetName(canvasName);
         canvas->cd();
         canvas->Clear();
         canvas->SetRightMargin(0.15);
@@ -584,8 +589,8 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
         }
     };
 
-    drawDisk(0, fCaloCanvas,  "calo_disk0_canvas", "Disk 0", fCaloDisk0CanvasHolder);
-    drawDisk(1, fCaloCanvas1, "calo_disk1_canvas", "Disk 1", fCaloDisk1CanvasHolder);
+    drawDisk(0, fCaloCanvas,  Form("calo_disk0_%d", fEventCount), "Disk 0", fCaloDisk0CanvasHolder);
+    drawDisk(1, fCaloCanvas1, Form("calo_disk1_%d", fEventCount), "Disk 1", fCaloDisk1CanvasHolder);
 }
 
   /*void TrackerCalo2DViews::redrawCanvas(const mu2e::KalSeedPtrCollection* seedcol) {
