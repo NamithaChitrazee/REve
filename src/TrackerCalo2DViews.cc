@@ -319,10 +319,7 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
             TString json = TBufferJSON::ToJSON(canvas);
             holder->SetTitle(TBase64::Encode(json).Data());
             holder->SetMainColor(kWhite);
-            auto* scene = holder->GetScene();
-            if (scene) scene->BeginAcceptingChanges();
             holder->StampObjProps();
-            if (scene) scene->EndAcceptingChanges();
         }
     }
 }
@@ -451,10 +448,7 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
         TString json = TBufferJSON::ToJSON(fXYCanvas);
         fXYCanvasHolder->SetTitle(TBase64::Encode(json).Data());
         fXYCanvasHolder->SetMainColor(kWhite);
-        auto* scene = fXYCanvasHolder->GetScene();
-        if (scene) scene->BeginAcceptingChanges();
         fXYCanvasHolder->StampObjProps();
-        if (scene) scene->EndAcceptingChanges();
     }
 }
 
@@ -586,10 +580,7 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
             TString json = TBufferJSON::ToJSON(canvas);
             holder->SetTitle(TBase64::Encode(json).Data());
             holder->SetMainColor(kWhite);
-            auto* scene = holder->GetScene();
-            if (scene) scene->BeginAcceptingChanges();
             holder->StampObjProps();
-            if (scene) scene->EndAcceptingChanges();
         }
     };
 
