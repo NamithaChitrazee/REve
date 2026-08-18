@@ -32,13 +32,10 @@ double GetCrvExtractedZShift() {
  * Digis are visualized as points (crystal center) and 3D boxes.
  * Elements are colored based on the t0 time of the digitization pulse.
 */
-void DataInterface::AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_, 
-                                 std::tuple<std::vector<std::string>, 
-                                 std::vector<const CaloDigiCollection*>> calodigi_tuple, 
+void DataInterface::AddCaloDigis(REX::REveManager *&eveMng,
+                                 std::tuple<std::vector<std::string>,
+                                 std::vector<const CaloDigiCollection*>> calodigi_tuple,
                                  REX::REveScene* &scene){
-    /*if(!firstLoop_){
-        scene->DestroyElements();;
-    }*/
     std::cout << "[DataInterface] AddCaloDigi: Plotting raw CaloDigis (colored by amplitude/ADC)" << std::endl;
     std::vector<const CaloDigiCollection*> calodigi_list = std::get<1>(calodigi_tuple);
     std::vector<std::string> names = std::get<0>(calodigi_tuple);
@@ -79,10 +76,7 @@ void DataInterface::AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_,
         const CaloDigiCollection* calodigicol = calodigi_list[j];
         
         if(calodigicol->size() != 0){
-          /*if(!firstLoop_){
-                scene->DestroyElements();;
-                }*/
-            
+
             mu2e::Calorimeter const &cal = *(mu2e::GeomHandle<mu2e::Calorimeter>());
             GeomHandle<DetectorSystem> det;
             
@@ -213,7 +207,7 @@ void DataInterface::AddCaloDigis(REX::REveManager *&eveMng, bool firstLoop_,
  * Crystals in the cluster are visualized as points (crystal center) and 3D boxes.
  * Each cluster is assigned a distinct solid color by index (cluster 0=red, 1=blue, 2=green, ...).
 */
-void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_,
+void DataInterface::AddCaloClusters(REX::REveManager *&eveMng,
                                     std::tuple<std::vector<std::string>,
                                     std::vector<const CaloClusterCollection*>> calocluster_tuple,
                                     REX::REveScene* &scene, bool addCrystalDraw){
@@ -233,10 +227,6 @@ void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_,
         const CaloClusterCollection* clustercol = calocluster_list[j];
 
         if(clustercol->size() != 0){
-          /*if(!firstLoop_){
-                scene->DestroyElements();
-                }*/
-
             mu2e::Calorimeter const &cal = *(mu2e::GeomHandle<mu2e::Calorimeter>());
             GeomHandle<DetectorSystem> det;
 
@@ -311,7 +301,7 @@ void DataInterface::AddCaloClusters(REX::REveManager *&eveMng, bool firstLoop_,
 /*
 Enables the visualization of cluster of hits flagged as background by the FlagBkgHits module.
 */
-void DataInterface::AddBkgClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const BkgClusterCollection*>> bkgcluster_tuple, REX::REveScene* &scene){
+void DataInterface::AddBkgClusters(REX::REveManager *&eveMng, std::tuple<std::vector<std::string>, std::vector<const BkgClusterCollection*>> bkgcluster_tuple, REX::REveScene* &scene){
   std::cout<<"BkgClusterCollection "<<std::endl;
   std::vector<const BkgClusterCollection*> bkgcluster_list = std::get<1>(bkgcluster_tuple);
   // std::vector<std::string> names = std::get<0>(bkgcluster_tuple);
@@ -355,15 +345,11 @@ void DataInterface::AddBkgClusters(REX::REveManager *&eveMng, bool firstLoop_, s
  * Elements are colored based on the t0 time of the digitization pulse.
 */
 
-//FIXME if firstloop never used remove it
-void DataInterface::AddComboHits(REX::REveManager *&eveMng, bool firstLoop_, 
-                                 std::tuple<std::vector<std::string>, 
-                                 std::vector<const ComboHitCollection*>> combohit_tuple, 
-                                 REX::REveScene* &scene, 
+void DataInterface::AddComboHits(REX::REveManager *&eveMng,
+                                 std::tuple<std::vector<std::string>,
+                                 std::vector<const ComboHitCollection*>> combohit_tuple,
+                                 REX::REveScene* &scene,
                                  bool strawdisplay, bool AddErrorBar_) {
-    /*if(!firstLoop_){
-        scene->DestroyElements();;
-    }*/
     std::vector<const ComboHitCollection*> combohit_list = std::get<1>(combohit_tuple);
     std::vector<std::string> names = std::get<0>(combohit_tuple);
 
@@ -602,9 +588,9 @@ void DataInterface::AddCrvBar(const mu2e::CRSScintillatorBarIndex& barIndex, con
     }
 }
 
-void DataInterface::AddCrvClusters(REX::REveManager *&eveMng, bool firstLoop_, 
-                                   std::tuple<std::vector<std::string>, 
-                                   std::vector<const CrvCoincidenceClusterCollection*>> crvpulse_tuple, 
+void DataInterface::AddCrvClusters(REX::REveManager *&eveMng,
+                                   std::tuple<std::vector<std::string>,
+                                   std::vector<const CrvCoincidenceClusterCollection*>> crvpulse_tuple,
                                    REX::REveScene* &scene, bool extracted, bool addCrvBars)
 {
     std::vector<const CrvCoincidenceClusterCollection*> crvpulse_list = std::get<1>(crvpulse_tuple);
@@ -650,7 +636,7 @@ void DataInterface::AddCrvClusters(REX::REveManager *&eveMng, bool firstLoop_,
 }
 
 /*------------Function to add TimeCluster Collection in 3D and 2D displays:-------------*/
-void DataInterface::AddTimeClusters(REX::REveManager *&eveMng, bool firstLoop_, std::tuple<std::vector<std::string>, std::vector<const TimeClusterCollection*>>  timecluster_tuple, std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple, REX::REveScene* &scene){
+void DataInterface::AddTimeClusters(REX::REveManager *&eveMng, std::tuple<std::vector<std::string>, std::vector<const TimeClusterCollection*>>  timecluster_tuple, std::tuple<std::vector<std::string>, std::vector<const ComboHitCollection*>> combohit_tuple, REX::REveScene* &scene){
 
   std::vector<const TimeClusterCollection*> timecluster_list = std::get<1>(timecluster_tuple);
   std::vector<const ComboHitCollection*> combohit_list = std::get<1>(combohit_tuple);
@@ -684,9 +670,9 @@ void DataInterface::AddTimeClusters(REX::REveManager *&eveMng, bool firstLoop_, 
  * Adds reconstructed HelixSeed data products to the REve visualization scene.
  * Visualized as series of lines
 */
-void DataInterface::AddHelixSeedCollection(REX::REveManager *&eveMng, bool firstloop, 
-                                         std::tuple<std::vector<std::string>, 
-                                         std::vector<const HelixSeedCollection*>> helix_tuple, 
+void DataInterface::AddHelixSeedCollection(REX::REveManager *&eveMng,
+                                         std::tuple<std::vector<std::string>,
+                                         std::vector<const HelixSeedCollection*>> helix_tuple,
                                          REX::REveScene* &scene)
 {
     std::cout << "[DataInterface::AddHelixSeedCollection]" << std::endl;
@@ -971,7 +957,7 @@ void DataInterface::AddKinKalTrajectory(std::unique_ptr<KTRAJ> &trajectory,
 /*
  * Adds reconstructed KTRAJ
 */
-void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstloop, REX::REveScene* &scene, 
+void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, REX::REveScene* &scene,
                                          std::tuple<std::vector<std::string>, 
                                          std::vector<const KalSeedPtrCollection*>> track_tuple, 
                                          bool plotKalIntersection, bool addTrkHits, bool addTrkCaloHits, 
@@ -979,12 +965,7 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
 {
     std::cout << "[DataInterface::FillKinKalTrajectory()]" << std::endl;
     
-    // Critical Logic: Scene Cleanup 
-    /*if (!firstloop) {
-        scene->DestroyElements();
-        }*/
-
-    // Setup and Data Extraction 
+    // Setup and Data Extraction
     const auto& ptable = GlobalConstantsHandle<ParticleDataList>();
     const auto& track_list = std::get<1>(track_tuple);    
     if (track_list.empty()) return;
@@ -1109,8 +1090,8 @@ void DataInterface::FillKinKalTrajectory(REX::REveManager *&eveMng, bool firstlo
  * Adds reconstructed CosmicTrackSeed product, visualized as line
 */
 /*Function to visualize CosmicTrackSeed fits (straight lines)-*/
-void DataInterface::AddCosmicTrackFit(REX::REveManager *&eveMng, bool firstLoop_, 
-                                      const mu2e::CosmicTrackSeedCollection *cosmiccol, 
+void DataInterface::AddCosmicTrackFit(REX::REveManager *&eveMng,
+                                      const mu2e::CosmicTrackSeedCollection *cosmiccol,
                                       REX::REveScene* &scene)
 {
     std::cout << "[DataInterface] AddCosmicTrackSeed" << std::endl;
@@ -1167,17 +1148,13 @@ void DataInterface::AddCosmicTrackFit(REX::REveManager *&eveMng, bool firstLoop_
     scene->AddElement(all_tracks_compound);
 }
 
-void DataInterface::AddCRVKalIntersection(REX::REveManager *&eveMng, bool firstloop, REX::REveScene* &scene, 
+void DataInterface::AddCRVKalIntersection(REX::REveManager *&eveMng, REX::REveScene* &scene,
                                          std::tuple<std::vector<std::string>, 
                                          std::vector<const KalSeedPtrCollection*>> track_tuple, bool plotKalIntersection,
                                          bool addTrkHits, bool addTrkCaloHits, 
                                          double& t1, double& t2, std::tuple<std::vector<std::string>, std::vector<const CrvCoincidenceClusterCollection*>> crvpulse_tuple, bool extracted, bool addCrvBars)
 {
     std::cout << "[DataInterface::AddCRVKalIntersection()]" << std::endl;
-    // Critical Logic: Scene Cleanup 
-    /*if (!firstloop) {
-        scene->DestroyElements();
-        }*/
     // Setup and Data Extraction 
     //const auto& ptable = GlobalConstantsHandle<ParticleDataList>();
     const auto& track_list = std::get<1>(track_tuple);

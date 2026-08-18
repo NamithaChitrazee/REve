@@ -191,7 +191,6 @@ namespace mu2e
         MainWindow *frame_;
         DataCollections data;
         bool firstLoop_ = true;
-        bool firstLoopCalo_ = true;
         std::vector<int> particles_;
         std::string gdmlname_;
         bool strawdisplay_;
@@ -571,11 +570,11 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
 
       KinKalOptions KKOpts(addKalInter_, addTrkStrawHits_, addTrkCaloHits_);
 
-      frame_->showEvents(eveMng_, scene, firstLoop_, firstLoopCalo_, data, drawOpts, particles_, strawdisplay_, geomOpts, KKOpts, (int)runid_, (int)subrunid_, (int)eventid_);
+      frame_->showEvents(eveMng_, scene, firstLoop_, data, drawOpts, particles_, strawdisplay_, geomOpts, KKOpts, (int)runid_, (int)subrunid_, (int)eventid_);
+      firstLoop_ = false;
 
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] -- cluster added to scene "<<std::endl;
 
-      firstLoop_ = false; 
       std::cout<<">>> process_single_event before EndChange children = "<<scene->NumChildren()<<std::endl;
       //std::cout<<">>> process_single_event DRAW COMPLETE"<<std::endl;
       //eventMgr_->EventUpdateDone();

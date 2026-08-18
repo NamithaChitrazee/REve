@@ -713,7 +713,7 @@ void MainWindow::createProjectionStuff(REX::REveManager */*eveMng*/)
 }
 
 
-void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScene, bool firstLoop, bool firstLoopCalo, DataCollections &data, DrawOptions drawOpts, std::vector<int> particleIds, bool strawdisplay, GeomOptions geomOpts, KinKalOptions KKOpts, int run, int subRun, int event){
+void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScene, bool firstLoop, DataCollections &data, DrawOptions drawOpts, std::vector<int> particleIds, bool strawdisplay, GeomOptions geomOpts, KinKalOptions KKOpts, int run, int subRun, int event){
   if (!eventScene){
     std::cerr<<"ERROR: eventScene is not an REveScene!"<<std::endl;
   }
@@ -729,7 +729,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
   double t2 = 1696.;
   std::vector<const KalSeedPtrCollection*> track_list = std::get<1>(data.track_tuple);
   if(drawOpts.addTracks and track_list.size() !=0) {
-    pass_data->FillKinKalTrajectory(eveMng, firstLoop, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, KKOpts.addTrkCaloHits, t1, t2);
+    pass_data->FillKinKalTrajectory(eveMng, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, KKOpts.addTrkCaloHits, t1, t2);
     //redrawCanvas(seedcol);
      if(drawOpts.addTrackerHist and track_list.size() !=0) {
       if (!fTrackerCalo2DViews) {
@@ -745,16 +745,16 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
      std::cout <<"After FillKinKalTrajectory:"<< eventScene->NumChildren() << std::endl;
   }
    if(drawOpts.addCrvTrack) {
-     pass_data->AddCRVKalIntersection(eveMng, firstLoop, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, KKOpts.addTrkCaloHits, t1, t2, data.crvcoin_tuple, geomOpts.extracted, drawOpts.addCrvBars);
+     pass_data->AddCRVKalIntersection(eveMng, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, KKOpts.addTrkCaloHits, t1, t2, data.crvcoin_tuple, geomOpts.extracted, drawOpts.addCrvBars);
      std::cout <<"After AddCRVKAlIntersection:"<< eventScene->NumChildren() << std::endl;
    }
   if(drawOpts.addComboHits) {
     std::vector<const ComboHitCollection*> combohit_list = std::get<1>(data.combohit_tuple);
-    if(combohit_list.size() !=0 ) pass_data->AddComboHits(eveMng, firstLoop, data.combohit_tuple, eventScene, strawdisplay, drawOpts.addTrkErrBar);
+    if(combohit_list.size() !=0 ) pass_data->AddComboHits(eveMng, data.combohit_tuple, eventScene, strawdisplay, drawOpts.addTrkErrBar);
   }
   if(drawOpts.addBkgClusters) {
     std::vector<const BkgClusterCollection*> bkgcluster_list = std::get<1>(data.bkgcluster_tuple);
-    if(bkgcluster_list.size() !=0 ) pass_data->AddBkgClusters(eveMng, firstLoop, data.bkgcluster_tuple, eventScene);
+    if(bkgcluster_list.size() !=0 ) pass_data->AddBkgClusters(eveMng, data.bkgcluster_tuple, eventScene);
   }
     if(drawOpts.addCrvRecoPulse){
       // removed AddCrvInfo call
@@ -762,7 +762,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
 
   /*if(drawOpts.addCrvClusters){
     std::vector<const CrvCoincidenceClusterCollection*> crvcoin_list = std::get<1>(data.crvcoin_tuple);
-    if(crvcoin_list.size() !=0) pass_data->AddCrvClusters(eveMng, firstLoop, data.crvcoin_tuple, eventScene, geomOpts.extracted, drawOpts.addCrvBars);
+    if(crvcoin_list.size() !=0) pass_data->AddCrvClusters(eveMng, data.crvcoin_tuple, eventScene, geomOpts.extracted, drawOpts.addCrvBars);
     }*/
 
   if(drawOpts.addCaloDigis){
@@ -770,13 +770,13 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
     std::cout<<"MainWindow::CaloDigi size = "<<calodigi_list.size()<<std::endl;
     if(calodigi_list.size() !=0 ) {
       std::cout<<"MainWindow::AddCaloDigis"<<std::endl;
-      pass_data->AddCaloDigis(eveMng, firstLoop, data.calodigi_tuple, eventScene);
+      pass_data->AddCaloDigis(eveMng, data.calodigi_tuple, eventScene);
     }
   }
   if(drawOpts.addClusters){
     std::vector<const CaloClusterCollection*> calocluster_list = std::get<1>(data.calocluster_tuple);
     if(calocluster_list.size() !=0 ) 
-      pass_data->AddCaloClusters(eveMng, firstLoopCalo, data.calocluster_tuple, eventScene, drawOpts.addCrystalDraw);
+      pass_data->AddCaloClusters(eveMng, data.calocluster_tuple, eventScene, drawOpts.addCrystalDraw);
     if(drawOpts.addCaloHist and calocluster_list.size() !=0) {
       std::cout<<"uhm we here??"<<std::endl;
       if (!fTrackerCalo2DViews)
@@ -792,31 +792,31 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
 
   std::vector<const HelixSeedCollection*> helix_list = std::get<1>(data.helix_tuple);
   if(drawOpts.addHelices and helix_list.size() !=0) {
-    pass_data->AddHelixSeedCollection(eveMng, firstLoop, data.helix_tuple, eventScene);
+    pass_data->AddHelixSeedCollection(eveMng, data.helix_tuple, eventScene);
   }
 
 
   if(drawOpts.addCosmicTracks){
-    pass_data->AddCosmicTrackFit(eveMng, firstLoop, data.CosmicTrackSeedcol, eventScene);
+    pass_data->AddCosmicTrackFit(eveMng, data.CosmicTrackSeedcol, eventScene);
   }
   if(drawOpts.addTimeClusters){
     std::vector<const TimeClusterCollection*> timecluster_list = std::get<1>(data.timecluster_tuple);
-    if(timecluster_list.size() !=0) pass_data->AddTimeClusters(eveMng, firstLoop, data.timecluster_tuple, data.combohit_tuple, eventScene);
+    if(timecluster_list.size() !=0) pass_data->AddTimeClusters(eveMng, data.timecluster_tuple, data.combohit_tuple, eventScene);
   }
 
   //... add MC:
   std::vector<const MCTrajectoryCollection*> mctrack_list = std::get<1>(data.mctrack_tuple);
   if(drawOpts.addMCTrajectories and mctrack_list.size() !=0){
-    pass_mc->AddMCTrajectoryCollection(eveMng, firstLoop,  data.mctrack_tuple, eventScene, particleIds, geomOpts.extracted);
+    pass_mc->AddMCTrajectoryCollection(eveMng, data.mctrack_tuple, eventScene, particleIds, geomOpts.extracted);
   }
 
   std::vector<const SurfaceStepCollection*> surfstep_list = std::get<1>(data.surfstep_tuple);
   if(drawOpts.addSurfaceSteps and surfstep_list.size() !=0){
-    pass_mc->AddSurfaceStepCollection(eveMng, firstLoop,  data.surfstep_tuple, eventScene, particleIds, geomOpts.extracted);
+    pass_mc->AddSurfaceStepCollection(eveMng, data.surfstep_tuple, eventScene, particleIds, geomOpts.extracted);
   }
   std::vector<const SimParticleCollection*> sim_list = std::get<1>(data.sim_tuple);
   if(drawOpts.addSimParts and sim_list.size() !=0){
-    pass_mc->AddSimParticleCollection(eveMng, firstLoop,  data.sim_tuple, eventScene, particleIds, geomOpts.extracted);
+    pass_mc->AddSimParticleCollection(eveMng, data.sim_tuple, eventScene, particleIds, geomOpts.extracted);
   }
 
   // ... project these events onto 2D geometry:

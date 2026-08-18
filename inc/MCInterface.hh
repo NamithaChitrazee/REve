@@ -41,9 +41,9 @@ namespace mu2e{
           const char* GetParticleName(int PDGCode);
           void SetLineColorPID(int PDGCode,REX::REveLine *line);
           void toExtracted(CLHEP::Hep3Vector& Pos);
-          void AddMCTrajectoryCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const MCTrajectoryCollection*>> track_tuple, REX::REveScene* &scene, std::vector<int> particles, bool extracted );
-          void AddSurfaceStepCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const SurfaceStepCollection*>> track_tuple, REX::REveScene* &scene, std::vector<int> particles, bool extracted );
-          void AddSimParticleCollection(REX::REveManager *&eveMng,bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const SimParticleCollection*>> track_tuple, REX::REveScene* &scene, std::vector<int> particles, bool extracted );
+          void AddMCTrajectoryCollection(REX::REveManager *&eveMng, std::tuple<std::vector<std::string>, std::vector<const MCTrajectoryCollection*>> track_tuple, REX::REveScene* &scene, std::vector<int> particles, bool extracted );
+          void AddSurfaceStepCollection(REX::REveManager *&eveMng, std::tuple<std::vector<std::string>, std::vector<const SurfaceStepCollection*>> track_tuple, REX::REveScene* &scene, std::vector<int> particles, bool extracted );
+          void AddSimParticleCollection(REX::REveManager *&eveMng, std::tuple<std::vector<std::string>, std::vector<const SimParticleCollection*>> track_tuple, REX::REveScene* &scene, std::vector<int> particles, bool extracted );
           #endif
           ClassDef(MCInterface, 0);
       };

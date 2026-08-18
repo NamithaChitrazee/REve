@@ -319,7 +319,10 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
             TString json = TBufferJSON::ToJSON(canvas);
             holder->SetTitle(TBase64::Encode(json).Data());
             holder->SetMainColor(kWhite);
+            auto* scene = holder->GetScene();
+            if (scene) scene->BeginAcceptingChanges();
             holder->StampObjProps();
+            if (scene) scene->EndAcceptingChanges();
         }
     }
 }
@@ -448,7 +451,10 @@ void TrackerCalo2DViews::drawTrackerXYView(const mu2e::KalSeedPtrCollection* see
         TString json = TBufferJSON::ToJSON(fXYCanvas);
         fXYCanvasHolder->SetTitle(TBase64::Encode(json).Data());
         fXYCanvasHolder->SetMainColor(kWhite);
+        auto* scene = fXYCanvasHolder->GetScene();
+        if (scene) scene->BeginAcceptingChanges();
         fXYCanvasHolder->StampObjProps();
+        if (scene) scene->EndAcceptingChanges();
     }
 }
 
@@ -574,8 +580,10 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
             TString json = TBufferJSON::ToJSON(fCaloCanvas);
             fCaloDisk0CanvasHolder->SetTitle(TBase64::Encode(json).Data());
             fCaloDisk0CanvasHolder->SetMainColor(kWhite);
+            auto* scene = fCaloDisk0CanvasHolder->GetScene();
+            if (scene) scene->BeginAcceptingChanges();
             fCaloDisk0CanvasHolder->StampObjProps();
-            std::cout<<"Disk 0 online?"<<std::endl;
+            if (scene) scene->EndAcceptingChanges();
         }
     }
 
@@ -676,8 +684,10 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
             TString json = TBufferJSON::ToJSON(fCaloCanvas1);
             fCaloDisk1CanvasHolder->SetTitle(TBase64::Encode(json).Data());
             fCaloDisk1CanvasHolder->SetMainColor(kWhite);
+            auto* scene = fCaloDisk1CanvasHolder->GetScene();
+            if (scene) scene->BeginAcceptingChanges();
             fCaloDisk1CanvasHolder->StampObjProps();
-            std::cout<<"Disk 1 online?"<<std::endl;
+            if (scene) scene->EndAcceptingChanges();
         }
     }
 }
