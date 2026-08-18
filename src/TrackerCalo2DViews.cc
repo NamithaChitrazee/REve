@@ -479,23 +479,20 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
         }
     }
 
-    bool hasD0 = std::any_of(allHits.begin(), allHits.end(), [](const HitInfo& h){ return h.diskID == 0; });
-    bool hasD1 = std::any_of(allHits.begin(), allHits.end(), [](const HitInfo& h){ return h.diskID == 1; });
+    auto drawDisk = [&](int diskID, TCanvas*& canvas, const char* canvasName,
+                         const char* canvasTitle, REX::REvePointSet* holder) {
+        const mu2e::Disk& disk = calo->disk(diskID);
 
-    // --- Disk 0 ---
-    if (hasD0) {
-        const mu2e::Disk& disk = calo->disk(0);
-
-        if (!fCaloCanvas) {
-           bool wasBatch = gROOT->IsBatch();
-           gROOT->SetBatch(kTRUE);
-           fCaloCanvas = new TCanvas("calo_disk0_canvas", "Disk 0", 1400, 1200);
-           fCaloCanvas->SetBatch(kTRUE);
-           gROOT->SetBatch(wasBatch);
+        if (!canvas) {
+            bool wasBatch = gROOT->IsBatch();
+            gROOT->SetBatch(kTRUE);
+            canvas = new TCanvas(canvasName, canvasTitle, 1400, 1200);
+            canvas->SetBatch(kTRUE);
+            gROOT->SetBatch(wasBatch);
         }
-        fCaloCanvas->cd();
-        fCaloCanvas->Clear();
-        fCaloCanvas->SetRightMargin(0.15);
+        canvas->cd();
+        canvas->Clear();
+        canvas->SetRightMargin(0.15);
 
         double xmin =  1e9, xmax = -1e9;
         double ymin =  1e9, ymax = -1e9;
@@ -511,24 +508,27 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
             ymax = std::max(ymax, pos.y() + dy);
         }
 
-        TH2Poly* energyHist = new TH2Poly("calo_disk0", "Disk 0;X (mm);Y (mm)", xmin, xmax, ymin, ymax);
+        TH2Poly* energyHist = new TH2Poly(
+            Form("calo_disk%d", diskID),
+            Form("Disk %d;X (mm);Y (mm)", diskID),
+            xmin, xmax, ymin, ymax);
         energyHist->SetDirectory(0);
         energyHist->SetStats(0);
         gStyle->SetPalette(kBird);
         energyHist->GetZaxis()->SetTitleOffset(1.5);
         energyHist->GetZaxis()->SetTitle("edep (MeV)");
 
-        // Add one poly bin per hit crystal so empty crystals stay white (background).
-        std::set<int> addedD0;
+        std::set<int> added;
         for (const auto& h : allHits) {
-            if (h.diskID != 0) continue;
-            if (addedD0.insert(h.crystalID).second)
+            if (h.diskID != diskID) continue;
+            if (added.insert(h.crystalID).second)
                 energyHist->AddBin(h.cx - h.dx, h.cy - h.dy, h.cx + h.dx, h.cy + h.dy);
             energyHist->Fill(h.cx, h.cy, h.eDep);
         }
 
         energyHist->Draw("COLZ");
 
+        // Always draw the full crystal geometry grid
         for (size_t icr = 0; icr < disk.nCrystals(); ++icr) {
             const mu2e::Crystal& crystal = disk.crystal(icr);
             CLHEP::Hep3Vector pos  = crystal.localPosition();
@@ -544,8 +544,9 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
             box->Draw();
         }
 
+        // Overlay hit markers for this event
         for (const auto& h : allHits) {
-            if (h.diskID != 0) continue;
+            if (h.diskID != diskID) continue;
             TGraph* g = new TGraph(1, &h.cx, &h.cy);
             g->SetMarkerStyle(20);
             g->SetMarkerSize(0.5);
@@ -554,142 +555,38 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
             g->Draw("P SAME");
         }
 
-        // Draw track trajectory in XY for each seed
+        // Overlay track projection for this event
         if (seedcol != nullptr) {
             for (auto const& kseedptr : *seedcol) {
                 const mu2e::KalSeed& kseed = *kseedptr;
                 if (kseed.loopHelixFit()) {
                     auto traj = kseed.loopHelixFitTrajectory();
-                    if (!traj) continue;
-                    drawTrajectoryXY(*traj);
+                    if (traj) drawTrajectoryXY(*traj);
                 } else if (kseed.centralHelixFit()) {
                     auto traj = kseed.centralHelixFitTrajectory();
-                    if (!traj) continue;
-                    drawTrajectoryXY(*traj);
+                    if (traj) drawTrajectoryXY(*traj);
                 } else if (kseed.kinematicLineFit()) {
                     auto traj = kseed.kinematicLineFitTrajectory();
-                    if (!traj) continue;
-                    drawTrajectoryXY(*traj);
+                    if (traj) drawTrajectoryXY(*traj);
                 }
             }
         }
 
-        fCaloCanvas->Modified();
-        fCaloCanvas->Update();
-        if (fCaloDisk0CanvasHolder) {
-            TString json = TBufferJSON::ToJSON(fCaloCanvas);
-            fCaloDisk0CanvasHolder->SetTitle(TBase64::Encode(json).Data());
-            fCaloDisk0CanvasHolder->SetMainColor(kWhite);
-            auto* scene = fCaloDisk0CanvasHolder->GetScene();
+        canvas->Modified();
+        canvas->Update();
+        if (holder) {
+            TString json = TBufferJSON::ToJSON(canvas);
+            holder->SetTitle(TBase64::Encode(json).Data());
+            holder->SetMainColor(kWhite);
+            auto* scene = holder->GetScene();
             if (scene) scene->BeginAcceptingChanges();
-            fCaloDisk0CanvasHolder->StampObjProps();
+            holder->StampObjProps();
             if (scene) scene->EndAcceptingChanges();
         }
-    }
+    };
 
-    // --- Disk 1 ---
-    if (hasD1) {
-        const mu2e::Disk& disk1 = calo->disk(1);
-
-        if (!fCaloCanvas1) {
-          bool wasBatch = gROOT->IsBatch();
-          gROOT->SetBatch(kTRUE);
-          fCaloCanvas1 = new TCanvas("calo_disk1_canvas", "Disk 1", 1400, 1200);
-          fCaloCanvas1->SetBatch(kTRUE);
-          gROOT->SetBatch(wasBatch);
-        }
-        fCaloCanvas1->cd();
-        fCaloCanvas1->Clear();
-        fCaloCanvas1->SetRightMargin(0.15);
-
-        double xmin1 =  1e9, xmax1 = -1e9;
-        double ymin1 =  1e9, ymax1 = -1e9;
-        for (size_t icr = 0; icr < disk1.nCrystals(); ++icr) {
-            const mu2e::Crystal& crystal = disk1.crystal(icr);
-            CLHEP::Hep3Vector pos  = crystal.localPosition();
-            CLHEP::Hep3Vector size = crystal.size();
-            double dx = size.x() / 2.0;
-            double dy = size.y() / 2.0;
-            xmin1 = std::min(xmin1, pos.x() - dx);
-            xmax1 = std::max(xmax1, pos.x() + dx);
-            ymin1 = std::min(ymin1, pos.y() - dy);
-            ymax1 = std::max(ymax1, pos.y() + dy);
-        }
-
-        TH2Poly* energyHist1 = new TH2Poly("calo_disk1","Disk 1;X (mm);Y (mm)", xmin1, xmax1, ymin1, ymax1);
-        energyHist1->SetDirectory(0);
-        energyHist1->SetStats(0);
-        gStyle->SetPalette(kBird);
-        energyHist1->GetZaxis()->SetTitleOffset(1.5);
-        energyHist1->GetZaxis()->SetTitle("edep (MeV)");
-
-        std::set<int> addedD1;
-        for (const auto& h : allHits) {
-            if (h.diskID != 1) continue;
-            if (addedD1.insert(h.crystalID).second)
-                energyHist1->AddBin(h.cx - h.dx, h.cy - h.dy, h.cx + h.dx, h.cy + h.dy);
-            energyHist1->Fill(h.cx, h.cy, h.eDep);
-        }
-
-        energyHist1->Draw("COLZ");
-
-        for (size_t icr = 0; icr < disk1.nCrystals(); ++icr) {
-            const mu2e::Crystal& crystal = disk1.crystal(icr);
-            CLHEP::Hep3Vector pos  = crystal.localPosition();
-            CLHEP::Hep3Vector size = crystal.size();
-            double x  = pos.x();
-            double y  = pos.y();
-            double dx = size.x() / 2.0;
-            double dy = size.y() / 2.0;
-            TBox* box = new TBox(x - dx, y - dy, x + dx, y + dy);
-            box->SetFillStyle(0);
-            box->SetLineColor(kGray + 1);
-            box->SetLineWidth(1);
-            box->Draw();
-        }
-
-        for (const auto& h : allHits) {
-            if (h.diskID != 1) continue;
-            TGraph* g = new TGraph(1, &h.cx, &h.cy);
-            g->SetMarkerStyle(20);
-            g->SetMarkerSize(0.5);
-            g->SetMarkerColorAlpha(kWhite, 0);
-            g->SetName(Form("Crystal %d  time=%.2f ns  eDep=%.2f MeV", h.crystalID, h.time, h.eDep));
-            g->Draw("P SAME");
-        }
-
-        // Draw track trajectory in XY for each seed
-        if (seedcol != nullptr) {
-            for (auto const& kseedptr : *seedcol) {
-                const mu2e::KalSeed& kseed = *kseedptr;
-                if (kseed.loopHelixFit()) {
-                    auto traj = kseed.loopHelixFitTrajectory();
-                    if (!traj) continue;
-                    drawTrajectoryXY(*traj);
-                } else if (kseed.centralHelixFit()) {
-                    auto traj = kseed.centralHelixFitTrajectory();
-                    if (!traj) continue;
-                    drawTrajectoryXY(*traj);
-                } else if (kseed.kinematicLineFit()) {
-                    auto traj = kseed.kinematicLineFitTrajectory();
-                    if (!traj) continue;
-                    drawTrajectoryXY(*traj);
-                }
-            }
-        }
-
-        fCaloCanvas1->Modified();
-        fCaloCanvas1->Update();
-        if (fCaloDisk1CanvasHolder) {
-            TString json = TBufferJSON::ToJSON(fCaloCanvas1);
-            fCaloDisk1CanvasHolder->SetTitle(TBase64::Encode(json).Data());
-            fCaloDisk1CanvasHolder->SetMainColor(kWhite);
-            auto* scene = fCaloDisk1CanvasHolder->GetScene();
-            if (scene) scene->BeginAcceptingChanges();
-            fCaloDisk1CanvasHolder->StampObjProps();
-            if (scene) scene->EndAcceptingChanges();
-        }
-    }
+    drawDisk(0, fCaloCanvas,  "calo_disk0_canvas", "Disk 0", fCaloDisk0CanvasHolder);
+    drawDisk(1, fCaloCanvas1, "calo_disk1_canvas", "Disk 1", fCaloDisk1CanvasHolder);
 }
 
   /*void TrackerCalo2DViews::redrawCanvas(const mu2e::KalSeedPtrCollection* seedcol) {
