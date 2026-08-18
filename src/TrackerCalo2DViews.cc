@@ -518,11 +518,19 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
         energyHist->GetZaxis()->SetTitleOffset(1.5);
         energyHist->GetZaxis()->SetTitle("edep (MeV)");
 
-        std::set<int> added;
+        for (size_t icr = 0; icr < disk.nCrystals(); ++icr) {
+            const mu2e::Crystal& crystal = disk.crystal(icr);
+            CLHEP::Hep3Vector pos  = crystal.localPosition();
+            CLHEP::Hep3Vector size = crystal.size();
+            double x  = pos.x();
+            double y  = pos.y();
+            double dx = size.x() / 2.0;
+            double dy = size.y() / 2.0;
+            energyHist->AddBin(x - dx, y - dy, x + dx, y + dy);
+        }
+
         for (const auto& h : allHits) {
             if (h.diskID != diskID) continue;
-            if (added.insert(h.crystalID).second)
-                energyHist->AddBin(h.cx - h.dx, h.cy - h.dy, h.cx + h.dx, h.cy + h.dy);
             energyHist->Fill(h.cx, h.cy, h.eDep);
         }
 
