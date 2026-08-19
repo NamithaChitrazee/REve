@@ -154,14 +154,15 @@ namespace mu2e {
        bool addSimParts = false;
         bool addTrackerHist = false;
         bool addCaloHist = false;
+        bool useAlignedTracker = false;
 
        bool addTrkErrBar = true;
       bool addCrystalDraw = false;
       bool addCrvBars = true;
       DrawOptions(){};
 
-        DrawOptions(bool cosmictracks, bool helices, bool tracks, bool calodigis, bool clusters, bool combohits, bool bkgclusters, bool crv, bool crvclu, bool crvtrack, bool timeclusters, bool trkhits, bool mctraj, bool surfsteps, bool simparts, bool trackerhist, bool calohist, bool errbar, bool crys, bool crvbars)
-         : addCosmicTracks(cosmictracks), addHelices(helices), addTracks(tracks), addCaloDigis(calodigis), addClusters(clusters), addComboHits(combohits), addBkgClusters(bkgclusters), addCrvRecoPulse(crv), addCrvClusters(crvclu), addCrvTrack(crvtrack), addTimeClusters(timeclusters), addTrkHits(trkhits), addMCTrajectories(mctraj), addSurfaceSteps(surfsteps), addSimParts(simparts), addTrackerHist(trackerhist), addCaloHist(calohist), addTrkErrBar(errbar), addCrystalDraw(crys), addCrvBars(crvbars) {};
+        DrawOptions(bool cosmictracks, bool helices, bool tracks, bool calodigis, bool clusters, bool combohits, bool bkgclusters, bool crv, bool crvclu, bool crvtrack, bool timeclusters, bool trkhits, bool mctraj, bool surfsteps, bool simparts, bool trackerhist, bool calohist, bool usealignedtracker, bool errbar, bool crys, bool crvbars)
+         : addCosmicTracks(cosmictracks), addHelices(helices), addTracks(tracks), addCaloDigis(calodigis), addClusters(clusters), addComboHits(combohits), addBkgClusters(bkgclusters), addCrvRecoPulse(crv), addCrvClusters(crvclu), addCrvTrack(crvtrack), addTimeClusters(timeclusters), addTrkHits(trkhits), addMCTrajectories(mctraj), addSurfaceSteps(surfsteps), addSimParts(simparts), addTrackerHist(trackerhist), addCaloHist(calohist), useAlignedTracker(usealignedtracker), addTrkErrBar(errbar), addCrystalDraw(crys), addCrvBars(crvbars) {};
 
 
      };

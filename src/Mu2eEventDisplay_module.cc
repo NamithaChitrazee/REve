@@ -566,7 +566,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
 
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] -- calls to data interface "<<std::endl;
 
-        DrawOptions drawOpts(filler_.addCosmicTrackSeeds_, filler_.addHelixSeeds_, filler_.addKalSeeds_, filler_.addCaloDigis_, filler_.addClusters_, filler_.addHits_, filler_.addBkgClusters_, filler_.addCrvRecoPulse_, filler_.addCrvClusters_, filler_.addCrvTrack_, filler_.addTimeClusters_, filler_.addTrkHits_, filler_.addMCTraj_, filler_.addSurfSteps_, filler_.addSimParts_, filler_.addTrackerHist_, filler_.addCaloHist_, addErrBar_, addCrystalHits_, addCrvBars_);
+        DrawOptions drawOpts(filler_.addCosmicTrackSeeds_, filler_.addHelixSeeds_, filler_.addKalSeeds_, filler_.addCaloDigis_, filler_.addClusters_, filler_.addHits_, filler_.addBkgClusters_, filler_.addCrvRecoPulse_, filler_.addCrvClusters_, filler_.addCrvTrack_, filler_.addTimeClusters_, filler_.addTrkHits_, filler_.addMCTraj_, filler_.addSurfSteps_, filler_.addSimParts_, filler_.addTrackerHist_, filler_.addCaloHist_, filler_.useAlignedTracker_, addErrBar_, addCrystalHits_, addCrvBars_);
 
       KinKalOptions KKOpts(addKalInter_, addTrkStrawHits_, addTrkCaloHits_);
 

@@ -739,7 +739,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
       }
       auto const& track_list = std::get<1>(data.track_tuple);
       const mu2e::KalSeedPtrCollection* seedcol = track_list[0];
-      fTrackerCalo2DViews->drawTrackerStation(seedcol, art::EventID(run, subRun, event));
+      fTrackerCalo2DViews->drawTrackerStation(seedcol, art::EventID(run, subRun, event), drawOpts.useAlignedTracker);
       fTrackerCalo2DViews->drawTrackerXYView(seedcol, run, subRun, event);
      }
      std::cout <<"After FillKinKalTrajectory:"<< eventScene->NumChildren() << std::endl;

@@ -38,6 +38,7 @@ namespace mu2e{
     addSimParts_(conf.addSimParts()),
     addTrackerHist_(conf.addTrackerHist()),
     addCaloHist_(conf.addCaloHist()),
+    useAlignedTracker_(conf.useAlignedTracker()),
     FillAll_(conf.FillAll())
   {}
 

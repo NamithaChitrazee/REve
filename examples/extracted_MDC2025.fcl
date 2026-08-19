@@ -49,5 +49,6 @@ physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : true
 physics.analyzers.Mu2eEventDisplay.addTrkStrawHits : false
 physics.analyzers.Mu2eEventDisplay.filler.addHits : true
 physics.analyzers.Mu2eEventDisplay.filler.addCaloHist : false
+physics.analyzers.Mu2eEventDisplay.filler.useAlignedTracker : true
 physics.analyzers.Mu2eEventDisplay.extracted : true
 physics.analyzers.Mu2eEventDisplay.specifyTag : false

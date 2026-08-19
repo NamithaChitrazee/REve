@@ -119,7 +119,7 @@ static void drawTrajectoryXY(const KTRAJ& trajectory)
     graph->Draw("L SAME");
 }
 
-void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* seedcol, const art::EventID& eventID) {
+void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* seedcol, const art::EventID& eventID, bool useAlignedTracker) {
   std::cout<<"drawTrackerSTATION"<<std::endl;
     // Collect hit data and identify which (plane, panel) pairs have hits.
     std::map<mu2e::StrawId, const mu2e::TrkStrawHitSeed*> hitDataMap;
@@ -144,12 +144,20 @@ void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* se
 
     if (panelsWithHits.empty()) return;
 
-    ProditionsHandle<StrawResponse> strawResponse_h_;
-    ProditionsHandle<Tracker> alignedTracker_h_;
     ProditionsHandle<TrackerStatus> trackerStatus_h_;
-    auto const& strawresponse = strawResponse_h_.getPtr(eventID);
-    auto const& tracker = alignedTracker_h_.getPtr(eventID).get();
     TrackerStatus const& trackerStatus = *trackerStatus_h_.getPtr(eventID);
+
+    // Select tracker geometry source based on useAlignedTracker flag.
+    // Aligned (proditions): uses survey-corrected straw positions for the specific run.
+    // Nominal (GeomHandle): uses the design geometry, no run-by-run corrections.
+    const mu2e::Tracker* tracker = nullptr;
+    mu2e::GeomHandle<mu2e::Tracker> nominalTracker;
+    ProditionsHandle<Tracker> alignedTracker_h_;
+    if (useAlignedTracker) {
+        tracker = alignedTracker_h_.getPtr(eventID).get();
+    } else {
+        tracker = &(*nominalTracker);
+    }
 
     double strawRadius = tracker->strawProperties()._strawOuterRadius;
 
