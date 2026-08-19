@@ -48,6 +48,14 @@ physics.analyzers.Mu2eEventDisplay.filler.addClusters : true
 physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : true
 physics.analyzers.Mu2eEventDisplay.addTrkStrawHits : false
 physics.analyzers.Mu2eEventDisplay.filler.addHits : true
-physics.analyzers.Mu2eEventDisplay.filler.addCaloHist : false
+physics.analyzers.Mu2eEventDisplay.filler.addCaloHist : true
+physics.analyzers.Mu2eEventDisplay.filler.addTrackerHist : true
 physics.analyzers.Mu2eEventDisplay.extracted : true
 physics.analyzers.Mu2eEventDisplay.specifyTag : false
+
+services.DbService.purpose: TRACKER_VST
+services.DbService.version: v2_0
+services.DbService.verbose: 2
+services.DbService.textFile : ["align_r660_v0.txt","calib_r660_v6.txt"]
+services.ProditionsService.alignedTracker.useDb: true
+services.ProditionsService.trackerStatus.Settings.useDb: true
