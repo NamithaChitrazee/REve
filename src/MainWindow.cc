@@ -821,6 +821,20 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
 
   // ... project these events onto 2D geometry:
   projectEvents(eveMng);
+
+  // Run/Event overlay — added to event scene so it's recreated each event.
+  // Mode 1 = NDC screen-space; position (0.005, 0.99) = top-left, TextAlign(13) = left-top anchor.
+  auto* ann = new REX::REveText("EventAnnotation");
+  ann->SetText("Run: " + std::to_string(run) + " / Event: " + std::to_string(event));
+  ann->SetMode(1);
+  ann->SetPosition(REX::REveVector(0.005, 0.99, 0.000001));
+  ann->SetFontSize(0.018);
+  ann->SetFont("LiberationSans-Bold");
+  ann->SetTextColor(kWhite);
+  ann->SetTextAlign(13);
+  ann->SetDrawFrame(false);
+  eventScene->AddElement(ann);
+
   std::cout <<"Before END Accepting Changes :"<< eventScene->NumChildren() << std::endl;
   eventScene->EndAcceptingChanges();
   std::cout<<">>> END showEvents children = "<<eventScene->NumChildren()<<std::endl;

@@ -206,7 +206,6 @@ namespace mu2e
         std::unique_ptr<PrintInfo> fPrint{nullptr};
         REX::REveManager* eveMng_{nullptr};
         std::unique_ptr<EventDisplayManager> eventMgr_{nullptr};
-        REX::REveText* fAnnotationText_{nullptr};
         double eventid_;
         double runid_;
         double subrunid_;
@@ -509,20 +508,6 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
     frame_ = new MainWindow();
     frame_->makeGeometryScene(eveMng_, geomOpts, gdmlname_);
 
-    // Persistent 3D-view overlay: Run/SubRun/Event + date-time in the top-right corner.
-    // Mode 1 = NDC screen-space; SetTextAlign(33) = right-top anchor.
-    fAnnotationText_ = new REX::REveText("EventAnnotation");
-    fAnnotationText_->SetText("Mu2e Event Display");
-    fAnnotationText_->SetMode(1);
-    fAnnotationText_->SetPosition(REX::REveVector(0.99, 0.99, 0.000001));
-    fAnnotationText_->SetFontSize(0.018);
-    fAnnotationText_->SetFont("LiberationSans-Bold");
-    fAnnotationText_->SetTextColor(kBlack);
-    fAnnotationText_->SetTextAlign(33);
-    fAnnotationText_->SetDrawFrame(false);
-    fAnnotationText_->SetRnrSelf(false);
-    eveMng_->GetGlobalScene()->AddElement(fAnnotationText_);
-
     // eveMng_->AddLocation("mydir/", configFile("EventDisplay/CustomGUIv3"));
     // eveMng_->SetDefaultHtmlPage("file:mydir/eventDisplay.html");
 
@@ -572,19 +557,6 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       fPrint->StampObjProps();
 
       // Update 3D-view top-right annotation with current date/time and Run:SubRun:Event.
-      if (fAnnotationText_) {
-          std::time_t now = std::time(nullptr);
-          char timebuf[64];
-          std::strftime(timebuf, sizeof(timebuf), "%Y-%m-%d  %H:%M:%S", std::localtime(&now));
-          std::string info = std::string("Date: ") + timebuf + "\n";
-          info += "Run:" + std::to_string((int)runid_) +
-                  "  SubRun:" + std::to_string((int)subrunid_) +
-                  "  Event:" + std::to_string((int)eventid_);
-          fAnnotationText_->SetText(info);
-          fAnnotationText_->SetRnrSelf(true);
-          fAnnotationText_->StampObjProps();
-      }
-
       fPrint->fcalocluster_tuple = data.calocluster_tuple;
       fPrint->fmctrack_tuple = data.mctrack_tuple;
       fPrint->ftrack_tuple = data.track_tuple;

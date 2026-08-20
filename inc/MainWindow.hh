@@ -50,6 +50,7 @@
 #include <ROOT/REveTrackPropagator.hxx>
 #include <ROOT/REveEllipsoid.hxx>
 #include <ROOT/REveTableInfo.hxx>
+#include <ROOT/REveText.hxx>
 #include <ROOT/REveViewContext.hxx>
 #include "art/Framework/Principal/Event.h"
 #include "EventDisplay/inc/DataCollections.hh"
