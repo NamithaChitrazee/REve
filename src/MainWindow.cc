@@ -833,9 +833,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
   ann->SetFont("LiberationSans-Bold");
   //ann->SetTextAlign(13);
   //ann->SetDrawFrame(false);
-  REX::REveElement *textHolder = new REX::REveElement("texts");
-  textHolder->AddElement(ann);
-  eventScene->AddElement(textHolder);
+  eventScene->AddElement(ann);
 
   std::cout <<"Before END Accepting Changes :"<< eventScene->NumChildren() << std::endl;
   eventScene->EndAcceptingChanges();
