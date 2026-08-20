@@ -534,16 +534,11 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
   // Actually interesting function responsible for drawing the current event
   void Mu2eEventDisplay::process_single_event()
   {
-    std::cout<<">>> process_single_event ENTER thread = "<<std::this_thread::get_id()<<std::endl;
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] Start "<<std::endl;
 
-      // eveMng_->DisableRedraw();
-
-      //eveMng_->GetWorld()->BeginAcceptingChanges();
       eveMng_->BeginChange();
       eveMng_->ClearAllSelections();
-      // eveMng_->GetScenes()->AcceptChanges(true);
-
+     
       fGui->feventid = eventid_;
       fGui->fsubrunid = subrunid_;
       fGui->frunid = runid_;
@@ -564,7 +559,6 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
       fGui->StampObjProps();
 
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] -- extract event scene "<<std::endl;
-      //REX::REveElement* scene = eveMng_->GetEventScene();
       REX::REveScene* scene = eveMng_->GetEventScene();
 
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] -- calls to data interface "<<std::endl;
@@ -578,16 +572,7 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
 
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] -- cluster added to scene "<<std::endl;
 
-      std::cout<<">>> process_single_event before EndChange children = "<<scene->NumChildren()<<std::endl;
-      //std::cout<<">>> process_single_event DRAW COMPLETE"<<std::endl;
-      //eventMgr_->EventUpdateDone();
-      //std::cout<<">>> process_single_event EXIT"<<std::endl;
-      // eveMng_->GetScenes()->AcceptChanges(false);
-
-      //eveMng_->GetWorld()->EndAcceptingChanges();
       eveMng_->EndChange();
-      // eveMng_->EnableRedraw();
-      std::cout<<"[Mu2eEventDisplay : process_single_event] End "<<std::endl;
       if(diagLevel_ == 1) std::cout<<"[Mu2eEventDisplay : process_single_event] End "<<std::endl;
     }
   }

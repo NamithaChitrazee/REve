@@ -25,8 +25,8 @@ physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : true
 physics.analyzers.Mu2eEventDisplay.filler.addCrvRecoPulse : true
 physics.analyzers.Mu2eEventDisplay.filler.addSimParts : true
 physics.analyzers.Mu2eEventDisplay.filler.addCaloDigis : true
-physics.analyzers.Mu2eEventDisplay.filler.addTrackerHist : true
-physics.analyzers.Mu2eEventDisplay.filler.addCaloHist : true
+physics.analyzers.Mu2eEventDisplay.filler.addTrackerHist : false
+physics.analyzers.Mu2eEventDisplay.filler.addCaloHist : false
 # the path
 physics.EndPath  : [ @sequence::REveDis.seqBase]
 physics.REvePath : @local::REvePath
@@ -42,3 +42,9 @@ source.inputCommands: ["keep *",
 services.TFileService.fileName: "/dev/null"
 physics.analyzers.Mu2eEventDisplay.gdmlname :"Offline/gen/gdml/mu2e_run1_a.gdml"
 services.GeometryService.inputFile: "Offline/Mu2eG4/geom/geom_common.txt"
+services.ProditionsService.alignedTracker.useDb: true
+services.ProditionsService.alignedTracker.verbose: 0
+services.ProditionsService.trackerStatus.Settings.useDb: true
+services.ProditionsService.trackerStatus.Settings.verbose: 0
+services.ProditionsService.strawElectronics.useDb: true
+services.ProditionsService.strawElectronics.verbose: 0

@@ -120,7 +120,6 @@ static void drawTrajectoryXY(const KTRAJ& trajectory)
 }
 
 void TrackerCalo2DViews::drawTrackerStation(const mu2e::KalSeedPtrCollection* seedcol, const art::EventID& eventID, bool useAlignedTracker) {
-  std::cout<<"drawTrackerSTATION"<<std::endl;
     // Collect hit data and identify which (plane, panel) pairs have hits.
     std::map<mu2e::StrawId, const mu2e::TrkStrawHitSeed*> hitDataMap;
     std::set<std::pair<int,int>> seenPanels;
@@ -600,15 +599,5 @@ void TrackerCalo2DViews::drawCalorimeterDisk(const CaloClusterCollection* cluste
     drawDisk(0, fCaloCanvas,  Form("calo_disk0_%d", fEventCount), "Disk 0", fCaloDisk0CanvasHolder);
     drawDisk(1, fCaloCanvas1, Form("calo_disk1_%d", fEventCount), "Disk 1", fCaloDisk1CanvasHolder);
 }
-
-  /*void TrackerCalo2DViews::redrawCanvas(const mu2e::KalSeedPtrCollection* seedcol) {
-    if (!fCanvas || !fCanvasHolder) return;
-    drawTrackerStation(seedcol);
-    fCanvas->Modified();
-    fCanvas->Update();
-    TString json = TBufferJSON::ToJSON(fCanvas);
-    fCanvasHolder->SetTitle(TBase64::Encode(json).Data());
-    fCanvasHolder->StampObjProps();
-  }*/
 
 } // namespace mu2e

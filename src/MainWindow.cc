@@ -4,6 +4,7 @@
 #include "Offline/GeometryService/inc/GeomHandle.hh"
 #include "Offline/GeometryService/inc/DetectorSystem.hh"
 #include "Offline/CosmicRayShieldGeom/inc/CosmicRayShield.hh"
+#include <ROOT/RWebWindow.hxx>
 
 namespace REX = ROOT::Experimental;
 using namespace std;
@@ -57,8 +58,6 @@ void MainWindow::showNodesByName(TGeoNode* n, const std::string& str, bool onOff
   }
   std::string name(n->GetName());
   j++;
-  //std::cout<<j<<" "<<name<<std::endl;
-  //if(print) std::cout<<j<<" "<<name<<std::endl;
   bool cry1 = false; // these help us know which disk and to draw crystals
   bool cry2 = false;
   int ndau = n->GetNdaughters();
@@ -74,7 +73,6 @@ void MainWindow::showNodesByName(TGeoNode* n, const std::string& str, bool onOff
       t(2,1) = rm[3]; t(2,2) = rm[4]; t(2,3) = rm[5];
       t(3,1) = rm[6]; t(3,2) = rm[7]; t(3,3) = rm[8];
       t(1,4) = tv[0] + shift[0]; t(2,4) = tv[1]  + shift[1]; t(3,4) = tv[2] + shift[2];
-      //std::cout<<name<<"  "<<tv[0] + shift[0]<<" "<<tv[1]  + shift[1] << " "<< tv[2] + shift[2]<<std::endl;
       ctrans *= t;
     }
     n->ls();
@@ -94,8 +92,7 @@ void MainWindow::showNodesByName(TGeoNode* n, const std::string& str, bool onOff
         t(2,1) = rm[3]; t(2,2) = rm[4]; t(2,3) = rm[5];
         t(3,1) = rm[6]; t(3,2) = rm[7]; t(3,3) = rm[8];
         t(1,4) = tv[0] + shift[0]; t(2,4) = tv[1]  + shift[1]; t(3,4) = tv[2] + shift[2];
-        //std::cout<<name<<"  "<<tv[0] + shift[0]<<" "<<tv[1]  + shift[1] << " "<< tv[2] + shift[2]<<std::endl;
-
+       
         if(name.find("TrackerPlaneEnvelope_00") != string::npos) {
           FrontTracker_gdmltag = j;
         }
@@ -125,7 +122,6 @@ void MainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REveTrans& 
   }
   std::string name(n->GetName());
   j++;
-  //std::cout<<n->GetName()<<std::endl;
   REX::REveTrans ctrans;
   ctrans.SetFrom(trans.Array());
   TGeoMatrix     *gm = n->GetMatrix();
@@ -138,7 +134,6 @@ void MainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REveTrans& 
   t(1,4) = tv[0]  ; t(2,4) = tv[1]  ; t(3,4) = tv[2] ;
 
   ctrans *= t;
-  //std::cout<<j<<" "<<name<<" located at "<<tv[0]<<" "<< tv[1]<<" "<<tv[2]<<std::endl;
   std::vector<float> pos;
   std::pair<std::string, std::vector<float>> offset;
   pos.push_back(tv[0]);
@@ -163,7 +158,6 @@ void MainWindow::getOffsets(TGeoNode* n,const std::string& str, REX::REveTrans& 
         t(1,4) = tv[0]  ; t(2,4) = tv[1]  ; t(3,4) = tv[2] ;
 
         ctrans *= t;
-       // std::cout<<j<<" "<<name<<" located at "<<tv[0]<<" "<< tv[1]<<" "<<tv[2]<<std::endl;
         std::vector<float> pos;
         std::pair<std::string, std::vector<float>> offset;
         pos.push_back(tv[0]);
@@ -493,7 +487,6 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
           shift.at(2) = z_cal - z_trk;
-          std::cout<<"calo disk shift = "<<shift.at(2)<<" z_cal = "<<z_cal<<" z_trk = "<<z_trk<<std::endl;
           showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, true, false, drawconfigf.getInt("CALColor") );
         }
       if(geomOpt.showCaloCrystals){
@@ -612,13 +605,11 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
         x_d0 = x_cal + offsets[i].second[0];
         y_d0 = y_cal + offsets[i].second[1];
         z_d0 = z_cal + offsets[i].second[2];
-        std::cout<<"z_cal = "<<z_cal<<std::endl;
       }
       if(offsets[i].first.find("CaloDisk_1") != string::npos){
         x_d1 = x_cal + offsets[i].second[0];
         y_d1 = y_cal + offsets[i].second[1];
         z_d1 = z_cal + offsets[i].second[2] + 22.5;
-        std::cout<<"z_cal = "<<z_cal<<" disk 1 = "<<offsets[i].second[2]<<std::endl;
       }
     }
     std::vector<double> shift;
@@ -644,7 +635,6 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
           shift.at(2) = z_cal - z_trk; //+ 50.0;
-          std::cout<<"z_cal = "<<z_cal<<" trk = "<<z_trk<<std::endl;
           showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, true, false, drawconfigf.getInt("CALColor") );
         }
         static std::vector <std::string> substrings_disk1  {"CaloDisk_1"};
@@ -652,7 +642,6 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
           shift.at(2) = z_cal - z_trk; //+ 75.0;
-          std::cout<<"z_cal = "<<z_cal<<" trk = "<<z_trk<<std::endl;
           showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, true, false, drawconfigf.getInt("CALColor") );
         }
       if(geomOpt.showCaloCrystals){
@@ -661,7 +650,6 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
           shift.at(2) = z_cal - z_trk; //+ 50.0;
-          std::cout<<"z_cal = "<<z_cal<<std::endl;
           showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, true, false, drawconfigf.getInt("CALColor"));
         }
         static std::vector <std::string> substrings_crystals1  {"CaloWrapper_1"};
@@ -679,7 +667,6 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     shift.at(0) = x_crvex - x_trk  ;
     shift.at(1) = y_crvex - y_trk;
     shift.at(2) = z_crvex - z_trk + tracker_half_length_cm;
-    std::cout<<"z_crvex = "<<z_crvex<<" trk = "<<z_trk<<std::endl;
     for(auto& i: substrings_ex){
       showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));
     }
@@ -688,7 +675,6 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     shift.at(0) = x_crvt1 - x_trk;
     shift.at(1) = y_crvt1 - y_trk;
     shift.at(2) = z_crvt1 - z_trk + tracker_half_length_cm;
-    std::cout<<"z_crvt1 = "<<z_crvt1<<" trk = "<<z_trk<<std::endl;
     for(auto& i: substrings_t1){
       showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));
     }
@@ -717,12 +703,10 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
   if (!eventScene){
     std::cerr<<"ERROR: eventScene is not an REveScene!"<<std::endl;
   }
-  std::cout<<">>> BEFORE DestroyElements children = "<<eventScene->NumChildren()<<std::endl;
   eventScene->BeginAcceptingChanges();
   if(!firstLoop){
     eventScene->DestroyElements();
   }
-  std::cout<<">>> AFTER DestroyElements children = "<<eventScene->NumChildren()<<std::endl;
   //...addReco:
   // for start and end of track
   double t1 = 0.;
@@ -742,11 +726,9 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
       fTrackerCalo2DViews->drawTrackerStation(seedcol, art::EventID(run, subRun, event), drawOpts.useAlignedTracker);
       fTrackerCalo2DViews->drawTrackerXYView(seedcol, run, subRun, event);
      }
-     std::cout <<"After FillKinKalTrajectory:"<< eventScene->NumChildren() << std::endl;
   }
    if(drawOpts.addCrvTrack) {
      pass_data->AddCRVKalIntersection(eveMng, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, KKOpts.addTrkCaloHits, t1, t2, data.crvcoin_tuple, geomOpts.extracted, drawOpts.addCrvBars);
-     std::cout <<"After AddCRVKAlIntersection:"<< eventScene->NumChildren() << std::endl;
    }
   if(drawOpts.addComboHits) {
     std::vector<const ComboHitCollection*> combohit_list = std::get<1>(data.combohit_tuple);
@@ -767,9 +749,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
 
   if(drawOpts.addCaloDigis){
     std::vector<const CaloDigiCollection*> calodigi_list = std::get<1>(data.calodigi_tuple);
-    std::cout<<"MainWindow::CaloDigi size = "<<calodigi_list.size()<<std::endl;
     if(calodigi_list.size() !=0 ) {
-      std::cout<<"MainWindow::AddCaloDigis"<<std::endl;
       pass_data->AddCaloDigis(eveMng, data.calodigi_tuple, eventScene);
     }
   }
@@ -778,16 +758,13 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
     if(calocluster_list.size() !=0 ) 
       pass_data->AddCaloClusters(eveMng, data.calocluster_tuple, eventScene, drawOpts.addCrystalDraw);
     if(drawOpts.addCaloHist and calocluster_list.size() !=0) {
-      std::cout<<"uhm we here??"<<std::endl;
       if (!fTrackerCalo2DViews)
         fTrackerCalo2DViews = new TrackerCalo2DViews();
       const CaloClusterCollection* clustercol = calocluster_list[1];
-      std::cout<<"cluster col size = "<<clustercol->size()<<std::endl;
       auto const& track_list_calo = std::get<1>(data.track_tuple);
       const mu2e::KalSeedPtrCollection* seedcol_calo = track_list_calo.size() > 0 ? track_list_calo[0] : nullptr;
       fTrackerCalo2DViews->drawCalorimeterDisk(clustercol, seedcol_calo);
    }
-    std::cout <<"After AddClusters:"<< eventScene->NumChildren() << std::endl;
   }
 
   std::vector<const HelixSeedCollection*> helix_list = std::get<1>(data.helix_tuple);
@@ -824,20 +801,25 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
 
   // Run/Event overlay — added to event scene so it's recreated each event.
   // Mode 1 = NDC screen-space; position (0.005, 0.99) = top-left, TextAlign(13) = left-top anchor.
+  auto* overlayScene = eveMng->SpawnNewScene("EventOverlay", "Event Overlay Scene");
   auto* ann = new REX::REveText("EventAnnotation");
   ann->SetText("Run: " + std::to_string(run) + " / Event: " + std::to_string(event));
-  ann->SetMode(1);
-  ann->SetTextColor(kBlack);
-  ann->SetPosition(REX::REveVector(0.005,0.99, 0.000001));
-  ann->SetFontSize(0.018);
-  ann->SetFont("LiberationSans-Bold");
+  ann->SetMode(0);
+  //ann->SetTextColor(kBlack);
+  ann->SetMainColor(1);
+  ann->SetPosition(REX::REveVector(0.0,2500.0, 0.0));
+  ann->SetFontSize(150);
+  //ann->SetFont("LiberationSans-Bold");
   //ann->SetTextAlign(13);
   //ann->SetDrawFrame(false);
-  eventScene->AddElement(ann);
-
-  std::cout <<"Before END Accepting Changes :"<< eventScene->NumChildren() << std::endl;
+  //eventScene->AddElement(ann);
+  ann->StampObjProps();
+  overlayScene->AddElement(ann);
+  eveMng->GetDefaultViewer()->AddScene(overlayScene);
+  std::string title = "Run: " + std::to_string(run) + " Event: " + std::to_string(event);
+  eveMng->GetWorld()->SetTitle(title.c_str());
+  //eveMng->GetEventScene()->AddElement(ann); 
   eventScene->EndAcceptingChanges();
-  std::cout<<">>> END showEvents children = "<<eventScene->NumChildren()<<std::endl;
 }
 
 void MainWindow::makeGeometryScene(REX::REveManager *eveMng, GeomOptions geomOpt, std::string gdmlname)

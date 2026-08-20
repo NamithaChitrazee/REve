@@ -1172,7 +1172,6 @@ void DataInterface::AddCRVKalIntersection(REX::REveManager *&eveMng, REX::REveSc
             std::vector<mu2e::KalIntersection> const& inters = kseed.intersections();
             for (mu2e::KalIntersection const& inter: inters){
               if(inter.surfaceId().name() == "TCRV"){
-                std::cout<<"Inter time = "<<inter.time()<<" ns"<<std::endl;
                 tcrv_times.push_back(inter.time());
               }
             }
