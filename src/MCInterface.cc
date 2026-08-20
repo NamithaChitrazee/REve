@@ -187,7 +187,7 @@ void MCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng,
                 // Styling and Scene Addition
                 if (line->GetSize() > 0) {
                     SetLineColorPID(pdg_id, line);
-                    line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
+                    line->SetLineWidth(1); 
                     scene->AddElement(line);
                 }
             } 
@@ -338,7 +338,7 @@ void MCInterface::AddSimParticleCollection(REX::REveManager *&eveMng, std::tuple
               simpart_line->SetNextPoint(pointmmTocm(EndPos.x()), pointmmTocm(EndPos.y()),pointmmTocm(EndPos.z()));
               // set line colour
               SetLineColorPID(pdgid, simpart_line );
-              simpart_line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
+              simpart_line->SetLineWidth(1); 
               SimCollection->AddElement(simpart_line);
 
               

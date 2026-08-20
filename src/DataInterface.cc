@@ -950,7 +950,7 @@ void DataInterface::AddKinKalTrajectory(std::unique_ptr<KTRAJ> &trajectory,
     // Styling and Scene Addition
     line->SetLineColor(j + 6); // Use a color based on the collection index (j)
     //line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
-    line->SetLineWidth(3);
+    line->SetLineWidth(1);
     scene->AddElement(line);
 }
 

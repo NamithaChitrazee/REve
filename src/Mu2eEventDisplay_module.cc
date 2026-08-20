@@ -441,7 +441,8 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
               lock.unlock();
 
           } else {
-              cv_.wait(lock);
+            cv_.wait(lock, [this] { return eventMgr_ && eventMgr_->advance_requested_;});
+            eventMgr_->advance_requested_=false;
           }
 
           seqMode_ = true;
