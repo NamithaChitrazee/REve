@@ -827,13 +827,15 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
   auto* ann = new REX::REveText("EventAnnotation");
   ann->SetText("Run: " + std::to_string(run) + " / Event: " + std::to_string(event));
   ann->SetMode(1);
-  ann->SetPosition(REX::REveVector(0.005, 0.99, 0.000001));
+  ann->SetTextColor(kBlack);
+  ann->SetPosition(REX::REveVector(0.005,0.99, 0.000001));
   ann->SetFontSize(0.018);
   ann->SetFont("LiberationSans-Bold");
-  ann->SetTextColor(kWhite);
-  ann->SetTextAlign(13);
-  ann->SetDrawFrame(false);
-  eventScene->AddElement(ann);
+  //ann->SetTextAlign(13);
+  //ann->SetDrawFrame(false);
+  REX::REveElement *textHolder = new REX::REveElement("texts");
+  textHolder->AddElement(ann);
+  eventScene->AddElement(textHolder);
 
   std::cout <<"Before END Accepting Changes :"<< eventScene->NumChildren() << std::endl;
   eventScene->EndAcceptingChanges();
