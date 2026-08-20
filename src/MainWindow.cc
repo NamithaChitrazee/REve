@@ -760,7 +760,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
     if(drawOpts.addCaloHist and calocluster_list.size() !=0) {
       if (!fTrackerCalo2DViews)
         fTrackerCalo2DViews = new TrackerCalo2DViews();
-      const CaloClusterCollection* clustercol = calocluster_list[1];
+      const CaloClusterCollection* clustercol = (calocluster_list.size() > 1) ? calocluster_list[1] : calocluster_list[0];
       auto const& track_list_calo = std::get<1>(data.track_tuple);
       const mu2e::KalSeedPtrCollection* seedcol_calo = track_list_calo.size() > 0 ? track_list_calo[0] : nullptr;
       fTrackerCalo2DViews->drawCalorimeterDisk(clustercol, seedcol_calo);
