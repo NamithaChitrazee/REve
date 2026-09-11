@@ -22,12 +22,6 @@ int GUI::WriteCoreJson(nlohmann::json &j, int rnr_offset)
     j["subrunid"] = fsubrunid;
     j["runid"] = frunid;
 
-    // This is a REve-specific instruction. It tells the browser client to execute 
-    // the JavaScript function 'UT_refresh_event_info' after processing the stream 
-    // update. This function is likely implemented in your custom HTML/JS (eventDisplay.html) 
-    // to update displayed text fields with the new Run/Event IDs.
-    j["UT_PostStream"] = "UT_refresh_event_info"; 
-
     // Call the base class method to ensure all standard REve properties are included.
     return ROOT::Experimental::REveElement::WriteCoreJson(j, 0);
 }

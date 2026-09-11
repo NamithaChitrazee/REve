@@ -702,6 +702,7 @@ void MainWindow::createProjectionStuff(REX::REveManager */*eveMng*/)
 void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScene, bool firstLoop, DataCollections &data, DrawOptions drawOpts, std::vector<int> particleIds, bool strawdisplay, GeomOptions geomOpts, KinKalOptions KKOpts, int run, int subRun, int event){
   if (!eventScene){
     std::cerr<<"ERROR: eventScene is not an REveScene!"<<std::endl;
+    return;
   }
   eventScene->BeginAcceptingChanges();
   if(!firstLoop){

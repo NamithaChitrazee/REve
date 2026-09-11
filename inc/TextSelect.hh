@@ -3,6 +3,7 @@
 
 #include <ROOT/REveElement.hxx>
 #include <mutex>
+#include <tuple>
 
 namespace REX = ROOT::Experimental;
 using namespace ROOT::Experimental;
