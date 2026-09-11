@@ -25,6 +25,9 @@ namespace mu2e {
      * Inherits from ROOT::Experimental::REveElement to receive browser commands.
      */
     class EventDisplayManager : public ROOT::Experimental::REveElement {
+      std::condition_variable display_cv_;
+      std::mutex display_mutex_;
+      bool display_update_done_ = false;
     public:
         // Default constructor required by ROOT's dictionary generation mechanism.
         EventDisplayManager() = default; 
@@ -46,7 +49,9 @@ namespace mu2e {
         /**
          * @brief Command to signal the Art analysis thread to load the next event.
          */
-        void NextEvent(); 
+        void NextEvent();
+
+      void EventUpdateDone();
         
         /**
          * @brief Command to terminate the ROOT application and the job gracefully.
@@ -59,7 +64,7 @@ namespace mu2e {
          * @brief Command to handle user input and trigger loading a specific Run and Event ID.
          * * This function runs in the REve thread and uses fTextId_ to look up the TextSelect object.
          */
-        void goToRunEvent(int runId, int eventId);
+        void goToRunEvent(int runId, int subrunId, int eventId);
 
         // --- Public Members ---
 
@@ -68,7 +73,12 @@ namespace mu2e {
 
         // Stores the unique REve Element ID (EId_t) of the TextSelect object.
         // This is the robust mechanism for looking up the TextSelect element.
-        std::uint32_t fTextId_{0}; 
+        std::uint32_t fTextId_{0};
+
+        // Set to true by NextEvent() under m_ before notifying cv_, so analyze()'s
+        // cv_.wait() predicate guards against spurious wakeups.
+        // Reset to false by analyze() after it wakes up.
+        bool advance_requested_{false};
         
         /**
          * @brief Setter to store the unique REve Element ID after the object is added to the World.
@@ -86,8 +96,8 @@ namespace mu2e {
         std::condition_variable* cv_{nullptr};             
         
         // Pointer to the mutex, used for thread synchronization (locking data access and cv_ usage).
-        std::mutex* m_{nullptr};                           
-        
+        std::mutex* m_{nullptr};
+
         // Pointer to the custom GUI element instance.
         GUI *fGui_{nullptr};                               
         

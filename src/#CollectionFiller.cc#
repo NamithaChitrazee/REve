@@ -121,7 +121,6 @@ void CollectionFiller::FillRecoCollections(const art::Event& evt, DataCollection
     if(FillAll_ or (addCrvClusters_ and CollectionName==CrvCoincidenceCluster)){
         std::cout << "Fill CrvClusters " << std::endl;
         for(const auto &tag : crvcoinTag_){
-            std::cout << "Searching for tag " << tag << std::endl;
             auto chH = evt.getValidHandle<mu2e::CrvCoincidenceClusterCollection>(tag);
             data.crvcoincol = chH.product();
             data.crvcoin_list.push_back(data.crvcoincol);

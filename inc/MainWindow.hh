@@ -50,6 +50,7 @@
 #include <ROOT/REveTrackPropagator.hxx>
 #include <ROOT/REveEllipsoid.hxx>
 #include <ROOT/REveTableInfo.hxx>
+#include <ROOT/REveText.hxx>
 #include <ROOT/REveViewContext.hxx>
 #include "art/Framework/Principal/Event.h"
 #include "EventDisplay/inc/DataCollections.hh"
@@ -154,14 +155,15 @@ namespace mu2e {
        bool addSimParts = false;
         bool addTrackerHist = false;
         bool addCaloHist = false;
+        bool useAlignedTracker = false;
 
        bool addTrkErrBar = true;
       bool addCrystalDraw = false;
       bool addCrvBars = true;
       DrawOptions(){};
 
-        DrawOptions(bool cosmictracks, bool helices, bool tracks, bool calodigis, bool clusters, bool combohits, bool bkgclusters, bool crv, bool crvclu, bool crvtrack, bool timeclusters, bool trkhits, bool mctraj, bool surfsteps, bool simparts, bool trackerhist, bool calohist, bool errbar, bool crys, bool crvbars)
-         : addCosmicTracks(cosmictracks), addHelices(helices), addTracks(tracks), addCaloDigis(calodigis), addClusters(clusters), addComboHits(combohits), addBkgClusters(bkgclusters), addCrvRecoPulse(crv), addCrvClusters(crvclu), addCrvTrack(crvtrack), addTimeClusters(timeclusters), addTrkHits(trkhits), addMCTrajectories(mctraj), addSurfaceSteps(surfsteps), addSimParts(simparts), addTrackerHist(trackerhist), addCaloHist(calohist), addTrkErrBar(errbar), addCrystalDraw(crys), addCrvBars(crvbars) {};
+        DrawOptions(bool cosmictracks, bool helices, bool tracks, bool calodigis, bool clusters, bool combohits, bool bkgclusters, bool crv, bool crvclu, bool crvtrack, bool timeclusters, bool trkhits, bool mctraj, bool surfsteps, bool simparts, bool trackerhist, bool calohist, bool usealignedtracker, bool errbar, bool crys, bool crvbars)
+         : addCosmicTracks(cosmictracks), addHelices(helices), addTracks(tracks), addCaloDigis(calodigis), addClusters(clusters), addComboHits(combohits), addBkgClusters(bkgclusters), addCrvRecoPulse(crv), addCrvClusters(crvclu), addCrvTrack(crvtrack), addTimeClusters(timeclusters), addTrkHits(trkhits), addMCTrajectories(mctraj), addSurfaceSteps(surfsteps), addSimParts(simparts), addTrackerHist(trackerhist), addCaloHist(calohist), useAlignedTracker(usealignedtracker), addTrkErrBar(errbar), addCrystalDraw(crys), addCrvBars(crvbars) {};
 
 
      };
@@ -186,7 +188,7 @@ namespace mu2e {
             void GeomDrawerSol(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* beamlineholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets);
             void GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX::REveElement* bholder, REX::REveElement* trholder, REX::REveElement* cholder,REX::REveElement* crholder, REX::REveElement* vholder, REX::REveElement* tholder, int maxlevel, int level, GeomOptions geomOpt, std::vector<std::pair<std::string, std::vector<float>>>& offsets);
             void makeGeometryScene(REX::REveManager *eveMng,  GeomOptions geomOpts, std::string filename);
-            void showEvents(REX::REveManager *eveMng,  REX::REveElement* &eventScene, bool firstLoop,  bool firstLoopCalo, DataCollections &data, DrawOptions drawOpts, std::vector<int> particleIds, bool strawdisplay, GeomOptions geomOpts, KinKalOptions KKOpts);
+            void showEvents(REX::REveManager *eveMng,  REX::REveScene* &eventScene, bool firstLoop, DataCollections &data, DrawOptions drawOpts, std::vector<int> particleIds, bool strawdisplay, GeomOptions geomOpts, KinKalOptions KKOpts, int run = 0, int subRun = 0, int event = 0);
             void changeEveGeoShape(TGeoNode* node, REX::REveTrans& trans,  REX::REveElement* holder, int maxlevel, int level);
             void createProjectionStuff(REX::REveManager *eveMng);
             void AddTrackerProjection(REX::REveManager *eveMng);
@@ -196,23 +198,7 @@ namespace mu2e {
             
             TrackerCalo2DViews *fTrackerCalo2DViews = nullptr;
 
-            REX::REveProjectionManager *mngTrackerXY   = nullptr;
-            REX::REveProjectionManager *mngXYCaloDisk0 = nullptr;
-            REX::REveProjectionManager *mngXYCaloDisk1 = nullptr;
-            REX::REveProjectionManager *mngRhoZ   = nullptr;
-            REX::REveScene  *TrackerXYGeomScene = nullptr, *TrackerXYEventScene = nullptr;
-            REX::REveScene  *XYCaloDisk0GeomScene = nullptr, *XYCaloDisk0EventScene = nullptr;
-            REX::REveScene  *XYCaloDisk1GeomScene = nullptr, *XYCaloDisk1EventScene = nullptr;
-            REX::REveScene  *rhoZGeomScene = nullptr, *rhoZEventScene = nullptr;
-            REX::REveViewer *TrackerXYView = nullptr;
-            REX::REveViewer *XYCaloDisk0View = nullptr;
-            REX::REveViewer *XYCaloDisk1View = nullptr;
-            REX::REveViewer *rhoZView = nullptr;
-
-      /*REX::REvePointSet* fCanvasHolder{nullptr};
-        TCanvas* fCanvas{nullptr};*/
-
-            #else
+#else
                 ClassDef(MainWindow, 0);
             #endif
 

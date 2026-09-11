@@ -52,6 +52,7 @@ Mu2eEventDisplay : {
       addMCTraj : true
       addTrackerHist : false
       addCaloHist : false
+      useAlignedTracker : false
       addSurfSteps : true
       addSimParts : false
       addHelixSeeds : false

@@ -100,11 +100,11 @@ void MCInterface::SetLineColorPID(int PDGCode, REX::REveLine *line)
 }
 
 
-void MCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, bool firstloop, 
-                                         std::tuple<std::vector<std::string>, 
-                                         std::vector<const MCTrajectoryCollection *>> mctrack_tuple, 
-                                         REX::REveElement* &scene, 
-                                         std::vector<int> particleIds, 
+void MCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng,
+                                         std::tuple<std::vector<std::string>,
+                                         std::vector<const MCTrajectoryCollection *>> mctrack_tuple,
+                                         REX::REveScene* &scene,
+                                         std::vector<int> particleIds,
                                          bool extracted)
 {
     std::cout << "[MCInterface::AddMCTrajectoryCollection()]" << std::endl;
@@ -187,7 +187,7 @@ void MCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, bool firs
                 // Styling and Scene Addition
                 if (line->GetSize() > 0) {
                     SetLineColorPID(pdg_id, line);
-                    line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
+                    line->SetLineWidth(1); 
                     scene->AddElement(line);
                 }
             } 
@@ -199,11 +199,11 @@ void MCInterface::AddMCTrajectoryCollection(REX::REveManager *&eveMng, bool firs
     }
 }
 
-void MCInterface::AddSurfaceStepCollection(REX::REveManager *&eveMng, bool firstloop,
-                                         std::tuple<std::vector<std::string>, 
-                                         std::vector<const SurfaceStepCollection *>> surfstep_tuple, 
-                                         REX::REveElement* &scene, 
-                                         std::vector<int> particleIds, 
+void MCInterface::AddSurfaceStepCollection(REX::REveManager *&eveMng,
+                                         std::tuple<std::vector<std::string>,
+                                         std::vector<const SurfaceStepCollection *>> surfstep_tuple,
+                                         REX::REveScene* &scene,
+                                         std::vector<int> particleIds,
                                          bool extracted)
 {
     std::cout << "[MCInterface::AddSurfaceStepCollection() ]" << std::endl;
@@ -274,7 +274,7 @@ void MCInterface::AddSurfaceStepCollection(REX::REveManager *&eveMng, bool first
     } // End of main loop (SurfaceStep collections)
 }
 
-void MCInterface::AddSimParticleCollection(REX::REveManager *&eveMng, bool firstloop,  std::tuple<std::vector<std::string>, std::vector<const SimParticleCollection *>> sim_tuple, REX::REveElement* &scene, std::vector<int> particleIds, bool extracted){
+void MCInterface::AddSimParticleCollection(REX::REveManager *&eveMng, std::tuple<std::vector<std::string>, std::vector<const SimParticleCollection *>> sim_tuple, REX::REveScene* &scene, std::vector<int> particleIds, bool extracted){
   std::cout<<"[MCInterface::AddSimParticleCollection() ]"<<std::endl;
   std::vector<const SimParticleCollection*> sim_list = std::get<1>(sim_tuple);
   std::vector<std::string> names = std::get<0>(sim_tuple);
@@ -338,7 +338,7 @@ void MCInterface::AddSimParticleCollection(REX::REveManager *&eveMng, bool first
               simpart_line->SetNextPoint(pointmmTocm(EndPos.x()), pointmmTocm(EndPos.y()),pointmmTocm(EndPos.z()));
               // set line colour
               SetLineColorPID(pdgid, simpart_line );
-              simpart_line->SetLineWidth(drawconfig.getInt("TrackLineWidth"));
+              simpart_line->SetLineWidth(1); 
               SimCollection->AddElement(simpart_line);
 
               

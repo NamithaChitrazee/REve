@@ -1,8 +1,10 @@
 #include "Offline/ConfigTools/inc/SimpleConfig.hh"
+#include "canvas/Persistency/Provenance/EventID.h"
 #include "EventDisplay/inc/MainWindow.hh"
 #include "Offline/GeometryService/inc/GeomHandle.hh"
 #include "Offline/GeometryService/inc/DetectorSystem.hh"
 #include "Offline/CosmicRayShieldGeom/inc/CosmicRayShield.hh"
+#include <ROOT/RWebWindow.hxx>
 
 namespace REX = ROOT::Experimental;
 using namespace std;
@@ -44,22 +46,6 @@ void MainWindow::makeEveGeoShape(TGeoNode* n, REX::REveTrans& trans, REX::REveEl
   b1s->SetEditMainColor(true);
   b1s-> SetEditMainTransparency(true);
   if(!isMother) holder->AddElement(b1s);
-
-  // make 2D projections
-  if( crystal1 ){ // add crystals to correct disk
-    mngXYCaloDisk0->ImportElements(b1s, XYCaloDisk0GeomScene);
-  }if( crystal2 ){
-    mngXYCaloDisk1->ImportElements(b1s, XYCaloDisk1GeomScene);
-  }
-
-  //show only first tracker plane
-  if( val == FrontTracker_gdmltag ){
-    mngTrackerXY->ImportElements(b1s, TrackerXYGeomScene); //shows only one plane for 2D view for simplicity
-  }
-
-  bool isCrv = name.find("CRS") != string::npos;
-  // remove Crv from the YZ view as it blocks tracker/calo view (will have its own view)
-  if(!isCrv) { mngRhoZ->ImportElements(b1s, rhoZGeomScene); }
 }
 
 int j = 0;
@@ -106,7 +92,7 @@ void MainWindow::showNodesByName(TGeoNode* n, const std::string& str, bool onOff
         t(2,1) = rm[3]; t(2,2) = rm[4]; t(2,3) = rm[5];
         t(3,1) = rm[6]; t(3,2) = rm[7]; t(3,3) = rm[8];
         t(1,4) = tv[0] + shift[0]; t(2,4) = tv[1]  + shift[1]; t(3,4) = tv[2] + shift[2];
-
+       
         if(name.find("TrackerPlaneEnvelope_00") != string::npos) {
           FrontTracker_gdmltag = j;
         }
@@ -434,12 +420,12 @@ void MainWindow::GeomDrawerNominal(TGeoNode* node, REX::REveTrans& trans, REX::R
         y_cal = y_ds3 + offsets[i].second[1];
         z_cal = z_ds3 + offsets[i].second[2];
       }
-      if(offsets[i].first.find("CaloDisk_00") != string::npos){
+      if(offsets[i].first.find("CaloDisk_0") != string::npos && offsets[i].first.find("CaloDisk_1") == string::npos){
         x_d0 = x_cal + offsets[i].second[0];
         y_d0 = y_cal + offsets[i].second[1];
         z_d0 = z_cal + offsets[i].second[2];
       }
-      if(offsets[i].first.find("CaloDisk_10") != string::npos){
+      if(offsets[i].first.find("CaloDisk_1") != string::npos){
         x_d1 = x_cal + offsets[i].second[0];
         y_d1 = y_cal + offsets[i].second[1];
         z_d1 = z_cal + offsets[i].second[2];
@@ -557,7 +543,7 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     SimpleConfig trackerconfig(trackerfilename);
 
     // Get CRV Z-shift for extracted geometry alignment
-    double tracker_half_length_cm = 0.0; //trackerconfig.getDouble("tracker.mother.halfLength")/10.0;
+    double tracker_half_length_cm = 0.0; //125.0; //trackerconfig.getDouble("tracker.mother.halfLength")/10.0;
     double x_world = 0;
     double y_world = 0;
     double z_world = 0;
@@ -615,15 +601,15 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
         y_cal = y_ds3 + offsets[i].second[1];
         z_cal = z_ds3 + offsets[i].second[2];
       }
-      if(offsets[i].first.find("CaloDisk_00") != string::npos){
+      if(offsets[i].first.find("CaloDisk_0") != string::npos && offsets[i].first.find("CaloDisk_1") == string::npos){
         x_d0 = x_cal + offsets[i].second[0];
         y_d0 = y_cal + offsets[i].second[1];
         z_d0 = z_cal + offsets[i].second[2];
       }
-      if(offsets[i].first.find("CaloDisk_10") != string::npos){
+      if(offsets[i].first.find("CaloDisk_1") != string::npos){
         x_d1 = x_cal + offsets[i].second[0];
         y_d1 = y_cal + offsets[i].second[1];
-        z_d1 = z_cal + offsets[i].second[2];
+        z_d1 = z_cal + offsets[i].second[2] + 22.5;
       }
     }
     std::vector<double> shift;
@@ -642,22 +628,36 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
       }
     }
     // everything else needs to be shifted such that its relative to the tracker center at 0,0,0
-
+  
     if(geomOpt.showCalo){
-        static std::vector <std::string> substrings_disk  {"CaloDisk"};
-        for(auto& i: substrings_disk){
+        static std::vector <std::string> substrings_disk0  {"CaloDisk"};
+        for(auto& i: substrings_disk0){
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
-          shift.at(2) = z_cal - z_trk ;
-          showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, false, false, drawconfigf.getInt("CALColor") );
+          shift.at(2) = z_cal - z_trk; //+ 50.0;
+          showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, true, false, drawconfigf.getInt("CALColor") );
+        }
+        static std::vector <std::string> substrings_disk1  {"CaloDisk_1"};
+        for(auto& i: substrings_disk1){
+          shift.at(0) = x_cal - x_trk;
+          shift.at(1) = y_cal - y_trk;
+          shift.at(2) = z_cal - z_trk; //+ 75.0;
+          showNodesByName(node,i,kFALSE, 0, trans, caloholder, maxlevel, level, true, false, shift, true, false, drawconfigf.getInt("CALColor") );
         }
       if(geomOpt.showCaloCrystals){
-        static std::vector <std::string> substrings_crystals  {"CaloWrapper"};
-        for(auto& i: substrings_crystals){
+        static std::vector <std::string> substrings_crystals0  {"CaloWrapper"};
+        for(auto& i: substrings_crystals0){
           shift.at(0) = x_cal - x_trk;
           shift.at(1) = y_cal - y_trk;
-          shift.at(2) = z_cal - z_trk  ;
-          showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, false, false, drawconfigf.getInt("CALColor"));
+          shift.at(2) = z_cal - z_trk; //+ 50.0;
+          showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, true, false, drawconfigf.getInt("CALColor"));
+        }
+        static std::vector <std::string> substrings_crystals1  {"CaloWrapper_1"};
+        for(auto& i: substrings_crystals1){
+          shift.at(0) = x_cal - x_trk;
+          shift.at(1) = y_cal - y_trk;
+          shift.at(2) = z_cal - z_trk; //+ 75.0;
+          showNodesByName(node,i,kFALSE, 0, trans, crystalsholder, maxlevel, level, true, true, shift, true, false, drawconfigf.getInt("CALColor"));
         }
       }
     }
@@ -667,7 +667,6 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     shift.at(0) = x_crvex - x_trk  ;
     shift.at(1) = y_crvex - y_trk;
     shift.at(2) = z_crvex - z_trk + tracker_half_length_cm;
-
     for(auto& i: substrings_ex){
       showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));
     }
@@ -676,7 +675,6 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
     shift.at(0) = x_crvt1 - x_trk;
     shift.at(1) = y_crvt1 - y_trk;
     shift.at(2) = z_crvt1 - z_trk + tracker_half_length_cm;
-
     for(auto& i: substrings_t1){
       showNodesByName(node,i,kFALSE, 0, trans, crvholder, maxlevel, level,  false, false, shift, false, true, drawconfigf.getInt("CrvColor"));
     }
@@ -692,81 +690,21 @@ void MainWindow::GeomDrawerExtracted(TGeoNode* node, REX::REveTrans& trans, REX:
   }
 }
 
-void MainWindow::projectEvents(REX::REveManager *eveMng)
+void MainWindow::projectEvents(REX::REveManager */*eveMng*/)
 {
-  for (auto &ie : eveMng->GetEventScene()->RefChildren())
-  {
-    TrackerXYView->SetCameraType(REX::REveViewer::kCameraOrthoXOY);
-    XYCaloDisk0View->SetCameraType(REX::REveViewer::kCameraOrthoXOY);
-    XYCaloDisk1View->SetCameraType(REX::REveViewer::kCameraOrthoXOY);
-    rhoZView->SetCameraType(REX::REveViewer::kCameraOrthoXOY);
-
-    mngTrackerXY->ImportElements(ie, TrackerXYEventScene);
-
-    mngRhoZ  ->ImportElements(ie, rhoZEventScene);
-
-    if(ie->GetName().find("Cluster 0_") != string::npos ){
-      mngXYCaloDisk0->ImportElements(ie, XYCaloDisk0EventScene);
-    }
-    if(ie->GetName().find("Cluster 1_") != string::npos ){
-      mngXYCaloDisk1->ImportElements(ie, XYCaloDisk1EventScene);
-    }
-  }
 }
 
-void MainWindow::createProjectionStuff(REX::REveManager *eveMng)
+void MainWindow::createProjectionStuff(REX::REveManager */*eveMng*/)
 {
-  // -------------------Tracker XY View ----------------------------------
-  TrackerXYGeomScene  = eveMng->SpawnNewScene("TrackerXY Geometry","TrackerXY");
-  TrackerXYEventScene = eveMng->SpawnNewScene("TrackerXY Event Data","TrackerXY");
-
-  mngTrackerXY = new REX::REveProjectionManager(REX::REveProjection::kPT_RPhi);
-
-  TrackerXYView = eveMng->SpawnNewViewer("TrackerXY View", "");
-  TrackerXYView->AddScene(TrackerXYGeomScene);
-  TrackerXYView->AddScene(TrackerXYEventScene);
-
-  // --------------------Tracker + Calo YZ View ------------------------------
-
-  rhoZGeomScene  = eveMng->SpawnNewScene("ZY Detector Geometry", "ZY");
-  rhoZEventScene = eveMng->SpawnNewScene("ZY Event Data","YZ");
-
-  mngRhoZ = new REX::REveProjectionManager(REX::REveProjection::kPT_ZY );
-
-  rhoZView = eveMng->SpawnNewViewer("ZY Detector View", "");
-  rhoZView->AddScene(rhoZGeomScene);
-  rhoZView->AddScene(rhoZEventScene);
-
-  // ---------------------Calo Disk 1 XY View ----------------------------
-
-  XYCaloDisk0GeomScene  = eveMng->SpawnNewScene("XYCaloDisk0 Geometry", "XYCaloDisk0");
-  XYCaloDisk0EventScene = eveMng->SpawnNewScene("XYCaloDisk0 Event Data","XYCaloDisk0");
-
-  mngXYCaloDisk0 = new REX::REveProjectionManager(REX::REveProjection::kPT_RPhi);
-
-  XYCaloDisk0View = eveMng->SpawnNewViewer("XYCaloDisk0 View", "");
-  XYCaloDisk0View->AddScene(XYCaloDisk0GeomScene);
-  XYCaloDisk0View->AddScene(XYCaloDisk0EventScene);
-
-  // -------------------- Calo Disk 2 XY View ------------------------
-
-  XYCaloDisk1GeomScene  = eveMng->SpawnNewScene("XYCaloDisk1 Geometry", "XYCaloDisk1");
-  XYCaloDisk1EventScene = eveMng->SpawnNewScene("XYCaloDisk1 Event Data","XYCaloDisk1");
-
-  mngXYCaloDisk1 = new REX::REveProjectionManager(REX::REveProjection::kPT_RPhi);
-
-  XYCaloDisk1View = eveMng->SpawnNewViewer("XYCaloDisk1 View", "");
-  XYCaloDisk1View->AddScene(XYCaloDisk1GeomScene);
-  XYCaloDisk1View->AddScene(XYCaloDisk1EventScene);
-
-  for (auto v: {TrackerXYView, XYCaloDisk0View, XYCaloDisk1View, rhoZView}){
-    v->SetAxesType(REX::REveViewer::kAxesOrigin);
-    v->StampObjProps();
-  }
 }
 
 
-void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventScene, bool firstLoop, bool firstLoopCalo, DataCollections &data, DrawOptions drawOpts, std::vector<int> particleIds, bool strawdisplay, GeomOptions geomOpts, KinKalOptions KKOpts){
+void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScene, bool firstLoop, DataCollections &data, DrawOptions drawOpts, std::vector<int> particleIds, bool strawdisplay, GeomOptions geomOpts, KinKalOptions KKOpts, int run, int subRun, int event){
+  if (!eventScene){
+    std::cerr<<"ERROR: eventScene is not an REveScene!"<<std::endl;
+    return;
+  }
+  eventScene->BeginAcceptingChanges();
   if(!firstLoop){
     eventScene->DestroyElements();
   }
@@ -776,31 +714,30 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
   double t2 = 1696.;
   std::vector<const KalSeedPtrCollection*> track_list = std::get<1>(data.track_tuple);
   if(drawOpts.addTracks and track_list.size() !=0) {
-    pass_data->FillKinKalTrajectory(eveMng, firstLoop, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, KKOpts.addTrkCaloHits, t1, t2);
+    pass_data->FillKinKalTrajectory(eveMng, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, KKOpts.addTrkCaloHits, t1, t2);
     //redrawCanvas(seedcol);
      if(drawOpts.addTrackerHist and track_list.size() !=0) {
-      fTrackerCalo2DViews = new TrackerCalo2DViews();
+      if (!fTrackerCalo2DViews) {
+        fTrackerCalo2DViews = new TrackerCalo2DViews();
+        fTrackerCalo2DViews->createHistogramView();
+        fTrackerCalo2DViews->createStationView();
+      }
       auto const& track_list = std::get<1>(data.track_tuple);
       const mu2e::KalSeedPtrCollection* seedcol = track_list[0];
-      //std::vector<const CaloDigiCollection*> calodigi_list = std::get<1>(data.calodigi_tuple);
-      //const CaloDigiCollection* calodigicol = calodigi_list[0];
-      //fTrackerCalo2DViews->createHistogramView();
-      //fTrackerCalo2DViews->redrawCanvas(seedcol);
-      //std::cout<<"track list size = "<<track_list.size()<<" calo digi size = "<<calodigi_list.size()<<std::endl;
-      fTrackerCalo2DViews->drawTrackerStation(seedcol);//, calodigicol);
-      fTrackerCalo2DViews->drawTrackerXYView(seedcol);
-     } 
+      fTrackerCalo2DViews->drawTrackerStation(seedcol, art::EventID(run, subRun, event), drawOpts.useAlignedTracker);
+      fTrackerCalo2DViews->drawTrackerXYView(seedcol, run, subRun, event);
+     }
   }
    if(drawOpts.addCrvTrack) {
-     pass_data->AddCRVKalIntersection(eveMng, firstLoop, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, KKOpts.addTrkCaloHits, t1, t2, data.crvcoin_tuple, geomOpts.extracted, drawOpts.addCrvBars);
+     pass_data->AddCRVKalIntersection(eveMng, eventScene, data.track_tuple, KKOpts.addKalInter,  KKOpts.addTrkStrawHits, KKOpts.addTrkCaloHits, t1, t2, data.crvcoin_tuple, geomOpts.extracted, drawOpts.addCrvBars);
    }
   if(drawOpts.addComboHits) {
     std::vector<const ComboHitCollection*> combohit_list = std::get<1>(data.combohit_tuple);
-    if(combohit_list.size() !=0 ) pass_data->AddComboHits(eveMng, firstLoop, data.combohit_tuple, eventScene, strawdisplay, drawOpts.addTrkErrBar);
+    if(combohit_list.size() !=0 ) pass_data->AddComboHits(eveMng, data.combohit_tuple, eventScene, strawdisplay, drawOpts.addTrkErrBar);
   }
   if(drawOpts.addBkgClusters) {
     std::vector<const BkgClusterCollection*> bkgcluster_list = std::get<1>(data.bkgcluster_tuple);
-    if(bkgcluster_list.size() !=0 ) pass_data->AddBkgClusters(eveMng, firstLoop, data.bkgcluster_tuple, eventScene);
+    if(bkgcluster_list.size() !=0 ) pass_data->AddBkgClusters(eveMng, data.bkgcluster_tuple, eventScene);
   }
     if(drawOpts.addCrvRecoPulse){
       // removed AddCrvInfo call
@@ -808,59 +745,82 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveElement* &eventSc
 
   /*if(drawOpts.addCrvClusters){
     std::vector<const CrvCoincidenceClusterCollection*> crvcoin_list = std::get<1>(data.crvcoin_tuple);
-    if(crvcoin_list.size() !=0) pass_data->AddCrvClusters(eveMng, firstLoop, data.crvcoin_tuple, eventScene, geomOpts.extracted, drawOpts.addCrvBars);
+    if(crvcoin_list.size() !=0) pass_data->AddCrvClusters(eveMng, data.crvcoin_tuple, eventScene, geomOpts.extracted, drawOpts.addCrvBars);
     }*/
 
   if(drawOpts.addCaloDigis){
     std::vector<const CaloDigiCollection*> calodigi_list = std::get<1>(data.calodigi_tuple);
-    std::cout<<"MainWindow::CaloDigi size = "<<calodigi_list.size()<<std::endl;
     if(calodigi_list.size() !=0 ) {
-      std::cout<<"MainWindow::AddCaloDigis"<<std::endl;
-      pass_data->AddCaloDigis(eveMng, firstLoop, data.calodigi_tuple, eventScene);
+      pass_data->AddCaloDigis(eveMng, data.calodigi_tuple, eventScene);
     }
   }
   if(drawOpts.addClusters){
     std::vector<const CaloClusterCollection*> calocluster_list = std::get<1>(data.calocluster_tuple);
     if(calocluster_list.size() !=0 ) 
-      pass_data->AddCaloClusters(eveMng, firstLoopCalo, data.calocluster_tuple, eventScene, drawOpts.addCrystalDraw);
+      pass_data->AddCaloClusters(eveMng, data.calocluster_tuple, eventScene, drawOpts.addCrystalDraw);
     if(drawOpts.addCaloHist and calocluster_list.size() !=0) {
-      fTrackerCalo2DViews = new TrackerCalo2DViews();
-      const CaloClusterCollection* clustercol = calocluster_list[0];
-      fTrackerCalo2DViews->drawCalorimeterDisk(clustercol);
+      if (!fTrackerCalo2DViews)
+        fTrackerCalo2DViews = new TrackerCalo2DViews();
+      const CaloClusterCollection* clustercol = (calocluster_list.size() > 1) ? calocluster_list[1] : calocluster_list[0];
+      auto const& track_list_calo = std::get<1>(data.track_tuple);
+      const mu2e::KalSeedPtrCollection* seedcol_calo = track_list_calo.size() > 0 ? track_list_calo[0] : nullptr;
+      fTrackerCalo2DViews->drawCalorimeterDisk(clustercol, seedcol_calo);
    }
   }
 
   std::vector<const HelixSeedCollection*> helix_list = std::get<1>(data.helix_tuple);
   if(drawOpts.addHelices and helix_list.size() !=0) {
-    pass_data->AddHelixSeedCollection(eveMng, firstLoop, data.helix_tuple, eventScene);
+    pass_data->AddHelixSeedCollection(eveMng, data.helix_tuple, eventScene);
   }
 
 
   if(drawOpts.addCosmicTracks){
-    pass_data->AddCosmicTrackFit(eveMng, firstLoop, data.CosmicTrackSeedcol, eventScene);
+    pass_data->AddCosmicTrackFit(eveMng, data.CosmicTrackSeedcol, eventScene);
   }
   if(drawOpts.addTimeClusters){
     std::vector<const TimeClusterCollection*> timecluster_list = std::get<1>(data.timecluster_tuple);
-    if(timecluster_list.size() !=0) pass_data->AddTimeClusters(eveMng, firstLoop, data.timecluster_tuple, data.combohit_tuple, eventScene);
+    if(timecluster_list.size() !=0) pass_data->AddTimeClusters(eveMng, data.timecluster_tuple, data.combohit_tuple, eventScene);
   }
 
   //... add MC:
   std::vector<const MCTrajectoryCollection*> mctrack_list = std::get<1>(data.mctrack_tuple);
   if(drawOpts.addMCTrajectories and mctrack_list.size() !=0){
-    pass_mc->AddMCTrajectoryCollection(eveMng, firstLoop,  data.mctrack_tuple, eventScene, particleIds, geomOpts.extracted);
+    pass_mc->AddMCTrajectoryCollection(eveMng, data.mctrack_tuple, eventScene, particleIds, geomOpts.extracted);
   }
 
   std::vector<const SurfaceStepCollection*> surfstep_list = std::get<1>(data.surfstep_tuple);
   if(drawOpts.addSurfaceSteps and surfstep_list.size() !=0){
-    pass_mc->AddSurfaceStepCollection(eveMng, firstLoop,  data.surfstep_tuple, eventScene, particleIds, geomOpts.extracted);
+    pass_mc->AddSurfaceStepCollection(eveMng, data.surfstep_tuple, eventScene, particleIds, geomOpts.extracted);
   }
   std::vector<const SimParticleCollection*> sim_list = std::get<1>(data.sim_tuple);
   if(drawOpts.addSimParts and sim_list.size() !=0){
-    pass_mc->AddSimParticleCollection(eveMng, firstLoop,  data.sim_tuple, eventScene, particleIds, geomOpts.extracted);
+    pass_mc->AddSimParticleCollection(eveMng, data.sim_tuple, eventScene, particleIds, geomOpts.extracted);
   }
 
   // ... project these events onto 2D geometry:
   projectEvents(eveMng);
+
+  // Run/Event overlay — added to event scene so it's recreated each event.
+  // Mode 1 = NDC screen-space; position (0.005, 0.99) = top-left, TextAlign(13) = left-top anchor.
+  auto* overlayScene = eveMng->SpawnNewScene("EventOverlay", "Event Overlay Scene");
+  auto* ann = new REX::REveText("EventAnnotation");
+  ann->SetText("Run: " + std::to_string(run) + " / Event: " + std::to_string(event));
+  ann->SetMode(0);
+  //ann->SetTextColor(kBlack);
+  ann->SetMainColor(1);
+  ann->SetPosition(REX::REveVector(0.0,2500.0, 0.0));
+  ann->SetFontSize(150);
+  //ann->SetFont("LiberationSans-Bold");
+  //ann->SetTextAlign(13);
+  //ann->SetDrawFrame(false);
+  //eventScene->AddElement(ann);
+  ann->StampObjProps();
+  overlayScene->AddElement(ann);
+  eveMng->GetDefaultViewer()->AddScene(overlayScene);
+  std::string title = "Run: " + std::to_string(run) + " Event: " + std::to_string(event);
+  eveMng->GetWorld()->SetTitle(title.c_str());
+  //eveMng->GetEventScene()->AddElement(ann); 
+  eventScene->EndAcceptingChanges();
 }
 
 void MainWindow::makeGeometryScene(REX::REveManager *eveMng, GeomOptions geomOpt, std::string gdmlname)
