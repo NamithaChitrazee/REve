@@ -804,7 +804,7 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
   // ------------------------------------------------------------
   // Run / Event annotation
   // ------------------------------------------------------------
-
+  REX::REveText::AssertSdfFont("LiberationSans-Regular", "/usr/share/fonts/liberation-sans/LiberationSans-Regular.ttf");
   // Create it only once.
   if (!eventOverlayScene) {
     eventOverlayScene =
@@ -814,19 +814,16 @@ void MainWindow::showEvents(REX::REveManager *eveMng, REX::REveScene* &eventScen
     eventAnnotation->SetMode(1);   // screen coordinates
     // Mode 1: (0,0) = bottom-left, (1,1) = top-right
     eventAnnotation->SetPosition(REX::REveVector(0.02, 0.96, 0.0));
-    eventAnnotation->SetFontSize(30);
-    eventAnnotation->SetMainColor(kBlack);
+    eventAnnotation->SetFontSize(0.015);
+    eventAnnotation->SetMainColor(kWhite);
     eventOverlayScene->AddElement(eventAnnotation);
     eveMng->GetDefaultViewer()->AddScene(eventOverlayScene);
   }
 
   // Update this EVERY event.
-  eventAnnotation->SetText(
-      "Run: " + std::to_string(run) +
-      " / Event: " + std::to_string(event)
-  );
+  eventAnnotation->SetText(std::to_string(run) + ":" + std::to_string(subRun) + ":" + std::to_string(event));
 
-  std::string title = "Run: " + std::to_string(run) + " Event: " + std::to_string(event);
+  std::string title = std::to_string(run) + ":" + std::to_string(subRun) + ":" + std::to_string(event);
   eveMng->GetWorld()->SetTitle(title.c_str());
   eventScene->EndAcceptingChanges();
 }
