@@ -39,26 +39,32 @@ services.TFileService.fileName: "/dev/null"
 
 physics.analyzers.Mu2eEventDisplay.gdmlname :"Offline/gen/gdml/mu2e_extracted.gdml"
 services.TFileService.fileName: "/dev/null"
-services.GeometryService.inputFile: "Offline/Mu2eG4/geom/geom_common_extracted.txt"
+services.GeometryService.inputFile: "Offline/Mu2eG4/geom/geom_common_commissioning_v02.txt"
 physics.analyzers.Mu2eEventDisplay.addKalInter : false
 physics.analyzers.Mu2eEventDisplay.filler.addCrvClusters : true
 physics.analyzers.Mu2eEventDisplay.filler.addCrvTrack : true
 physics.analyzers.Mu2eEventDisplay.filler.addCrvRecoPulse : false
 physics.analyzers.Mu2eEventDisplay.filler.addCaloDigis : false
 physics.analyzers.Mu2eEventDisplay.filler.addClusters : true
+physics.analyzers.Mu2eEventDisplay.addTrkCaloHits : true
 physics.analyzers.Mu2eEventDisplay.filler.addKalSeeds : true
 physics.analyzers.Mu2eEventDisplay.addTrkStrawHits : true
 physics.analyzers.Mu2eEventDisplay.filler.addHits : false
 physics.analyzers.Mu2eEventDisplay.filler.addCaloHist : true
-physics.analyzers.Mu2eEventDisplay.filler.shiftTracker : true
+physics.analyzers.Mu2eEventDisplay.filler.shiftTracker : false
 physics.analyzers.Mu2eEventDisplay.filler.addTrackerHist : true
 physics.analyzers.Mu2eEventDisplay.filler.useAlignedTracker : true
 physics.analyzers.Mu2eEventDisplay.extracted : true
 physics.analyzers.Mu2eEventDisplay.specifyTag : false
 
-services.DbService.purpose: TRACKER_VST
-services.DbService.version: v2_0
-services.DbService.verbose: 2
-services.DbService.textFile : ["align_r660_v0.txt","calib_r660_v6.txt"]
+# services.DbService.purpose: TRACKER_VST
+# services.DbService.version: v2_0
+# services.DbService.verbose: 2
+
+services.DbService.purpose: KPP_reco
+services.DbService.version: "v1_1"
+services.DbService.verbose : 2
+services.DbService.nearestMatch : true
+services.DbService.textFile : ["TrkPanelStatus.txt", "TrkStrawStatusShort.txt", "TrkAlignPanel.txt", "TrkAlignPlane.txt"]
 services.ProditionsService.alignedTracker.useDb: true
 services.ProditionsService.trackerStatus.Settings.useDb: true
