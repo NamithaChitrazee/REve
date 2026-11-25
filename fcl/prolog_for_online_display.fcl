@@ -1,4 +1,6 @@
 # prolog_for_online_display
+# NOTE: this prolog is for SpillType 0 (extracted, no-beam) display only.
+# EWMProducer is configured with SpillType: 0 and RecoFromMCTruth: false.
 
 #include "Offline/fcl/standardServices.fcl"
 #include "EventDisplay/fcl/prolog.fcl"
@@ -6,6 +8,10 @@
 #include "Offline/CaloReco/fcl/prolog.fcl"
 #include "Offline/CaloCluster/fcl/prolog.fcl"
 #include "Offline/DAQ/fcl/prolog.fcl"
+#include "Offline/CommonMC/fcl/prolog.fcl"
+#include "Offline/TrkHitReco/fcl/prolog.fcl"
+#include "Offline/CosmicReco/fcl/prolog.fcl"
+#include "Offline/Mu2eKinKal/fcl/prolog.fcl"
 
 BEGIN_PROLOG
 
@@ -22,6 +28,16 @@ rawdisplay.producers :
   }
   CrvRecoPulses               : @local::CrvRecoPulses
   CrvCoincidenceClusterFinder : @local::CrvCoincidenceClusterFinder
+
+  ### Tracker reco producers ###
+  makeSD            : @local::DAQ.producers.makeSD
+  EWMProducer       : { @table::CommonMC.DigiProducers.EWMProducer
+                        SpillType        : 0
+                        RecoFromMCTruth  : false }
+  makeSH            : @local::TrkHitReco.producers.makeSH
+  SimpleTimeCluster : @local::CosmicReco.producers.SimpleTimeCluster
+  LineFinder        : @local::CosmicReco.producers.LineFinder
+  KKLine            : @local::Mu2eKinKal.producers.KKLine
 }
 
 ### EventDisplay analyzers and filters ###
@@ -34,21 +50,37 @@ rawdisplay.filters :
   @table::REveDis.filters
 }
 
-### Reco paths (CRV and Calo only, no tracker) ###
+### Reco paths ###
 
 rawdisplay.paths : {
 
 CRVRecoPath  : [ CrvDigi, CrvRecoPulses, CrvCoincidenceClusterFinder ]
 CaloRecoPath : [ CaloDigis, CaloRecoDigiMaker, CaloHitMaker, CaloProtoClusterMaker, CaloClusterMaker ]
+TrkRecoPath  : [ makeSD, EWMProducer, makeSH, SimpleTimeCluster, LineFinder, KKLine ]
 REveEndPath  : [ @sequence::REveDis.seqBase]
 }
 
 
-rawdisplay.trigger_paths : [ CRVRecoPath, CaloRecoPath ]
+rawdisplay.trigger_paths : [ CRVRecoPath, CaloRecoPath, TrkRecoPath ]
 rawdisplay.end_paths     : [ REveEndPath ]
 
 ### Calo config ###
 rawdisplay.producers.CaloRecoDigiMaker.caloDigiCollection : CaloDigis
 rawdisplay.producers.CaloRecoDigiMaker.UseProtonBunchTime : false
+
+### Tracker config (tunings from PassN/Tracker/TrkReco_epilog.fcl) ###
+rawdisplay.producers.makeSH.MinimumEnergy                            : 0.0006
+rawdisplay.producers.SimpleTimeCluster.minNStrawHits                 : 8
+rawdisplay.producers.SimpleTimeCluster.HitNonNoiseSelectionBits      : ["EnergySelection"]
+rawdisplay.producers.LineFinder.minPeak                              : 8
+rawdisplay.producers.LineFinder.NSteps                               : 5
+rawdisplay.producers.LineFinder.StepSize                             : 0.25
+rawdisplay.producers.KKLine.KKFitSettings.UseCaloCluster             : false
+rawdisplay.producers.KKLine.KKFitSettings.SkipStrawCheck             : true
+rawdisplay.producers.KKLine.KKFitSettings.AddStrawMinDz              : 1e-3
+rawdisplay.producers.KKLine.KKFitSettings.StrawNBuffer               : 3
+rawdisplay.producers.KKLine.ModuleSettings.ParameterConstraints      : [0.0,0.2,0.0,0.0,0.0,1e-4]
+rawdisplay.producers.KKLine.ModuleSettings.SampleTimeBuffer          : 10
+rawdisplay.producers.KKLine.KKFitSettings.MaxStrawUposBuffer         : 200
 
 END_PROLOG
