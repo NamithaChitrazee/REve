@@ -77,7 +77,6 @@ namespace mu2e {
         // cv_.wait() predicate guards against spurious wakeups.
         // Reset to false by analyze() after it wakes up.
         bool advance_requested_{false};
-        bool quit_requested_{false};
         
         /**
          * @brief Setter to store the unique REve Element ID after the object is added to the World.

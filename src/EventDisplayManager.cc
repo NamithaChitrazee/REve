@@ -49,13 +49,8 @@ void EventDisplayManager::NextEvent()
  */
 void EventDisplayManager::QuitRoot()
 {
-    std::cout << "QuitRoot requested, signalling art thread to exit..." << std::endl;
-    {
-        std::lock_guard<std::mutex> lock(*m_);
-        quit_requested_ = true;
-        advance_requested_ = true;
-    }
-    cv_->notify_all();
+    std::cout<<"Exit Signal 15, leaving REve Display "<<std::endl;
+    exit(15);
 }
 
 

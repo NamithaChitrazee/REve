@@ -2,7 +2,6 @@
 //Date: 2021
 //Purpose: Mu2eEventDisplay Driving module
 
-#include <csignal>
 #include "TRACE/trace.h"
 //Art:
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -449,10 +448,6 @@ void Mu2eEventDisplay::FillAnyCollection(const art::Event& evt, std::vector<std:
           } else {
             cv_.wait(lock, [this] { return eventMgr_ && eventMgr_->advance_requested_;});
             eventMgr_->advance_requested_=false;
-            if (eventMgr_->quit_requested_) {
-                lock.unlock();
-                raise(SIGTERM);
-            }
           }
 
           seqMode_ = true;
