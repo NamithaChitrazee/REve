@@ -10,6 +10,8 @@
 #include "Offline/DAQ/fcl/prolog.fcl"
 #include "Offline/CommonMC/fcl/prolog.fcl"
 #include "Offline/TrkHitReco/fcl/prolog.fcl"
+#include "Offline/TrkReco/fcl/prolog.fcl"
+#include "Offline/TrkPatRec/fcl/prolog.fcl"
 #include "Offline/CosmicReco/fcl/prolog.fcl"
 #include "Offline/Mu2eKinKal/fcl/prolog.fcl"
 
