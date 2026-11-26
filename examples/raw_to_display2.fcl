@@ -4,9 +4,10 @@ process_name : RecoDisplay
 source : { module_type : RootInput }
 services : @local::Services.Reco
 services.GeometryService.inputFile  : "Offline/Mu2eG4/geom/geom_common_extracted_v06.txt"
-services.RandomNumberGenerator      : { defaultEngineKind: "MixMaxRng" }
-services.SeedService                : @local::automaticSeeds
-services.SeedService.baseSeed       : 8
+services.RandomNumberGenerator                    : { defaultEngineKind: "MixMaxRng" }
+services.SeedService                              : @local::automaticSeeds
+services.SeedService.baseSeed                     : 8
+services.ProditionsService.trackerPanelMap.useDb  : true
 
 physics: {
     producers: @local::rawdisplay.producers
